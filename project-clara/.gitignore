@@ -36,7 +36,8 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-app-example
+# commenting this out so we can keep the example files, we can remove them later
+#app-example
 
 # generated native folders
 /ios

@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 
 import { Colors } from "@/constants/theme";
@@ -26,30 +27,45 @@ export default function ParentTabLayout() {
                 options={{
                     title: "Messages",
                     tabBarLabel: "Messages",
+                    tabBarIcon: ({color, focused}) => (
+                        <Ionicons name = {focused ? 'chatbubble-ellipses' : 'chatbubble-ellipses-outline'} color = {color} size={24} />
+                    ),
             }} />
             <Tabs.Screen
                 name="live-updates"
                 options={{
                     title: "Live Updates",
                     tabBarLabel: "Live Updates",
+                    tabBarIcon: ({color, focused}) => (
+                        <Ionicons name = {focused ? 'map' : 'map-outline'} color={color} size={24} />
+                    )
             }} />
             <Tabs.Screen
                 name="index"
                 options={{
                     title: "Home",
                     tabBarLabel: "Home",
+                    tabBarIcon: ({color, focused}) => (
+                        <Ionicons name = {focused ? 'home' : 'home-outline'} color = {color} size={24} />
+                    ),
             }} />
             <Tabs.Screen
                 name="general-info"
                 options={{
                     title: "General Student Info",
                     tabBarLabel: "Student Info",
+                    tabBarIcon: ({color, focused}) => (
+                        <Ionicons name = {focused ? 'bag-handle' : 'bag-handle-outline'} color = {color} size={24} />
+                    ),
             }} />
             <Tabs.Screen
                 name="hamburger"
                 options={{
                     title: "And More...",
                     tabBarLabel: "More",
+                    tabBarIcon: ({color, focused}) => (
+                        <Ionicons name = {focused ? 'ellipsis-horizontal-sharp' : 'ellipsis-horizontal-outline'} color = {color} size={24} />
+                    ),
             }} />
         </Tabs>
     )

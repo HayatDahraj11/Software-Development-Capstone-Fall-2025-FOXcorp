@@ -18,6 +18,11 @@ export default function Index() {
       <Pressable style={styles.pressable}>
         <Text style={styles.pressableLabel}>Admin View</Text>
       </Pressable>
+      <Link href="/_login" asChild>
+        <Pressable style={styles.pressable}>
+          <Text style={styles.pressableLabel}>Login Screen</Text>
+        </Pressable>
+      </Link>
     </View>
   );
 }

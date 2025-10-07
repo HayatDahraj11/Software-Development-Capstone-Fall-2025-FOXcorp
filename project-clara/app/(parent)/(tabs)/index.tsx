@@ -1,21 +1,102 @@
-import { useRouter } from "expo-router";
-import { StyleSheet, View } from "react-native";
+import { Href, useRouter } from "expo-router";
+import { StyleSheet, View, FlatList } from "react-native";
 
 import Card from "@/components/Card";
+import { Colors } from "@/constants/theme";
 
 export default function Index() {
     const router = useRouter();
-    
-    const onCardPress = () => {
-        {/* test function with preset link, real cards will have link dynamically provided */}
-        router.push("/(parent)/(tabs)/live-updates");
-    };
 
+    // list used for making cards with the flat view. this will be done dynamically later
+    const CardFlatListData = [
+        {
+            id: 1,
+            header: 'Clickable Test Card',
+            preview: 'Hello! Click me bruh! I send you to live updates!',
+            route: '/(parent)/(tabs)/live-updates',
+        },
+        {
+            id: 2,
+            header: 'Clickable Test Card',
+            preview: 'Hello! Click me bruh! I send you to messages!',
+            route: '/(parent)/(tabs)/messaging',
+        },
+        {
+            id: 3,
+            header: 'Test Card',
+            preview: 'I am not clickable!',
+            route: ' ',
+        },
+        {
+            id: 4,
+            header: 'Test Card',
+            preview: 'I am not clickable!',
+            route: ' ',
+        },
+        {
+            id: 5,
+            header: 'Test Card',
+            preview: 'I am not clickable!',
+            route: ' ',
+        },
+        {
+            id: 6,
+            header: 'Test Card',
+            preview: 'I am not clickable!',
+            route: ' ',
+        },
+        {
+            id: 7,
+            header: 'Test Card',
+            preview: 'I am not clickable!',
+            route: ' ',
+        },
+        {
+            id: 8,
+            header: 'Test Card',
+            preview: 'I am not clickable!',
+            route: ' ',
+        },
+        {
+            id: 9,
+            header: 'Test Card',
+            preview: 'I am not clickable!',
+            route: ' ',
+        },
+        {
+            id: 10,
+            header: 'Test Card',
+            preview: 'I am not clickable!',
+            route: ' ',
+        },
+        {
+            id: 11,
+            header: 'Test Card',
+            preview: 'I am not clickable!',
+            route: ' ',
+        },
+    ];
+
+    const RouteCard = (route: string): void => {
+        // if card has a route, use it. if not, ignore it
+        if(route !== " ") { 
+            router.push( (route) as Href );
+        }
+        else { }
+    };
 
     return (
         <View style={styles.container}>
-            <Card header="Clickable Test Card" preview="Hello! I am testing this forever!! AAAAAAAAAAAA AHH AHH AHH IM BURNING" onPress={onCardPress}/>
-            <Card header="Test Card" preview="Hello! I am testing this forever!! AAAAAAAwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwAAAAA AHH AHH AHH IM BURNING"/>
+            <FlatList
+                data={CardFlatListData}
+                renderItem={({item, index}) => (
+                    <Card 
+                        header={item.header}
+                        preview={item.preview}
+                        onPress={() => RouteCard(item.route)}
+                    />
+                )}
+            />
         </View>
     );
 }

@@ -9,8 +9,9 @@ import { Colors } from "@/constants/theme";
 type Props = {
     header: string;
     preview: string;
-    onPress?: () => void; 
+    onPress: () => void; 
     urgent?: boolean;
+
 };
 
 
@@ -41,7 +42,7 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.light.background,
         borderRadius: 10,
         padding: 15,
-        margin: 10,
+        margin: 8,
         flexDirection: 'column',
         justifyContent: 'flex-start',
         overflow: 'hidden',

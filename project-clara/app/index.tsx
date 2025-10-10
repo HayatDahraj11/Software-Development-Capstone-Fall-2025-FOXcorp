@@ -12,9 +12,11 @@ export default function Index() {
           <Text style={styles.pressableLabel}>Parent View</Text>
         </Pressable>
       </Link>
+      <Link href="/(teacher)" asChild>
       <Pressable style={styles.pressable}>
         <Text style={styles.pressableLabel}>Teacher View</Text>
       </Pressable>
+      </Link>
       <Pressable style={styles.pressable}>
         <Text style={styles.pressableLabel}>Admin View</Text>
       </Pressable>

@@ -8,6 +8,7 @@ export default function RootLayout() {
       <Stack>
         <Stack.Screen name="index" options={{title: "Jump to View"}}/>
         <Stack.Screen name="(parent)" options={{headerShown: false}}/>
+        <Stack.Screen name="(teacher)" options={{headerShown: false}}/>
         <Stack.Screen name="_login" options={{headerShown: false}}/>
       </Stack>
       <StatusBar style="auto"/>

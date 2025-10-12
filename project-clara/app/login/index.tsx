@@ -1,3 +1,4 @@
+import { loginApi, type LoginResponse } from "../api/login";
 import { useState } from "react";
 import {
     StyleSheet,
@@ -45,14 +46,14 @@ export default function Login() {
         setIsLoading(true);
         setErrors({});
 
-        setTimeout(() => {
-            if (email.toLowerCase() === 'parent@test.com' && password === 'password123') {
-                router.replace('/(parent)'); 
-            } else {
-                setErrors({ form: "Invalid email or password. Please try again." });
-            }
-            setIsLoading(false);
-        }, 2000);
+        loginApi({ email, password }).then((response: LoginResponse) => {
+    if (response.success) {
+        router.replace('/(parent)/(tabs)');
+    } else {
+        setErrors({ form: response.message });
+    }
+    setIsLoading(false);
+});
     };
 
     return (

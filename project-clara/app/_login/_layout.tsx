@@ -6,7 +6,7 @@ export default function RootLayout() {
   return (
     <>
       <Stack>
-        <Stack.Screen name="index" options={{title: "Login Placeholder"}}/>
+        <Stack.Screen name="index" options={{title: "Login"}}/>
       </Stack>
       <StatusBar style="auto"/>
     </>

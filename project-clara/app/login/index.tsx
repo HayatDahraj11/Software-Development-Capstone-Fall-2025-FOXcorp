@@ -9,14 +9,16 @@ import {
     TouchableOpacity
 } from "react-native";
 import { Feather } from '@expo/vector-icons';
+import { useRouter } from "expo-router";
 
 import { Colors } from "@/constants/theme";
 
 export default function Login() {
+    const router = useRouter();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+    const [errors, setErrors] = useState<{ email?: string; password?: string; form?: string }>({});
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
     const validate = () => {
@@ -37,12 +39,18 @@ export default function Login() {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleLogin = () => {
+   const handleLogin = () => {
         if (!validate()) return;
 
         setIsLoading(true);
+        setErrors({});
+
         setTimeout(() => {
-            console.log('Login successful! Email:', email);
+            if (email.toLowerCase() === 'parent@test.com' && password === 'password123') {
+                router.replace('/(parent)'); 
+            } else {
+                setErrors({ form: "Invalid email or password. Please try again." });
+            }
             setIsLoading(false);
         }, 2000);
     };
@@ -83,6 +91,8 @@ export default function Login() {
                 </TouchableOpacity>
             </View>
             {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
+            
+            {errors.form && <Text style={styles.formErrorText}>{errors.form}</Text>}
 
             <Pressable
                 style={[styles.pressable, isLoading && styles.pressableDisabled]}
@@ -97,7 +107,7 @@ export default function Login() {
             </Pressable>
         </View>
     );
-}
+} // <-- This closing brace was missing
 
 const styles = StyleSheet.create({
     container: {
@@ -141,6 +151,12 @@ const styles = StyleSheet.create({
         color: 'red',
         marginBottom: 10,
         marginLeft: 5,
+    },
+    formErrorText: {
+        color: 'red',
+        textAlign: 'center',
+        marginTop: 10,
+        marginBottom: 5,
     },
     pressable: {
         width: '100%',

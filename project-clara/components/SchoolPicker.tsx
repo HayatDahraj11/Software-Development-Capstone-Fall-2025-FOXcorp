@@ -1,7 +1,8 @@
-import { Modal, View, Text, Pressable, StyleSheet, FlatList } from "react-native";
+import { Modal, View, Text, Pressable, StyleSheet, FlatList, TextInput } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 import { Colors } from "@/constants/theme";
+import { useEffect, useState } from "react";
 
 type Props = {
     isVisible: boolean;
@@ -9,13 +10,33 @@ type Props = {
     onSelect: (school: string) => void;
 };
 
-export default function SchoolPicker({isVisible, onCloseModal, onSelect}: Props) {
-    // below is a temporary predetermined data array for sample school choices
-    const SchoolFlatListTempData = [
-        { schoolName: "University of North Texas" },
-        { schoolName: "Texas Woman's University" },
-    ];
+// below is a temporary predetermined data array for sample school choices
+const SchoolFlatListTempData = [
+    { schoolName: "University of North Texas" },
+    { schoolName: "Texas Woman's University" },
+    { schoolName: "Pecan Creek Elementary" },
+    { schoolName: "Vancouver the city" },
+];
 
+
+export default function SchoolPicker({isVisible, onCloseModal, onSelect}: Props) {
+    // states for searchability in the list
+    // made with help from gemini
+    const [search, setSearch] = useState<string>('');
+    const [filteredList, setFilteredList] = useState(SchoolFlatListTempData);
+    const [fullList, setFullList] = useState(SchoolFlatListTempData)
+
+    useEffect(() => {
+        if(search === '') {
+            setFilteredList(SchoolFlatListTempData); // show full flatlist dataset if no search entered
+        } else {
+            const lowerCaseSearch = search.toLowerCase();
+            const newFilteredData = SchoolFlatListTempData.filter(item => 
+                item.schoolName.toLowerCase().includes(lowerCaseSearch)
+            );
+            setFilteredList(newFilteredData);
+        }
+    }, [search, fullList])
 
     return (
         <View>
@@ -28,9 +49,19 @@ export default function SchoolPicker({isVisible, onCloseModal, onSelect}: Props)
                                 <Ionicons name={"close-circle-outline"} color={Colors.light.icon} size={22} />
                             </Pressable>
                         </View>
+                        <View style={styles.inputContainer}>
+                            <TextInput
+                                style={styles.input}
+                                value={search}
+                                onChangeText={setSearch}
+                                placeholder="Enter School Name..."
+                                autoCapitalize="none"
+                                spellCheck={false}
+                            />
+                        </View>
                         <View style={styles.listContainer}>
                             <FlatList
-                                data={SchoolFlatListTempData}
+                                data={filteredList}
                                 renderItem={({item}) => (
                                     <Pressable
                                         style={styles.listItem}
@@ -60,7 +91,6 @@ const styles = StyleSheet.create ({
     modalContent: {
         height: '90%',
         width: '100%',
-        borderRadius: 30,
         position: 'absolute',
         bottom: 0, 
         backgroundColor: '#F7F8FA',
@@ -106,9 +136,9 @@ const styles = StyleSheet.create ({
         width: '100%',
         height: 56,
         backgroundColor: '#FFFFFF',
-        borderRadius: 12,
+        borderBottomLeftRadius: 12,
+        borderBottomRightRadius: 12,
         paddingHorizontal: 16,
-        marginTop: 16,
         borderWidth: 1,
         borderColor: '#E4E7EB',
     },

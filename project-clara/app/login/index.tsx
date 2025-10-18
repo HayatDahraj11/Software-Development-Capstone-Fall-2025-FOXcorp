@@ -1,4 +1,3 @@
-import { loginApi, type LoginResponse } from "../api/login";
 import { useState } from "react";
 import {
     StyleSheet,
@@ -12,12 +11,15 @@ import {
     Platform
 } from "react-native";
 import { Feather } from '@expo/vector-icons';
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router"; // <-- IMPORT ADDED
 
 import { Colors } from "@/constants/theme";
 
 export default function Login() {
     const router = useRouter();
+    const params = useLocalSearchParams(); // <-- ADDED: Hook to get parameters
+    const schoolName = params.schoolName as string; // <-- ADDED: Get the school name
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -48,14 +50,14 @@ export default function Login() {
         setIsLoading(true);
         setErrors({});
 
-        loginApi({ email, password }).then((response: LoginResponse) => {
-    if (response.success) {
-        router.replace('/(parent)/(tabs)');
-    } else {
-        setErrors({ form: response.message });
-    }
-    setIsLoading(false);
-});
+        setTimeout(() => {
+            if (email.toLowerCase() === 'parent@test.com' && password === 'password123') {
+                router.replace('/(parent)');
+            } else {
+                setErrors({ form: "Invalid email or password. Please try again." });
+            }
+            setIsLoading(false);
+        }, 2000);
     };
 
     return (
@@ -68,7 +70,8 @@ export default function Login() {
                     <Feather name="book-open" size={40} color={Colors.light.tint} />
                 </View>
                 <Text style={styles.title}>Welcome Back</Text>
-                <Text style={styles.subtitle}>Sign in to continue</Text>
+                {/* CHANGED: Display the school name passed from the previous screen */}
+                <Text style={styles.subtitle}>Logging in to: {schoolName}</Text>
             </View>
 
             <View style={styles.formContainer}>

@@ -22,6 +22,13 @@ export default function ParentTabLayout() {
                 },
             }}
         >
+            <Tabs.Screen 
+                name="index"
+                options={{
+                    headerShown: false,
+                    href: null, // hiding tab from tab bar
+                }}
+            />
             <Tabs.Screen
                 name="messaging"
                 options={{
@@ -41,7 +48,7 @@ export default function ParentTabLayout() {
                     )
             }} />
             <Tabs.Screen
-                name="index"
+                name="home"
                 options={{
                     title: "Home",
                     tabBarLabel: "Home",

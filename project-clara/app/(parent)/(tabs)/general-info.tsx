@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { useRouter, Href } from "expo-router";
 
 // children dictionaries, which store key: value information about each child of the parent who is logged on
 // intended to be provided by database later, hardcoded for now
@@ -32,10 +33,20 @@ const guardianUser = {
 }
 
 export default function ParentGeneralInfoScreen() {
+  const router = useRouter();
+  const RouteCard = (route: string): void => {
+      // if card has a route, use it. if not, ignore it
+      if(route !== " ") { 
+          router.push( (route) as Href );
+      }
+      else { }
+  };
 
   // this holds which child of the parent's is currently being displayed
   const [childSelected, setChildSelected] = useState(guardianUser.children[0]);
 
+  // when linking to the doc pages, access the [studentId] folder using param: {studentId: childSelected.studentId}
+  // you can also pass the student object as a param, { student = childSelected }
   return (
     <View style={styles.container}>
       <Text>This is a placeholder!</Text>

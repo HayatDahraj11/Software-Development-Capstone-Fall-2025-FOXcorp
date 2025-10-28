@@ -1,27 +1,28 @@
+import { Feather } from '@expo/vector-icons';
+import { useLocalSearchParams, useRouter } from "expo-router"; // <-- IMPORT ADDED
 import { useState } from "react";
 import {
-    StyleSheet,
-    TextInput,
-    View,
-    Pressable,
-    Text,
     ActivityIndicator,
-    TouchableOpacity,
     KeyboardAvoidingView,
-    Platform
+    Platform,
+    Pressable,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
-import { Feather } from '@expo/vector-icons';
-import { useRouter, useLocalSearchParams } from "expo-router"; // <-- IMPORT ADDED
 
 import { Colors } from "@/constants/theme";
 
-export default function Login() {
+export default function Signup() {
     const router = useRouter();
     const params = useLocalSearchParams(); // <-- ADDED: Hook to get parameters
     const schoolName = params.schoolName as string; // <-- ADDED: Get the school name
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [errors, setErrors] = useState<{ email?: string; password?: string; form?: string }>({});
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -39,6 +40,9 @@ export default function Login() {
         if (!password.trim()) {
             newErrors.password = "Password is required.";
         }
+        if (password.trim() && (!confirmPassword.trim() || confirmPassword !== password)) {
+            newErrors.password = "Passwords must be the same"
+        }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -51,11 +55,9 @@ export default function Login() {
         setErrors({});
 
         setTimeout(() => {
-            if (email.toLowerCase() === 'parent@test.com' && password === 'password123') {
-                router.replace('/(parent)/(tabs)/home');
-            } else {
-                setErrors({ form: "Invalid email or password. Please try again." });
-            }
+            
+            setErrors({ form: "Email/Password combo sent saved in 'email' and 'password' states." });
+            console.log("email: ",email,"password: ",password)
             setIsLoading(false);
         }, 2000);
     };
@@ -71,7 +73,7 @@ export default function Login() {
                 </View>
                 <Text style={styles.title}>Welcome Back</Text>
                 {/* CHANGED: Display the school name passed from the previous screen */}
-                <Text style={styles.subtitle}>Logging in to: {schoolName}</Text>
+                <Text style={styles.subtitle}>Signing up to: {schoolName}</Text>
             </View>
 
             <View style={styles.formContainer}>
@@ -97,6 +99,22 @@ export default function Login() {
                         value={password}
                         onChangeText={setPassword}
                         placeholder="Enter Password..."
+                        secureTextEntry={!isPasswordVisible}
+                        autoCapitalize="none"
+                        spellCheck={false}
+                        onBlur={validate}
+                    />
+                    <TouchableOpacity onPress={() => setIsPasswordVisible(!isPasswordVisible)} style={styles.eyeIcon}>
+                        <Feather name={isPasswordVisible ? "eye-off" : "eye"} size={20} color="#888" />
+                    </TouchableOpacity>
+                </View>
+                <View style={styles.inputContainer}>
+                    <Feather name="lock" size={20} color="#888" style={styles.icon} />
+                    <TextInput
+                        style={styles.input}
+                        value={confirmPassword}
+                        onChangeText={setConfirmPassword}
+                        placeholder="Re-enter Password..."
                         secureTextEntry={!isPasswordVisible}
                         autoCapitalize="none"
                         spellCheck={false}

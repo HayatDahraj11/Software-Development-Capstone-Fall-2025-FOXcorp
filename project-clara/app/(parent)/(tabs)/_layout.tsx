@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Tabs } from "expo-router";
+import { Tabs, Stack } from "expo-router";
 
 import { Colors } from "@/constants/theme";
 
@@ -74,6 +74,13 @@ export default function ParentTabLayout() {
                         <Ionicons name = {focused ? 'ellipsis-horizontal-sharp' : 'ellipsis-horizontal-outline'} color = {color} size={24} />
                     ),
             }} />
+            <Tabs.Screen 
+                name="[studentId]"
+                options={{
+                    headerShown: false,
+                    href: null, // hiding tab from tab bar
+                }}
+            />
         </Tabs>
     )
 }

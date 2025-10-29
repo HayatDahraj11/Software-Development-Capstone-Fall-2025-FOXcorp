@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, ScrollView } from "react-native";
 import { useRouter, Href } from "expo-router";
+
+import Card from "@/components/Card";
 
 // children dictionaries, which store key: value information about each child of the parent who is logged on
 // intended to be provided by database later, hardcoded for now
@@ -11,6 +13,7 @@ const firstChildInfoDictionary = {
   lastName: "Incredible",
   dob: "temp",
   classes: ["English", "Maths", "Mario"],
+  attendanceRate: 100,
 }
 const secondChildInfoDictionary = {
   studentId: "124",
@@ -18,6 +21,7 @@ const secondChildInfoDictionary = {
   lastName: "Incredible",
   dob: "temp",
   classes: ["History", "Maths"],
+  attendanceRate: 89,
 }
 
 // user info dictionary, or, all info about the parent that should be readily accessible
@@ -34,13 +38,38 @@ const guardianUser = {
 
 export default function ParentGeneralInfoScreen() {
   const router = useRouter();
+
   const RouteCard = (route: string): void => {
       // if card has a route, use it. if not, ignore it
-      if(route !== " ") { 
-          router.push( (route) as Href );
+      if(route === "studentSchedule") { 
+        router.push({ 
+          pathname: '/(parent)/(tabs)/[studentId]/studentSchedule',
+          params: {studentId: (childSelected.studentId)},
+        });
+      } else if(route === "studentRecords") {
+        router.push({ 
+          pathname: '/(parent)/(tabs)/[studentId]/studentRecords',
+          params: {studentId: (childSelected.studentId)},
+        });
+      } else if(route === "studentDocumentation") {
+        router.push({ 
+          pathname: '/(parent)/(tabs)/[studentId]/studentDocumentation',
+          params: {studentId: (childSelected.studentId)},
+        });
       }
       else { }
   };
+
+  const scheduleListCreation = (classes: string[]): string => {
+    let superstring = ``
+    for (let i = 0; i<classes.length; i++) {
+      superstring = superstring + (i+1) + `) ` + classes.at(i);
+      if(i<(classes.length-1)) {
+        superstring = superstring + '\n'
+      }
+    }
+    return superstring;
+  }
 
   // this holds which child of the parent's is currently being displayed
   const [childSelected, setChildSelected] = useState(guardianUser.children[0]);
@@ -49,7 +78,23 @@ export default function ParentGeneralInfoScreen() {
   // you can also pass the student object as a param, { student = childSelected }
   return (
     <View style={styles.container}>
-      <Text>This is a placeholder!</Text>
+      <ScrollView>
+        <Card
+          header="Schedule"
+          preview={scheduleListCreation(childSelected.classes)}
+          onPress={() => RouteCard("studentSchedule")}
+        />
+        <Card
+          header="Records"
+          preview={`Your child has ${childSelected.attendanceRate}% attendance and is up to date with all medical records`} // bug, this says undefined?
+          onPress={() => RouteCard("studentRecords")}
+        />
+        <Card
+          header="Documentation"
+          preview={"Emergency contacts, behavioral records, teacher notes, and other related details found here"}
+          onPress={() => RouteCard("studentDocumentation")}
+        />
+      </ScrollView>
     </View>
   );
 }

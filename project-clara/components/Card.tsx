@@ -34,11 +34,18 @@ export default function Card({header, preview, onPress, theme, urgent}: Props) {
        return (
             <View style={styles.listItem}>
                 <Pressable onPress={onPress}>
-                    {urgent ? (
-                        <Text style={styles.listText}>
-                            <Text style={styles.listUrgentHeader}>{header}{'\n'}</Text>
-                            <Text style={styles.listUrgentPreview}>{preview}</Text>
-                        </Text>
+                    {preview !== "" ? (
+                        urgent ? (
+                            <Text style={styles.listText}>
+                                <Text style={styles.listText}>{header}{'\n'}</Text>
+                                <Text style={styles.listPreviewUrgentText}>{preview}</Text>
+                            </Text>
+                        ) : (
+                            <Text style={styles.listText}>
+                                <Text style={styles.listText}>{header}{"\n"}</Text>
+                                <Text style={styles.listPreviewTest}>{preview}</Text>
+                            </Text>
+                        )
                     ) : (
                         <Text style={styles.listText}>{header}</Text>
                     )}
@@ -75,34 +82,6 @@ const styles = StyleSheet.create({
     // the "list" card style, a smaller container meant to be displayed in a compact list
     listItem: { 
         flex: 1/8,
-        paddingBottom: 10,
-    },
-    listText: {
-        fontSize: 16,
-        padding: 4,
-        borderWidth: 1,
-        borderRadius: 3,
-        borderLeftColor: 'rgba(0,0,0,0)',
-        borderRightColor: 'rgba(0,0,0,0)',
-        borderBottomColor: 'rgba(29, 41, 57, 0.25)',
-        borderTopColor: 'rgba(29, 41, 57, 0.25)',
-        color: '#1D2939',
-        textAlign: 'left',
-    },
-    listUrgentHeader: {
-        fontSize: 16,
-        padding: 4,
-        borderWidth: 1,
-        borderRadius: 3,
-        borderLeftColor: 'rgba(0,0,0,0)',
-        borderRightColor: 'rgba(0,0,0,0)',
-        borderBottomColor: 'rgba(29, 41, 57, 0)',
-        borderTopColor: 'rgba(29, 41, 57, 0.25)',
-        color: '#1D2939',
-        textAlign: 'left',
-    },
-    listUrgentPreview: {
-        fontSize: 16,
         padding: 4,
         borderWidth: 1,
         borderRadius: 3,
@@ -110,6 +89,25 @@ const styles = StyleSheet.create({
         borderRightColor: 'rgba(0,0,0,0)',
         borderBottomColor: 'rgba(29, 41, 57, 0.25)',
         borderTopColor: 'rgba(29, 41, 57, 0)',
+    },
+    listText: {
+        fontSize: 16,
+        fontWeight: "bold",
+        padding: 3,
+        color: '#1D2939',
+        textAlign: 'left',
+    },
+    listPreviewTest: {
+        fontSize: 14,
+        fontWeight: "normal",
+        padding: 3,
+        color: '#1D2939',
+        textAlign: 'left',
+    },
+    listPreviewUrgentText: {
+        fontSize: 14,
+        fontWeight: "normal",
+        padding: 3,
         color: '#ec5557ff',
         textAlign: 'left',
     }

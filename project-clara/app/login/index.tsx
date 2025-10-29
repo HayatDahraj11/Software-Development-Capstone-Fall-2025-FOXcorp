@@ -1,3 +1,4 @@
+import { signIn } from 'aws-amplify/auth';
 import { useState } from "react";
 import {
     StyleSheet,
@@ -44,20 +45,25 @@ export default function Login() {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleLogin = () => {
+    const handleLogin = async () => {
         if (!validate()) return;
 
         setIsLoading(true);
         setErrors({});
 
-        setTimeout(() => {
-            if (email.toLowerCase() === 'parent@test.com' && password === 'password123') {
-                router.replace('/(parent)');
-            } else {
-                setErrors({ form: "Invalid email or password. Please try again." });
-            }
+        try {
+            // Amplify v6 modular API
+            const user = await signIn({ username: email, password });
+            // success — navigate to parent area
+            router.replace('/(parent)/(tabs)/home');
+        } catch (err: any) {
+            console.error('Sign in error', err);
+            // Basic error mapping
+            const message = err?.message ?? 'Login failed';
+            setErrors({ form: message });
+        } finally {
             setIsLoading(false);
-        }, 2000);
+        }
     };
 
     return (

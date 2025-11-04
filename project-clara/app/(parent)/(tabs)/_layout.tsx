@@ -4,9 +4,7 @@ import { Tabs } from "expo-router";
 import { Colors } from "@/constants/theme";
 
 export default function ParentTabLayout() {
-    {/* tabs are shown in the bottom bar
-        tab pages are located within the same folder as this _layout file
-        index is always the default first page loaded */}
+    {}
 
     return (
         <Tabs

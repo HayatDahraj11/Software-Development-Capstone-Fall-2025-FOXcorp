@@ -1,8 +1,11 @@
 import { useState } from "react";
-import { StyleSheet, Text, View, ScrollView } from "react-native";
+import { StyleSheet, Text, View, ScrollView, Pressable } from "react-native";
 import { useRouter, Href } from "expo-router";
 
 import Card from "@/components/Card";
+import { Colors } from "@/constants/theme";
+import { MaterialIcons } from "@expo/vector-icons";
+import Parent_ChildPicker from "@/components/Parent_ChildPicker";
 
 // children dictionaries, which store key: value information about each child of the parent who is logged on
 // intended to be provided by database later, hardcoded for now
@@ -74,10 +77,37 @@ export default function ParentGeneralInfoScreen() {
   // this holds which child of the parent's is currently being displayed
   const [childSelected, setChildSelected] = useState(guardianUser.children[0]);
 
+  // modal controller states
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+
+  const onChildSelected = (id: string) => {
+    let foundKid = guardianUser.children.find(item => item.studentId === id);
+    if(foundKid) {
+      foundKid = {
+        studentId: foundKid?.studentId,
+        firstName: foundKid?.firstName,
+        lastName: foundKid?.lastName,
+        dob: foundKid?.dob,
+        classes: foundKid?.classes,
+        attendanceRate: foundKid?.attendanceRate
+      }
+      setChildSelected(foundKid);
+    } else {
+      console.log("Somehow, a kid was selected that didn't exist. onChildSelected()")
+    }
+
+  };
+
   // when linking to the doc pages, access the [studentId] folder using param: {studentId: childSelected.studentId}
   // you can also pass the student object as a param, { student = childSelected }
   return (
     <View style={styles.container}>
+      <View style={styles.headerContainer}>
+        <Pressable style={styles.dropdownContainer} onPress={() => setIsModalVisible(true)}>
+          <MaterialIcons name={"keyboard-arrow-down"} size={22} color={Colors.light.icon}/>
+          <Text style={styles.dropdownLabel}>{childSelected.firstName}</Text>
+        </Pressable>
+      </View>
       <ScrollView>
         <Card
           header="Schedule"
@@ -95,6 +125,14 @@ export default function ParentGeneralInfoScreen() {
           onPress={() => RouteCard("studentDocumentation")}
         />
       </ScrollView>
+
+      <Parent_ChildPicker 
+        isVisible={isModalVisible}
+        onCloseModal={() => setIsModalVisible(false)}
+        studentNames={guardianUser.children.map((item) => item.firstName)}
+        studentIds={guardianUser.children.map((item) => item.studentId)}
+        onSelect={onChildSelected}
+      />
     </View>
   );
 }
@@ -102,5 +140,27 @@ export default function ParentGeneralInfoScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  headerContainer: {
+    flex: 1/10,
+    alignContent: 'flex-start',
+    justifyContent: 'center',
+    flexDirection: 'column',
+  },
+  dropdownContainer: {
+      flexDirection: 'row',
+      width: '20%',
+      height: '80%',
+      backgroundColor: '#d4d4d4ff',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: 10,
+      marginHorizontal: 20,
+      shadowColor: Colors.light.tabIconDefault,
+  },
+  dropdownLabel: {
+      color: Colors.light.text,
+      fontSize: 14,
+      fontWeight: '600',
   },
 });

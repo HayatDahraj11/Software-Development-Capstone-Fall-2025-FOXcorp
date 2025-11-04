@@ -104,9 +104,5 @@ export default function ParentHomeScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        alignContent: 'flex-start',
-        alignItems: 'center',
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
     },
 });

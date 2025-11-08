@@ -10,33 +10,55 @@ type Props = {
     header: string;
     preview: string;
     onPress: () => void; 
+    theme?: string;
     urgent?: boolean;
 
 };
 
 
-export default function Card({header, preview, onPress, urgent}: Props) {
-    
-    if(onPress) { 
+export default function Card({header, preview, onPress, theme, urgent}: Props) {
+    // default card style
+    if(!theme) {
         return (
-        <View style={styles.card}>
-            <Pressable onPress={onPress}>
-                <Text style={styles.header}>{header}</Text>
-                <Text style={styles.preview}>{preview}</Text>
-            </Pressable>
-        </View>
-    )
+            <View style={styles.card}>
+                <Pressable onPress={onPress}>
+                    <Text style={styles.header}>{header}</Text>
+                    <Text style={styles.preview}>{preview}</Text>
+                </Pressable>
+            </View>
+        )
+    } 
+    // a card which displays as a short, one-line item in a list
+    // does not need a preview, will display it only if urgent
+    else if(theme === "list") {
+       return (
+            <View style={styles.listItem}>
+                <Pressable onPress={onPress}>
+                    {preview !== "" ? (
+                        urgent ? (
+                            <Text style={styles.listText}>
+                                <Text style={styles.listText}>{header}{'\n'}</Text>
+                                <Text style={styles.listPreviewUrgentText}>{preview}</Text>
+                            </Text>
+                        ) : (
+                            <Text style={styles.listText}>
+                                <Text style={styles.listText}>{header}{"\n"}</Text>
+                                <Text style={styles.listPreviewTest}>{preview}</Text>
+                            </Text>
+                        )
+                    ) : (
+                        <Text style={styles.listText}>{header}</Text>
+                    )}
+                </Pressable>
+            </View>
+       )
+       
     }
-    return (
-        <View style={styles.card}>
-            <Text style={styles.header}>{header}</Text>
-            <Text style={styles.preview}>{preview}</Text>
-        </View>
-    )
 }
 
 
 const styles = StyleSheet.create({
+    // the default card style, a roundrect container
     card: {
         flex: 1/6,
         backgroundColor: Colors.light.background,
@@ -56,4 +78,37 @@ const styles = StyleSheet.create({
         color: Colors.light.text,
         fontSize: 16,
     },
+
+    // the "list" card style, a smaller container meant to be displayed in a compact list
+    listItem: { 
+        flex: 1/8,
+        padding: 4,
+        borderWidth: 1,
+        borderRadius: 3,
+        borderLeftColor: 'rgba(0,0,0,0)',
+        borderRightColor: 'rgba(0,0,0,0)',
+        borderBottomColor: 'rgba(29, 41, 57, 0.25)',
+        borderTopColor: 'rgba(29, 41, 57, 0)',
+    },
+    listText: {
+        fontSize: 16,
+        fontWeight: "bold",
+        padding: 3,
+        color: '#1D2939',
+        textAlign: 'left',
+    },
+    listPreviewTest: {
+        fontSize: 14,
+        fontWeight: "normal",
+        padding: 3,
+        color: '#1D2939',
+        textAlign: 'left',
+    },
+    listPreviewUrgentText: {
+        fontSize: 14,
+        fontWeight: "normal",
+        padding: 3,
+        color: '#ec5557ff',
+        textAlign: 'left',
+    }
 })

@@ -1,3 +1,4 @@
+import { signIn } from 'aws-amplify/auth';
 import { useState } from "react";
 import {
     StyleSheet,
@@ -11,30 +12,34 @@ import {
     Platform
 } from "react-native";
 import { Feather } from '@expo/vector-icons';
-import { useRouter, useLocalSearchParams } from "expo-router"; // <-- IMPORT ADDED
+import { useRouter, useLocalSearchParams } from "expo-router";
 
 import { Colors } from "@/constants/theme";
 
 export default function Login() {
     const router = useRouter();
-    const params = useLocalSearchParams(); // <-- ADDED: Hook to get parameters
-    const schoolName = params.schoolName as string; // <-- ADDED: Get the school name
+    const params = useLocalSearchParams();
+    const schoolName = params.schoolName as string;
 
-    const [email, setEmail] = useState('');
+    
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    
+
     const [isLoading, setIsLoading] = useState(false);
-    const [errors, setErrors] = useState<{ email?: string; password?: string; form?: string }>({});
+    
+    const [errors, setErrors] = useState<{ username?: string; password?: string; form?: string }>({});
+   
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
+    
     const validate = () => {
-        const newErrors: { email?: string; password?: string } = {};
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const newErrors: { username?: string; password?: string } = {};
 
-        if (!email.trim()) {
-            newErrors.email = "Email address is required.";
-        } else if (!emailRegex.test(email)) {
-            newErrors.email = "Please enter a valid email address.";
+        if (!username.trim()) {
+            newErrors.username = "Username is required."; // Updated message
         }
+        // Removed email regex check
 
         if (!password.trim()) {
             newErrors.password = "Password is required.";
@@ -43,26 +48,32 @@ export default function Login() {
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
+    
 
-    const handleLogin = () => {
+   
+    const handleLogin = async () => {
         if (!validate()) return;
 
         setIsLoading(true);
         setErrors({});
 
-        setTimeout(() => {
-            if (email.toLowerCase() === 'parent@test.com' && password === 'password123') {
-                router.replace('/(parent)');
-            } else {
-                setErrors({ form: "Invalid email or password. Please try again." });
-            }
+        try {
+            // Pass the username state to signIn
+            const user = await signIn({ username: username, password });
+            router.replace('/(parent)/(tabs)'); // Navigate on success
+        } catch (err: any) {
+            console.error('Sign in error', err);
+            const message = err?.message ?? 'Login failed';
+            setErrors({ form: message });
+        } finally {
             setIsLoading(false);
-        }, 2000);
+        }
     };
+    
 
     return (
-        <KeyboardAvoidingView 
-            behavior={Platform.OS === "ios" ? "padding" : "height"} 
+        <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
             style={styles.container}
         >
             <View style={styles.headerContainer}>
@@ -70,25 +81,27 @@ export default function Login() {
                     <Feather name="book-open" size={40} color={Colors.light.tint} />
                 </View>
                 <Text style={styles.title}>Welcome Back</Text>
-                {/* CHANGED: Display the school name passed from the previous screen */}
                 <Text style={styles.subtitle}>Logging in to: {schoolName}</Text>
             </View>
 
             <View style={styles.formContainer}>
+                {/* --- Updated Username Input --- */}
                 <View style={styles.inputContainer}>
-                    <Feather name="mail" size={20} color="#888" style={styles.icon} />
+                    <Feather name="user" size={20} color="#888" style={styles.icon} /> {/* Changed Icon */}
                     <TextInput
                         style={styles.input}
-                        value={email}
-                        onChangeText={setEmail}
-                        placeholder="Enter Email Address..."
-                        keyboardType="email-address"
+                        value={username} // Updated value
+                        onChangeText={setUsername} // Updated setter
+                        placeholder="Enter Username..." // Updated placeholder
+                        keyboardType="default" // Changed keyboardType
                         autoCapitalize="none"
                         spellCheck={false}
                         onBlur={validate}
                     />
                 </View>
-                {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+                {/* Updated error display */}
+                {errors.username && <Text style={styles.errorText}>{errors.username}</Text>}
+                {/* --- End Updated --- */}
 
                 <View style={styles.inputContainer}>
                     <Feather name="lock" size={20} color="#888" style={styles.icon} />
@@ -107,7 +120,7 @@ export default function Login() {
                     </TouchableOpacity>
                 </View>
                 {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
-                
+
                 {errors.form && <Text style={styles.formErrorText}>{errors.form}</Text>}
 
                 <Pressable
@@ -129,6 +142,7 @@ export default function Login() {
         </KeyboardAvoidingView>
     );
 }
+
 
 const styles = StyleSheet.create({
     container: {

@@ -140,6 +140,7 @@ export default function ParentGeneralInfoScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.light.background,
   },
   headerContainer: {
     flex: 1/10,

@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     // the default card style, a roundrect container
     card: {
         flex: 1/6,
-        backgroundColor: Colors.light.background,
+        backgroundColor: '#f5f5f5ff',
         borderRadius: 10,
         padding: 15,
         margin: 8,

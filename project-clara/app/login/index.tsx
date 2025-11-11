@@ -62,6 +62,15 @@ export default function Login() {
             const user = await signIn({ username: username, password });
             router.replace('/(parent)/(tabs)'); // Navigate on success
         } catch (err: any) {
+            // backdoor logins with placeholder info for testing
+            // only works on development builds
+            if(__DEV__) {
+                if(username === "parent_debug" && password === "debug") {
+                    router.replace('/(parent)/(tabs)');
+                } else if(username === "teacher_debug" && password === "debug") {
+                    router.replace('/(teacher)')
+                }
+            }
             console.error('Sign in error', err);
             const message = err?.message ?? 'Login failed';
             setErrors({ form: message });

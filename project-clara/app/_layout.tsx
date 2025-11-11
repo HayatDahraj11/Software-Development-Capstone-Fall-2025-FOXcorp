@@ -25,7 +25,7 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={colorScheme === "light" ? DarkTheme : DefaultTheme}>
       <Stack>
         {}
         <Stack.Screen name="index" options={{ headerShown: false }} />
@@ -33,7 +33,7 @@ export default function RootLayout() {
         <Stack.Screen name="(parent)" options={{ headerShown: false }} />
         <Stack.Screen name="(teacher)" options={{ headerShown: false }} />
       </Stack>
-      <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+      <StatusBar style={colorScheme === "light" ? "light" : "dark"} />
     </ThemeProvider>
   );
 }

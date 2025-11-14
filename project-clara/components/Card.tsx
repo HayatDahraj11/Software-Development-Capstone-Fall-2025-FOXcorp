@@ -17,20 +17,9 @@ type Props = {
 
 
 export default function Card({header, preview, onPress, theme, urgent}: Props) {
-    // default card style
-    if(!theme) {
-        return (
-            <View style={styles.card}>
-                <Pressable onPress={onPress}>
-                    <Text style={styles.header}>{header}</Text>
-                    <Text style={styles.preview}>{preview}</Text>
-                </Pressable>
-            </View>
-        )
-    } 
     // a card which displays as a short, one-line item in a list
     // does not need a preview, will display it only if urgent
-    else if(theme === "list") {
+    if(theme === "list") {
        return (
             <View style={styles.listItem}>
                 <Pressable onPress={onPress}>
@@ -54,6 +43,23 @@ export default function Card({header, preview, onPress, theme, urgent}: Props) {
        )
        
     }
+    // default card theme
+    else {
+        return (
+            <View style={styles.card}>
+                <Pressable onPress={onPress}>
+                    {preview !== "" ? (
+                        <Text>
+                            <Text style={styles.header}>{header}{'\n'}</Text>
+                            <Text style={styles.preview}>{preview}</Text>
+                        </Text>
+                    ) : (
+                        <Text style={styles.header}>{header}</Text>
+                    )}
+                </Pressable>
+            </View>
+        )
+    }
 }
 
 
@@ -76,6 +82,7 @@ const styles = StyleSheet.create({
     },
     preview: {
         color: Colors.light.text,
+        fontWeight: 'normal',
         fontSize: 16,
     },
 

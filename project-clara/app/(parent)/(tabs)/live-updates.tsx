@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { StyleSheet, Text, View, Pressable, FlatList } from "react-native";
 import { useRouter, Href } from "expo-router";
 
@@ -61,7 +61,6 @@ export default function ParentLiveUpdatesScreen() {
 
   // modal controller states
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-
   const onChildSelected = (id: string) => {
     let foundKid = debug_parent.guardianUser.children.find(item => item.studentId === id);
     if(foundKid) {
@@ -80,8 +79,21 @@ export default function ParentLiveUpdatesScreen() {
 
   };
 
-  // when linking to the doc pages, access the [studentId] folder using param: {studentId: childSelected.studentId}
-  // you can also pass the student object as a param, { student = childSelected }
+  // states for filtering the flatlist by kid
+  // made with help from gemini
+  const [filteredList, setFilteredList] = useState(CardFlatListData);
+  const [fullList, setFullList] = useState(CardFlatListData)
+
+  useEffect(() => {
+    // when childSelected is changed, this will parse through the card list and select ones with matching studentIds
+    for(let i = 0; i<CardFlatListData.length; i++) {
+      const newFilteredData = CardFlatListData.filter(item => 
+        item.child.studentId.match(childSelected.studentId)
+      );
+      setFilteredList(newFilteredData);
+    }
+  }, [childSelected, fullList])
+
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
@@ -93,7 +105,7 @@ export default function ParentLiveUpdatesScreen() {
       {/* visual bug: dropdown container size inconsistent with general-info appearance */}
       <View style={styles.flatListContainer}>
         <FlatList
-            data={CardFlatListData}
+            data={filteredList}
             renderItem={({item}) => (
                 <Card 
                     header={item.header}

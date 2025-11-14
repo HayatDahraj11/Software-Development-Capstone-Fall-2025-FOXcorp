@@ -8,8 +8,6 @@ import { Colors } from "@/constants/theme";
 import { MaterialIcons } from "@expo/vector-icons";
 import Parent_ChildPicker from "@/components/Parent_ChildPicker";
 
-
-
 export default function ParentGeneralInfoScreen() {
   const router = useRouter();
 

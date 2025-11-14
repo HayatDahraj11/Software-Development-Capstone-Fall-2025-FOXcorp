@@ -1,10 +1,116 @@
-import { StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import { StyleSheet, Text, View, Pressable, FlatList } from "react-native";
+import { useRouter, Href } from "expo-router";
 
-export default function LiveUpdatesScreen() {
+import Card from "@/components/Card";
+import { debug_parent, debug_kids } from "@/constants/debug_parent_data";
+import { Colors } from "@/constants/theme";
+import { MaterialIcons } from "@expo/vector-icons";
+import Parent_ChildPicker from "@/components/Parent_ChildPicker";
 
+// list used for making cards with the flat view. this will be done dynamically later
+const CardFlatListData = [
+    {
+      id: 1,
+      child: debug_kids.firstChildInfoDictionary,
+      header: `${debug_kids.firstChildInfoDictionary.firstName} is in ${debug_kids.firstChildInfoDictionary.classes[0]} with [teacherName] until [classEndTime]!`,
+      preview: `They have a test this friday!`,
+      route: ' ',
+      urgent: true,
+    },
+    {
+      id: 2,
+      child: debug_kids.secondChildInfoDictionary,
+      header: `${debug_kids.secondChildInfoDictionary.firstName} is in ${debug_kids.secondChildInfoDictionary.classes[0]} with [teacherName] until [classEndTime]!`,
+      preview: 'They have a 100%',
+      route: ' ',
+      urgent: true,
+    },
+    {
+      id: 3,
+      child: debug_kids.firstChildInfoDictionary,
+      header: `Your child has had perfect attendance today. 0 tardies!`,
+      preview: ``,
+      route: ' ',
+    },
+    {
+      id: 4,
+      child: debug_kids.secondChildInfoDictionary,
+      header: `[teacherName] sent out an Announcement from [className]!`,
+      preview: `Dear parents, your child has a book report due next Tuesday.`,
+      route: ' ',
+      urgent: true
+    }
+];
+
+export default function ParentLiveUpdatesScreen() {
+
+
+  const router = useRouter();
+
+  const RouteCard = (route: string): void => {
+        // if card has a route, use it. if not, ignore it
+        if(route !== " ") { 
+            router.push( (route) as Href );
+        }
+        else { }
+  };
+
+  // this holds which child of the parent's is currently being displayed
+  const [childSelected, setChildSelected] = useState(debug_parent.guardianUser.children[0]);
+
+  // modal controller states
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+
+  const onChildSelected = (id: string) => {
+    let foundKid = debug_parent.guardianUser.children.find(item => item.studentId === id);
+    if(foundKid) {
+      foundKid = {
+        studentId: foundKid?.studentId,
+        firstName: foundKid?.firstName,
+        lastName: foundKid?.lastName,
+        dob: foundKid?.dob,
+        classes: foundKid?.classes,
+        attendanceRate: foundKid?.attendanceRate
+      }
+      setChildSelected(foundKid);
+    } else {
+      console.log("Somehow, a kid was selected that didn't exist. onChildSelected()")
+    }
+
+  };
+
+  // when linking to the doc pages, access the [studentId] folder using param: {studentId: childSelected.studentId}
+  // you can also pass the student object as a param, { student = childSelected }
   return (
     <View style={styles.container}>
-      <Text>This is a placeholder!</Text>
+      <View style={styles.headerContainer}>
+        <Pressable style={styles.dropdownContainer} onPress={() => setIsModalVisible(true)}>
+          <MaterialIcons name={"keyboard-arrow-down"} size={22} color={Colors.light.icon}/>
+          <Text style={styles.dropdownLabel}>{childSelected.firstName}</Text>
+        </Pressable>
+      </View>
+      {/* visual bug: dropdown container size inconsistent with general-info appearance */}
+      <View style={styles.flatListContainer}>
+        <FlatList
+            data={CardFlatListData}
+            renderItem={({item}) => (
+                <Card 
+                    header={item.header}
+                    preview={item.preview}
+                    onPress={() => RouteCard(item.route)}
+                />
+            )}
+        />
+      </View>
+
+      <Parent_ChildPicker 
+        isVisible={isModalVisible}
+        onCloseModal={() => setIsModalVisible(false)}
+        studentNames={debug_parent.guardianUser.children.map((item) => item.firstName)}
+        studentIds={debug_parent.guardianUser.children.map((item) => item.studentId)}
+        onSelect={onChildSelected}
+      />
     </View>
   );
 }
@@ -12,5 +118,30 @@ export default function LiveUpdatesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.light.background,
   },
+  headerContainer: {
+    flex: 1/10,
+    alignContent: 'flex-start',
+    justifyContent: 'center',
+    flexDirection: 'column',
+  },
+  dropdownContainer: {
+      flexDirection: 'row',
+      width: '20%',
+      height: '80%',
+      backgroundColor: '#d4d4d4ff',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: 10,
+      marginHorizontal: 20,
+      shadowColor: Colors.light.tabIconDefault,
+  },
+  dropdownLabel: {
+      color: Colors.light.text,
+      fontSize: 14,
+      fontWeight: '600',
+  },
+  flatListContainer: {
+  }
 });

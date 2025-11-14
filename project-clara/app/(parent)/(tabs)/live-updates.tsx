@@ -74,9 +74,21 @@ export default function ParentLiveUpdatesScreen() {
       }
       setChildSelected(foundKid);
     } else {
-      console.log("Somehow, a kid was selected that didn't exist. onChildSelected()")
+      if(id === "0") {
+        const lilbro = {
+          studentId: "0",
+          firstName: "Everyone",
+          lastName: "displayall",
+          dob: "displayall",
+          classes: ["displayall"],
+          attendanceRate: -1
+        }
+        setChildSelected(lilbro)
+      }
+      else {
+        console.log("Somehow, a kid was selected that didn't exist. onChildSelected()")
+      }
     }
-
   };
 
   // states for filtering the flatlist by kid
@@ -85,13 +97,20 @@ export default function ParentLiveUpdatesScreen() {
   const [fullList, setFullList] = useState(CardFlatListData)
 
   useEffect(() => {
-    // when childSelected is changed, this will parse through the card list and select ones with matching studentIds
-    for(let i = 0; i<CardFlatListData.length; i++) {
-      const newFilteredData = CardFlatListData.filter(item => 
-        item.child.studentId.match(childSelected.studentId)
-      );
-      setFilteredList(newFilteredData);
+    // if "Display All" is selected
+    if(childSelected.studentId === '0') {
+      setFilteredList(CardFlatListData); // then display all the cards available
     }
+    else {
+      // when childSelected is changed, this will parse through the card list and select ones with matching studentIds
+      for(let i = 0; i<CardFlatListData.length; i++) {
+        const newFilteredData = CardFlatListData.filter(item => 
+          item.child.studentId.match(childSelected.studentId)
+        );
+        setFilteredList(newFilteredData);
+      }
+    }
+    
   }, [childSelected, fullList])
 
   return (
@@ -122,6 +141,7 @@ export default function ParentLiveUpdatesScreen() {
         studentNames={debug_parent.guardianUser.children.map((item) => item.firstName)}
         studentIds={debug_parent.guardianUser.children.map((item) => item.studentId)}
         onSelect={onChildSelected}
+        allowAll={true}
       />
     </View>
   );

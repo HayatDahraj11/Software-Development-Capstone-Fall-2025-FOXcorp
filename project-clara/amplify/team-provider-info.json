@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-projectclara-dev-732bb-authRole",
+      "UnauthRoleArn": "arn:aws:iam::730335471611:role/amplify-projectclara-dev-732bb-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::730335471611:role/amplify-projectclara-dev-732bb-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-projectclara-dev-732bb-deployment",
+      "UnauthRoleName": "amplify-projectclara-dev-732bb-unauthRole",
+      "StackName": "amplify-projectclara-dev-732bb",
+      "StackId": "arn:aws:cloudformation:us-east-1:730335471611:stack/amplify-projectclara-dev-732bb/645a9320-c4a9-11f0-bb1b-0afffbf791af",
+      "AmplifyAppId": "dnft3ignj8kkv"
+    },
+    "categories": {
+      "api": {
+        "projectclara": {}
+      }
+    }
+  }
+}

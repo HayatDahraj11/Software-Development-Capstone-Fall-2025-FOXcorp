@@ -48,13 +48,38 @@ export default function Card({header, preview, onPress, theme, urgent}: Props) {
         return (
             <View style={styles.card}>
                 <Pressable onPress={onPress}>
-                    {preview !== "" ? (
+                    {preview !== "" ? ( 
+                            // cards without preview text
+                        urgent ? ( 
+                                // if "urgent" is true
+                            <View style={styles.urgentContainer}>
+                                <View style={styles.urgentFlag}></View>
+                                <Text>
+                                    <Text style={styles.header}>{header}{'\n'}</Text>
+                                    <Text style={styles.preview}>{preview}</Text>
+                                </Text>
+                            </View>
+                        ) : ( 
+                            // if "urgent" is false/undef
                         <Text>
                             <Text style={styles.header}>{header}{'\n'}</Text>
                             <Text style={styles.preview}>{preview}</Text>
                         </Text>
-                    ) : (
-                        <Text style={styles.header}>{header}</Text>
+                        )
+                    ) : ( 
+                        // cards with preview text
+                        urgent ? ( 
+                                // if "urgent" is true
+                            <View style={styles.urgentContainer}>
+                                <View style={styles.urgentFlag}></View>
+                                <Text>
+                                    <Text style={styles.header}>{header}</Text>
+                                </Text>
+                            </View>
+                        ) : ( 
+                                // if "urgent" is false/undef
+                            <Text style={styles.header}>{header}</Text>
+                        )
                     )}
                 </Pressable>
             </View>
@@ -84,6 +109,17 @@ const styles = StyleSheet.create({
         color: Colors.light.text,
         fontWeight: 'normal',
         fontSize: 16,
+    },
+    urgentContainer: {
+        flexDirection: 'row',
+        marginHorizontal: -18,
+    },
+    urgentFlag: {
+        width: '2%',
+        height: '100%',
+        marginRight: 8,
+        borderRadius: 20,
+        backgroundColor: '#ff0000',
     },
 
     // the "list" card style, a smaller container meant to be displayed in a compact list

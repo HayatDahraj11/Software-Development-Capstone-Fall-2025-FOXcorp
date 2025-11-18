@@ -29,15 +29,23 @@ const CardFlatListData = [
     {
       id: 3,
       child: debug_kids.firstChildInfoDictionary,
-      header: `Your child has had perfect attendance today. 0 tardies!`,
+      header: `${debug_kids.firstChildInfoDictionary.firstName} has had perfect attendance today. 0 tardies!`,
       preview: ``,
       route: ' ',
     },
     {
       id: 4,
       child: debug_kids.secondChildInfoDictionary,
-      header: `[teacherName] sent out an Announcement from [className]!`,
+      header: `[teacherName] sent out an Announcement from ${debug_kids.secondChildInfoDictionary.classes[0]}!`,
       preview: `Dear parents, your child has a book report due next Tuesday.`,
+      route: ' ',
+      urgent: true
+    },
+    {
+      id: 5,
+      child: debug_kids.secondChildInfoDictionary,
+      header: `${debug_kids.secondChildInfoDictionary.firstName} has a test in ${debug_kids.secondChildInfoDictionary.classes[0]} on Friday, 11/21!`,
+      preview: ``,
       route: ' ',
       urgent: true
     }
@@ -130,6 +138,7 @@ export default function ParentLiveUpdatesScreen() {
                     header={item.header}
                     preview={item.preview}
                     onPress={() => RouteCard(item.route)}
+                    urgent={item.urgent}
                 />
             )}
         />

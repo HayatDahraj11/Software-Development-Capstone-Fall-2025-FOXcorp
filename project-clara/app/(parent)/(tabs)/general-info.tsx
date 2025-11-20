@@ -3,41 +3,10 @@ import { StyleSheet, Text, View, ScrollView, Pressable } from "react-native";
 import { useRouter, Href } from "expo-router";
 
 import Card from "@/components/Card";
+import { debug_parent, debug_kids } from "@/constants/debug_parent_data";
 import { Colors } from "@/constants/theme";
 import { MaterialIcons } from "@expo/vector-icons";
 import Parent_ChildPicker from "@/components/Parent_ChildPicker";
-
-// children dictionaries, which store key: value information about each child of the parent who is logged on
-// intended to be provided by database later, hardcoded for now
-// in the relational database, the student's information will be within their own objects, and the user's information will point to the students they have access to
-const firstChildInfoDictionary = {
-  studentId: "123",
-  firstName: "Darcey",
-  lastName: "Incredible",
-  dob: "temp",
-  classes: ["English", "Maths", "Mario"],
-  attendanceRate: 100,
-}
-const secondChildInfoDictionary = {
-  studentId: "124",
-  firstName: "Daan",
-  lastName: "Incredible",
-  dob: "temp",
-  classes: ["History", "Maths"],
-  attendanceRate: 89,
-}
-
-// user info dictionary, or, all info about the parent that should be readily accessible
-// childern key holds array of dictionaries for each child
-const guardianUser = {
-  userId: "12",
-  guardianId: "12",
-  canEditRecords: true,
-  children: [firstChildInfoDictionary, secondChildInfoDictionary],
-  updateStudentInfo : function(studentId: string) {
-    console.log("updateStudentInfo called but this function is not made yet! sorry!")
-  }
-}
 
 export default function ParentGeneralInfoScreen() {
   const router = useRouter();
@@ -75,13 +44,13 @@ export default function ParentGeneralInfoScreen() {
   }
 
   // this holds which child of the parent's is currently being displayed
-  const [childSelected, setChildSelected] = useState(guardianUser.children[0]);
+  const [childSelected, setChildSelected] = useState(debug_parent.guardianUser.children[0]);
 
   // modal controller states
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
   const onChildSelected = (id: string) => {
-    let foundKid = guardianUser.children.find(item => item.studentId === id);
+    let foundKid = debug_parent.guardianUser.children.find(item => item.studentId === id);
     if(foundKid) {
       foundKid = {
         studentId: foundKid?.studentId,
@@ -129,8 +98,8 @@ export default function ParentGeneralInfoScreen() {
       <Parent_ChildPicker 
         isVisible={isModalVisible}
         onCloseModal={() => setIsModalVisible(false)}
-        studentNames={guardianUser.children.map((item) => item.firstName)}
-        studentIds={guardianUser.children.map((item) => item.studentId)}
+        studentNames={debug_parent.guardianUser.children.map((item) => item.firstName)}
+        studentIds={debug_parent.guardianUser.children.map((item) => item.studentId)}
         onSelect={onChildSelected}
       />
     </View>

@@ -17,20 +17,9 @@ type Props = {
 
 
 export default function Card({header, preview, onPress, theme, urgent}: Props) {
-    // default card style
-    if(!theme) {
-        return (
-            <View style={styles.card}>
-                <Pressable onPress={onPress}>
-                    <Text style={styles.header}>{header}</Text>
-                    <Text style={styles.preview}>{preview}</Text>
-                </Pressable>
-            </View>
-        )
-    } 
     // a card which displays as a short, one-line item in a list
     // does not need a preview, will display it only if urgent
-    else if(theme === "list") {
+    if(theme === "list") {
        return (
             <View style={styles.listItem}>
                 <Pressable onPress={onPress}>
@@ -54,6 +43,48 @@ export default function Card({header, preview, onPress, theme, urgent}: Props) {
        )
        
     }
+    // default card theme
+    else {
+        return (
+            <View style={styles.card}>
+                <Pressable onPress={onPress}>
+                    {preview !== "" ? ( 
+                            // cards without preview text
+                        urgent ? ( 
+                                // if "urgent" is true
+                            <View style={styles.urgentContainer}>
+                                <View style={styles.urgentFlag}></View>
+                                <Text>
+                                    <Text style={styles.header}>{header}{'\n'}</Text>
+                                    <Text style={styles.preview}>{preview}</Text>
+                                </Text>
+                            </View>
+                        ) : ( 
+                            // if "urgent" is false/undef
+                        <Text>
+                            <Text style={styles.header}>{header}{'\n'}</Text>
+                            <Text style={styles.preview}>{preview}</Text>
+                        </Text>
+                        )
+                    ) : ( 
+                        // cards with preview text
+                        urgent ? ( 
+                                // if "urgent" is true
+                            <View style={styles.urgentContainer}>
+                                <View style={styles.urgentFlag}></View>
+                                <Text>
+                                    <Text style={styles.header}>{header}</Text>
+                                </Text>
+                            </View>
+                        ) : ( 
+                                // if "urgent" is false/undef
+                            <Text style={styles.header}>{header}</Text>
+                        )
+                    )}
+                </Pressable>
+            </View>
+        )
+    }
 }
 
 
@@ -76,7 +107,19 @@ const styles = StyleSheet.create({
     },
     preview: {
         color: Colors.light.text,
+        fontWeight: 'normal',
         fontSize: 16,
+    },
+    urgentContainer: {
+        flexDirection: 'row',
+        marginHorizontal: -18,
+    },
+    urgentFlag: {
+        width: '2%',
+        height: '100%',
+        marginRight: 8,
+        borderRadius: 20,
+        backgroundColor: '#ff0000',
     },
 
     // the "list" card style, a smaller container meant to be displayed in a compact list

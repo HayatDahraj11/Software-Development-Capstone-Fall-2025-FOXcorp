@@ -2,7 +2,6 @@ import { Modal, View, Text, Pressable, StyleSheet, FlatList, TextInput } from "r
 import { Ionicons } from "@expo/vector-icons";
 
 import { Colors } from "@/constants/theme";
-import { useEffect, useState } from "react";
 
 type Props = {
     isVisible: boolean;
@@ -10,16 +9,28 @@ type Props = {
     studentNames: string[];
     studentIds: string[];
     onSelect: (selection: string) => void;
+    allowAll?: boolean // do we allow all children to be displayed at once?
 };
 
 
-export default function Parent_ChildPicker({isVisible, onCloseModal, studentNames, studentIds, onSelect}: Props) {
+export default function Parent_ChildPicker({isVisible, onCloseModal, studentNames, studentIds, onSelect, allowAll}: Props) {
     let children = [];
     for (let i = 0; i<studentNames.length; i++) {
       children.push({
         studentName: studentNames[i],
         studentId: studentIds[i],
       })
+    }
+    // Display All will, when selected, allow the displaying of all childrens' cards within whatever space is desired
+    // It is optional, and the functionality after selected it will be handled by whoever calls it
+    // Display All has a studentId of '0', which indicates a "Display All" selection
+    if(allowAll) {
+        children.reverse()
+        children.push({
+            studentName: 'Display All',
+            studentId: '0'
+        })
+        children.reverse()
     }
 
     return (

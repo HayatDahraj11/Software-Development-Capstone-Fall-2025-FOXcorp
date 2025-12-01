@@ -1,15 +1,8 @@
-import { Modal, View, Text, Pressable, StyleSheet, FlatList, TextInput, ActivityIndicator } from "react-native";
+import { Modal, View, Text, Pressable, StyleSheet, FlatList, TextInput } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+
 import { Colors } from "@/constants/theme";
 import { useEffect, useState } from "react";
-
-// --- AWS Imports ---
-import { generateClient } from 'aws-amplify/api';
-import { listSchools } from '@/src/graphql/queries';
-import awsconfig from "@/src/aws-exports"; // Import config for debugging
-// -------------------
-
-const client = generateClient();
 
 type Props = {
     isVisible: boolean;
@@ -17,70 +10,33 @@ type Props = {
     onSelect: (school: string) => void;
 };
 
-// Define the shape of a School object
-type SchoolItem = {
-    id: string;
-    name: string;
-    address?: string | null;
-};
+// below is a temporary predetermined data array for sample school choices
+const SchoolFlatListTempData = [
+    { schoolName: "University of North Texas" },
+    { schoolName: "Texas Woman's University" },
+    { schoolName: "Pecan Creek Elementary" },
+    { schoolName: "Vancouver the city" },
+];
+
 
 export default function SchoolPicker({isVisible, onCloseModal, onSelect}: Props) {
+    // states for searchability in the list
+    // made with help from gemini
     const [search, setSearch] = useState<string>('');
-    
-    // Store the real list from the database
-    const [fullList, setFullList] = useState<SchoolItem[]>([]);
-    // Store the list currently being shown (filtered)
-    const [filteredList, setFilteredList] = useState<SchoolItem[]>([]);
-    
-    const [loading, setLoading] = useState(true);
+    const [filteredList, setFilteredList] = useState(SchoolFlatListTempData);
+    const [fullList, setFullList] = useState(SchoolFlatListTempData)
 
-    // --- Fetch Data from AWS ---
-    useEffect(() => {
-        fetchSchools();
-    }, []);
-
-    async function fetchSchools() {
-        console.log("🚀 ATTEMPTING TO FETCH SCHOOLS...");
-        try {
-            // Debug: Check if the client is configured with the right API Key
-            console.log("🔑 Config API Key:", awsconfig.aws_appsync_apiKey ? "EXISTS" : "MISSING"); 
-            console.log("🌐 Config Endpoint:", awsconfig.aws_appsync_graphqlEndpoint); 
-
-            const schoolData = await client.graphql({ query: listSchools });
-            
-            // LOG THE EXACT DATA WE GOT BACK
-            console.log("📦 Raw AWS Response:", JSON.stringify(schoolData, null, 2));
-            
-            const schools = schoolData.data.listSchools.items;
-            console.log(`🏫 Number of schools found: ${schools.length}`);
-            
-            // Sort alphabetically for better UX
-            schools.sort((a: any, b: any) => a.name.localeCompare(b.name));
-
-            setFullList(schools);
-            setFilteredList(schools);
-            setLoading(false);
-        } catch (err) {
-            // LOG THE ERROR
-            console.error("❌ FATAL ERROR fetching schools:", err);
-            console.error("Error Details:", JSON.stringify(err, null, 2));
-            setLoading(false);
-        }
-    }
-    // ---------------------------
-
-    // Handle Search Filtering
     useEffect(() => {
         if(search === '') {
-            setFilteredList(fullList);
+            setFilteredList(SchoolFlatListTempData); // show full flatlist dataset if no search entered
         } else {
             const lowerCaseSearch = search.toLowerCase();
-            const newFilteredData = fullList.filter(item => 
-                item.name.toLowerCase().includes(lowerCaseSearch)
+            const newFilteredData = SchoolFlatListTempData.filter(item => 
+                item.schoolName.toLowerCase().includes(lowerCaseSearch)
             );
             setFilteredList(newFilteredData);
         }
-    }, [search, fullList]);
+    }, [search, fullList])
 
     return (
         <View>
@@ -104,24 +60,19 @@ export default function SchoolPicker({isVisible, onCloseModal, onSelect}: Props)
                             />
                         </View>
                         <View style={styles.listContainer}>
-                            {loading ? (
-                                <ActivityIndicator size="large" color={Colors.light.tint} style={{ marginTop: 20 }} />
-                            ) : (
-                                <FlatList
-                                    data={filteredList}
-                                    keyExtractor={(item) => item.id} // Use the real ID as key
-                                    renderItem={({item}) => (
-                                        <Pressable
-                                            style={styles.listItem}
-                                            onPress={() => {
-                                                onSelect(item.name); // Pass the school name back
-                                                onCloseModal();
-                                        }}>
-                                            <Text style={styles.listText}>{item.name}</Text>    
-                                        </Pressable>
-                                    )}
-                                />
-                            )}
+                            <FlatList
+                                data={filteredList}
+                                renderItem={({item}) => (
+                                    <Pressable
+                                        style={styles.listItem}
+                                        onPress={() => {
+                                            onSelect(item.schoolName);
+                                            onCloseModal();
+                                    }}>
+                                        <Text style={styles.listText}>{item.schoolName}</Text>    
+                                    </Pressable>
+                                )}
+                            />
                         </View>
                     </View>
                 </View>
@@ -162,18 +113,20 @@ const styles = StyleSheet.create ({
         paddingHorizontal: 20,
         justifyContent: 'center',
         marginTop: 10,
-        flex: 1, // Ensure list takes available space
     },
     listItem: {
+        flex: 1/8,
         paddingBottom: 10,
     },
     listText: {
         fontSize: 16,
-        padding: 12, // Increased padding for easier tapping
+        padding: 4,
         borderWidth: 1,
         borderRadius: 3,
-        borderColor: 'rgba(29, 41, 57, 0.25)', 
-        backgroundColor: '#fff', 
+        borderLeftColor: 'rgba(0,0,0,0)',
+        borderRightColor: 'rgba(0,0,0,0)',
+        borderBottomColor: 'rgba(29, 41, 57, 0.25)',
+        borderTopColor: 'rgba(29, 41, 57, 0.25)',
         color: '#1D2939',
         textAlign: 'left',
     },
@@ -195,4 +148,4 @@ const styles = StyleSheet.create ({
         fontSize: 16,
         color: '#1D2939',
     },
-});
+})

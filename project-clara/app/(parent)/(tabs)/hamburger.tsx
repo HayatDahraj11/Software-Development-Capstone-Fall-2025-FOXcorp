@@ -1,13 +1,46 @@
 import { useState } from "react";
-import { StyleSheet, Text, View, ScrollView, Pressable } from "react-native";
+import { StyleSheet, Text, View, ScrollView, Pressable, Alert } from "react-native";
 import { useRouter, Href } from "expo-router";
+import { MaterialIcons } from "@expo/vector-icons";
+import { getCurrentUser, signOut } from "aws-amplify/auth";
 
 import Card from "@/components/Card";
+import { useParentLoginContext } from "@/context/ParentLoginContext";
 import { Colors } from "@/constants/theme";
-import { MaterialIcons } from "@expo/vector-icons";
+
+async function AWSSignOut() {
+  try {
+    await signOut();
+    console.log("AWS Signout sent and received");
+    return true
+  } catch(error) {
+    console.log("AWS Signout sent and failed: ",{error})
+    return false
+  }
+}
 
 export default function ParentHamburgerScreen() {
+  const { isDebug } = useParentLoginContext();
   const router = useRouter();
+  const logoutHandler = (): void => {
+    // if this is a debug session, i.e., not using AWS
+    if(isDebug) {
+      Alert.alert("Debug Logout","Debug Logout Successful!")
+      router.replace("/login/school-selection")
+    }
+    // if the user is logged in via aws
+    else {
+      Alert.alert("AWS Logout","AWS Logout attempted, trying to log out.")
+      AWSSignOut().then((success) => {
+        if(success) {
+          Alert.alert("AWS Logout","AWS Logout successful! Rerouting...")
+          router.replace("/login/school-selection")
+        } else {
+          console.log("AWS Signout failed. Sorry!")
+        }
+      })
+    }
+  };  
 
   const RouteCard = (route: string): void => {
       // if card has a route, use it. if not, ignore it
@@ -71,7 +104,7 @@ export default function ParentHamburgerScreen() {
             <Card
               header="Logout"
               preview=""
-              onPress={() => RouteCard("logout")}
+              onPress={() => logoutHandler()}
               theme="list"
               />
           </View>

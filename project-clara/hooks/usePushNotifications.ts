@@ -20,6 +20,31 @@ function ErrorHandler(error: string) {
     throw new Error(error);
 }
 
+// ------ local notification sender ------
+// function for local notifications, or, sending a push notification to yourself
+// can be built upon later for full customizability
+export async function sendPushNotification(expoPushToken: string) {
+    // the notification data
+    const message = {
+        to: expoPushToken,
+        sound: "default",
+        title: "Your Student has an update!",
+        body: "Tap here to see!",
+        data: {route: '/(parent)/(tabs)/live-updates'},
+    };
+
+    // the notification packet
+    await fetch('https://exp.host/--/api/v2/push/send', {
+        method: "POST",
+        headers: {
+            Accept: "application/json",
+            'Accept-encoding': 'gzip, deflate',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(message),
+    });
+}
+
 export const usePushNotifications = (): PushNotificationState => {
     
     // notification handler and params
@@ -96,32 +121,6 @@ export const usePushNotifications = (): PushNotificationState => {
         } else {
             ErrorHandler("Push Notifications require physical devices. Emulators do not work.")
         }
-    }
-
-    // ------ local notification sender ------
-
-    // function for local notifications, or, sending a push notification to yourself
-    // can be built upon later for full customizability
-    async function sendPushNotification(expoPushToken: string) {
-        // the notification data
-        const message = {
-            to: expoPushToken,
-            sound: "default",
-            title: "Your Student has an update!",
-            body: "Tap here to see!",
-            data: {route: '/(parent)/(tabs)/live-updates'},
-        };
-
-        // the notification packet
-        await fetch('https://exp.host/--/api/v2/push/send', {
-            method: "POST",
-            headers: {
-                Accept: "application/json",
-                'Accept-encoding': 'gzip, deflate',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(message),
-        });
     }
 
     // ------ notification handling ------

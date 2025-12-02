@@ -16,6 +16,10 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 
 import { Colors } from "@/constants/theme";
 
+import Checkbox from 'expo-checkbox';
+import { saveUsername, loadUsername, clearUsername } from '../../utils/storage';
+import { useEffect } from "react";
+
 export default function Login() {
     const router = useRouter();
     const params = useLocalSearchParams();
@@ -31,6 +35,21 @@ export default function Login() {
     const [errors, setErrors] = useState<{ username?: string; password?: string; form?: string }>({});
    
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+    const [rememberMe, setRememberMe] = useState(false);
+
+// Load saved username on component mount
+useEffect(() => {
+    const loadSavedUsername = async () => {
+        const saved = await loadUsername();
+        if (saved) {
+            setUsername(saved);
+            setRememberMe(true);
+        }
+    }
+    loadSavedUsername();
+}, []);
+
 
     
     const validate = () => {
@@ -60,6 +79,12 @@ export default function Login() {
         try {
             // Pass the username state to signIn
             const user = await signIn({ username: username, password });
+            // Save or clear username based on rememberMe
+    if (rememberMe) {
+        await saveUsername(username);
+    } else {
+        await clearUsername();
+    }
             router.replace('/(parent)/(tabs)'); // Navigate on success
         } catch (err: any) {
             // backdoor logins with placeholder info for testing
@@ -129,6 +154,18 @@ export default function Login() {
                     </TouchableOpacity>
                 </View>
                 {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
+
+<View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16 }}>
+    <Checkbox
+        value={rememberMe}
+        onValueChange={setRememberMe}
+        color={rememberMe ? Colors.light.tint : undefined}
+    />
+    <Text style={{ marginLeft: 8, fontSize: 16, color: '#1D2939' }}>
+        Remember Me
+    </Text>
+</View>
+
 
                 {errors.form && <Text style={styles.formErrorText}>{errors.form}</Text>}
 

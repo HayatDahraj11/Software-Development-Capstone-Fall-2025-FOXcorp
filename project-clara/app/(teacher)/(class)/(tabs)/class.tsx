@@ -1,6 +1,7 @@
 import { Href, useRouter } from "expo-router";
 import { Colors } from "@/constants/theme";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function ClassHome() {
 const router = useRouter();
@@ -8,7 +9,6 @@ const router = useRouter();
     <View style={[
         styles.container,
         {
-          // Try setting `flexDirection` to `"row"`.
           flexDirection: 'row',
           flexWrap: 'wrap',
           justifyContent: "center",
@@ -16,21 +16,27 @@ const router = useRouter();
       ]}>
       <Pressable style={[styles.grid, ]} onPress={() => router.push("/messaging")}> 
         <Text style={[styles.gridText]}>Messaging</Text>
+        <Ionicons name="chatbubble-ellipses-outline" size={32} color="black" />
       </Pressable>
       <Pressable  style={[styles.grid, ]} onPress={() => router.push("/announcements")}>
         <Text style={[styles.gridText]}>Announcements</Text>
+        <Ionicons name="megaphone-outline" size={32} color="black" />
       </Pressable>
       <Pressable  style={[styles.grid, ]} onPress={() => router.push("/attendance-list")}>
         <Text style={[styles.gridText]}>Roster</Text>
+        <Ionicons name="map-outline" size={32} color="black" />
       </Pressable>
       <Pressable  style={[styles.grid, ]} onPress={() => router.push("/attendance-map")}>
         <Text style={[styles.gridText]}>Map</Text>
+        <Ionicons name="map-outline" size={32} color="black" />
       </Pressable>
       <Pressable  style={[styles.grid, ]} onPress={() => router.push("/grades")}>
         <Text style={[styles.gridText]}>Grades</Text>
+        <Ionicons name="ellipsis-horizontal-outline" size={32} color="black" />
       </Pressable>
       <View  style={[styles.grid, ]}>
         <Text style={[styles.gridText]}>etc.</Text>
+        <Ionicons name="ellipsis-horizontal-outline" size={32} color="black" />
       </View>
     </View>
   );
@@ -45,11 +51,10 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
     borderWidth: 2,
     borderColor: "black",
-    flexDirection: "row",
+    flexDirection: "column",
     width: '40%',
     height: 120,
     margin: 10,
-    flexWrap: "wrap",
     justifyContent: "center",
     alignItems: "center",
     padding: 10,
@@ -60,7 +65,7 @@ const styles = StyleSheet.create({
     color: "black",
     textAlign: "center",
     flexShrink: 1,
-    textAlignVertical: "center",
+    
   },
   
 });

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "200108930388",
+    "project_id": "project-clara-notifications",
+    "storage_bucket": "project-clara-notifications.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:200108930388:android:5e974a15ccf787fb4004c1",
+        "android_client_info": {
+          "package_name": "com.gallagherjrby.projectclara"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBP1sBHVh1b13A-so9VYWd5wBD2JkHg_ng"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -125,7 +125,8 @@ const styles = StyleSheet.create({
     // the "list" card style, a smaller container meant to be displayed in a compact list
     listItem: { 
         flex: 1/8,
-        padding: 4,
+        paddingHorizontal: 4,
+        paddingVertical: 8,
         borderWidth: 1,
         borderRadius: 3,
         borderLeftColor: 'rgba(0,0,0,0)',

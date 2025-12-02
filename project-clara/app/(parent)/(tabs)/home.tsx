@@ -1,10 +1,14 @@
 import { Href, useRouter } from "expo-router";
 import { StyleSheet, View, FlatList } from "react-native";
+import { usePushNotifications } from "@/hooks/usePushNotifications";
 
 import Card from "@/components/Card";
 import { Colors } from "@/constants/theme";
 
 export default function ParentHomeScreen() {
+    const {expoPushToken, notification} = usePushNotifications();
+    console.log("EXPO PUSH TOKEN: ",expoPushToken);
+
     const router = useRouter();
 
     // list used for making cards with the flat view. this will be done dynamically later

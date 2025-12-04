@@ -18,8 +18,8 @@ export default function Index() {
         {
             id: 2,
             header: 'Clickable Test Card',
-            preview: 'Click to go to messaging screen',
-            route: '/messaging',
+            preview: 'Click',
+            route: '/class',
         },
         {
             id: 3,
@@ -108,5 +108,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         flexDirection: 'column',
         justifyContent: 'flex-start',
+        backgroundColor: Colors.light.background
     },
 });

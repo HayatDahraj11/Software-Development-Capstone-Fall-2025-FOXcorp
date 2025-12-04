@@ -8,6 +8,7 @@ export default function ParentTabLayout() {
 
     return (
         <Tabs
+            backBehavior="fullHistory"
             screenOptions={{
                 tabBarActiveTintColor: Colors.light.tabIconSelected,
                 headerStyle: {
@@ -74,6 +75,13 @@ export default function ParentTabLayout() {
             }} />
             <Tabs.Screen 
                 name="[studentId]"
+                options={{
+                    headerShown: false,
+                    href: null, // hiding tab from tab bar
+                }}
+            />
+            <Tabs.Screen 
+                name="(hamburger)"
                 options={{
                     headerShown: false,
                     href: null, // hiding tab from tab bar

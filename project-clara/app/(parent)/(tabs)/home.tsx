@@ -1,10 +1,14 @@
 import { Href, useRouter } from "expo-router";
 import { StyleSheet, View, FlatList } from "react-native";
+import { usePushNotifications, sendPushNotification } from "@/hooks/usePushNotifications";
 
 import Card from "@/components/Card";
 import { Colors } from "@/constants/theme";
 
 export default function ParentHomeScreen() {
+    const {expoPushToken, notification} = usePushNotifications();
+    console.log("EXPO PUSH TOKEN: ",expoPushToken);
+
     const router = useRouter();
 
     // list used for making cards with the flat view. this will be done dynamically later
@@ -27,54 +31,6 @@ export default function ParentHomeScreen() {
             preview: 'I am not clickable!',
             route: ' ',
         },
-        {
-            id: 4,
-            header: 'Test Card',
-            preview: 'I am not clickable!',
-            route: ' ',
-        },
-        {
-            id: 5,
-            header: 'Test Card',
-            preview: 'I am not clickable!',
-            route: ' ',
-        },
-        {
-            id: 6,
-            header: 'Test Card',
-            preview: 'I am not clickable!',
-            route: ' ',
-        },
-        {
-            id: 7,
-            header: 'Test Card',
-            preview: 'I am not clickable!',
-            route: ' ',
-        },
-        {
-            id: 8,
-            header: 'Test Card',
-            preview: 'I am not clickable!',
-            route: ' ',
-        },
-        {
-            id: 9,
-            header: 'Test Card',
-            preview: 'I am not clickable!',
-            route: ' ',
-        },
-        {
-            id: 10,
-            header: 'Test Card',
-            preview: 'I am not clickable!',
-            route: ' ',
-        },
-        {
-            id: 11,
-            header: 'Test Card',
-            preview: 'I am not clickable!',
-            route: ' ',
-        },
     ];
 
     const RouteCard = (route: string): void => {
@@ -84,6 +40,14 @@ export default function ParentHomeScreen() {
         }
         else { }
     };
+
+    const LocalNotificationSender = (): void => {
+        if(expoPushToken) {
+            sendPushNotification(expoPushToken);
+        } else {
+            console.warn("Tried to send notification with no push token. What's up with that, man?")
+        }
+    }
 
     return (
         <View style={styles.container}>
@@ -97,6 +61,12 @@ export default function ParentHomeScreen() {
                     />
                 )}
             />
+            <Card
+                header="Send Notification"
+                preview="Sends notification that will route you somewhere else!"
+                onPress={() => LocalNotificationSender()}>
+
+            </Card>
         </View>
     );
 }

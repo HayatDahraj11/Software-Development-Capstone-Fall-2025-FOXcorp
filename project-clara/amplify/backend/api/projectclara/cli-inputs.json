@@ -6,11 +6,6 @@
     "defaultAuthType": {
       "mode": "API_KEY",
       "expirationTime": 7
-    },
-    "additionalAuthTypes": [
-      {
-        "mode": "AWS_IAM"
-      }
-    ]
+    }
   }
 }

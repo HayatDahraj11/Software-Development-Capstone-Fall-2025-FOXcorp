@@ -2,6 +2,7 @@ import { Href, useRouter } from "expo-router";
 import { FlatList, StyleSheet, View } from "react-native";
 
 import Card from "@/components/Card";
+import { Colors } from "@/constants/theme";
 
 export default function attendanceList() {
   const router = useRouter();
@@ -104,5 +105,6 @@ export default function attendanceList() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.light.background
   },
 });

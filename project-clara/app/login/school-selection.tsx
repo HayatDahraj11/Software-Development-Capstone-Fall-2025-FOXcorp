@@ -12,7 +12,7 @@ import { Feather } from '@expo/vector-icons';
 import { useRouter } from "expo-router";
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import { Colors } from "@/constants/theme";
-import SchoolPicker from "@/components/SchoolPicker";
+import SchoolPicker from "@/src/features/school-selection/ui/SchoolPicker";
 
 export default function SchoolSelection() {
     const router = useRouter();

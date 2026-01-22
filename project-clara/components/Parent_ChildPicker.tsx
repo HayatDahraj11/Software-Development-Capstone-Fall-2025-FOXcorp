@@ -1,7 +1,7 @@
-import { Modal, View, Text, Pressable, StyleSheet, FlatList, TextInput } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { FlatList, Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
-import { Colors } from "@/constants/theme";
+import { Colors } from "@/src/features/app-themes/logic/theme";
 
 type Props = {
     isVisible: boolean;

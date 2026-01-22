@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react";
-import { StyleSheet, Text, View, Pressable, FlatList } from "react-native";
-import { useRouter, Href } from "expo-router";
+import { Href, useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
 import Card from "@/components/Card";
-import { debug_parent, debug_kids } from "@/constants/debug_parent_data";
-import { Colors } from "@/constants/theme";
-import { MaterialIcons } from "@expo/vector-icons";
 import Parent_ChildPicker from "@/components/Parent_ChildPicker";
+import { Colors } from "@/src/features/app-themes/logic/theme";
+import { debug_kids, debug_parent } from "@/src/features/auth/logic/debug_parent_data";
+import { MaterialIcons } from "@expo/vector-icons";
 
 // list used for making cards with the flat view. this will be done dynamically later
 const CardFlatListData = [

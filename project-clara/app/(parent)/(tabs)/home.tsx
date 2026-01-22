@@ -1,9 +1,9 @@
+import { sendPushNotification, usePushNotifications } from "@/src/features/notifications/logic/usePushNotifications";
 import { Href, useRouter } from "expo-router";
-import { StyleSheet, View, FlatList } from "react-native";
-import { usePushNotifications, sendPushNotification } from "@/hooks/usePushNotifications";
+import { FlatList, StyleSheet, View } from "react-native";
 
 import Card from "@/components/Card";
-import { Colors } from "@/constants/theme";
+import { Colors } from "@/src/features/app-themes/logic/theme";
 
 export default function ParentHomeScreen() {
     const {expoPushToken, notification} = usePushNotifications();

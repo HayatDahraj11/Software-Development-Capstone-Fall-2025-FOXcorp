@@ -1,17 +1,17 @@
+import { Ionicons } from "@expo/vector-icons";
 import {
+    ActivityIndicator,
+    FlatList,
     Modal,
-    View,
-    Text,
     Pressable,
     StyleSheet,
-    FlatList,
+    Text,
     TextInput,
-    ActivityIndicator,
+    View,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 
-import { Colors } from "@/constants/theme";
-import { useSchoolSelection, SchoolItem } from "../logic/useSchoolSelection";
+import { Colors } from "@/src/features/app-themes/logic/theme";
+import { SchoolItem, useSchoolSelection } from "../logic/useSchoolSelection";
 
 type Props = {
     isVisible: boolean;

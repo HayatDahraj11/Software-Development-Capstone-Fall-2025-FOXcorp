@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 
-import { Colors } from "@/src/features/app-themes/logic/theme";
+import { Colors } from "@/src/features/app-themes/constants/theme";
 
 export default function ParentTabLayout() {
     {/* tabs are shown in the bottom bar

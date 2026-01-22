@@ -1,5 +1,5 @@
-import Card from "@/components/Card";
-import { Colors } from "@/src/features/app-themes/logic/theme";
+import { Colors } from "@/src/features/app-themes/constants/theme";
+import Card from "@/src/features/cards/ui/Card";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 export default function announcements() {

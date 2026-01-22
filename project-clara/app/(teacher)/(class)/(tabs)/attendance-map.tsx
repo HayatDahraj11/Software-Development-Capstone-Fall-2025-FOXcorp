@@ -1,4 +1,4 @@
-import { Colors } from "@/src/features/app-themes/logic/theme";
+import { Colors } from "@/src/features/app-themes/constants/theme";
 import { StyleSheet, Text, View } from "react-native";
 
 export default function attendanceMap() {

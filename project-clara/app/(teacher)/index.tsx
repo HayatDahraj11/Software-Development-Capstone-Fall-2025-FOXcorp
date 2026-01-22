@@ -1,8 +1,8 @@
 import { Href, useRouter } from "expo-router";
 import { FlatList, StyleSheet, View } from "react-native";
 
-import Card from "@/components/Card";
-import { Colors } from "@/src/features/app-themes/logic/theme";
+import { Colors } from "@/src/features/app-themes/constants/theme";
+import Card from "@/src/features/cards/ui/Card";
 
 export default function Index() {
     const router = useRouter();

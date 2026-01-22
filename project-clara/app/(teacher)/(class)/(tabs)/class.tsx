@@ -1,4 +1,4 @@
-import { Colors } from "@/src/features/app-themes/logic/theme";
+import { Colors } from "@/src/features/app-themes/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";

@@ -3,7 +3,7 @@ import React from 'react';
 
 import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/src/features/app-themes/logic/theme';
+import { Colors } from '@/src/features/app-themes/constants/theme';
 import { useColorScheme } from '@/src/features/app-themes/logic/use-color-scheme';
 
 export default function TabLayout() {

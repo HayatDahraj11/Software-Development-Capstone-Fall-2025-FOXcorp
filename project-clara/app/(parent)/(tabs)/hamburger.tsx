@@ -3,8 +3,8 @@ import { signOut } from "aws-amplify/auth";
 import { useRouter } from "expo-router";
 import { Alert, ScrollView, StyleSheet, View } from "react-native";
 
-import Card from "@/components/Card";
 import { useParentLoginContext } from "@/context/ParentLoginContext";
+import Card from "@/src/features/cards/ui/Card";
 
 async function AWSSignOut() {
   try {

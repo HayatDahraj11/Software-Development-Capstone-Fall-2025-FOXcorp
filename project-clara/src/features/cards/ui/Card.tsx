@@ -1,6 +1,7 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View, Appearance } from "react-native";
 
 import { Colors } from "@/src/features/app-themes/constants/theme";
+import { useThemeColor } from "../../app-themes/logic/use-theme-color";
 
 {/* Card will take in a header string, a preview string, 
     and optionally take in an onPress function and an 
@@ -17,6 +18,78 @@ type Props = {
 
 
 export default function Card({header, preview, onPress, theme, urgent}: Props) {
+    // styles are made in-function so they can use the theme stuff
+    const styles = StyleSheet.create({
+        // the default card style, a roundrect container
+        card: {
+            flex: 1/6,
+            backgroundColor: useThemeColor({}, "cardBackground"),
+            borderRadius: 10,
+            padding: 15,
+            margin: 8,
+            flexDirection: 'column',
+            justifyContent: 'flex-start',
+            overflow: 'hidden',
+        },
+        header: {
+            color: useThemeColor({}, "text"),
+            fontSize: 18,
+            fontWeight: 'bold',
+        },
+        preview: {
+            color: useThemeColor({}, "text"),
+            fontWeight: 'normal',
+            fontSize: 16,
+        },
+        urgentContainer: {
+            flexDirection: 'row',
+            marginHorizontal: -18,
+        },
+        urgentFlag: {
+            width: '2%',
+            height: '100%',
+            marginRight: 8,
+            borderRadius: 20,
+            backgroundColor: '#ff0000',
+        },
+
+        // the "list" card style, a smaller container meant to be displayed in a compact list
+        listItem: { 
+            flex: 1/8,
+            paddingHorizontal: 4,
+            paddingVertical: 8,
+            borderWidth: 1,
+            borderRadius: 3,
+            borderLeftColor: 'rgba(0,0,0,0)',
+            borderRightColor: 'rgba(0,0,0,0)',
+            borderBottomColor: 'rgba(29, 41, 57, 0.25)',
+            borderTopColor: 'rgba(29, 41, 57, 0)',
+        },
+        listText: {
+            fontSize: 16,
+            fontWeight: "bold",
+            padding: 3,
+            color: '#1D2939',
+            textAlign: 'left',
+        },
+        listPreviewTest: {
+            fontSize: 14,
+            fontWeight: "normal",
+            padding: 3,
+            color: '#1D2939',
+            textAlign: 'left',
+        },
+        listPreviewUrgentText: {
+            fontSize: 14,
+            fontWeight: "normal",
+            padding: 3,
+            color: '#ec5557ff',
+            textAlign: 'left',
+        }
+    })
+
+
+
     // a card which displays as a short, one-line item in a list
     // does not need a preview, will display it only if urgent
     if(theme === "list") {
@@ -88,71 +161,3 @@ export default function Card({header, preview, onPress, theme, urgent}: Props) {
 }
 
 
-const styles = StyleSheet.create({
-    // the default card style, a roundrect container
-    card: {
-        flex: 1/6,
-        backgroundColor: '#f5f5f5ff',
-        borderRadius: 10,
-        padding: 15,
-        margin: 8,
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
-        overflow: 'hidden',
-    },
-    header: {
-        color: Colors.light.text,
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    preview: {
-        color: Colors.light.text,
-        fontWeight: 'normal',
-        fontSize: 16,
-    },
-    urgentContainer: {
-        flexDirection: 'row',
-        marginHorizontal: -18,
-    },
-    urgentFlag: {
-        width: '2%',
-        height: '100%',
-        marginRight: 8,
-        borderRadius: 20,
-        backgroundColor: '#ff0000',
-    },
-
-    // the "list" card style, a smaller container meant to be displayed in a compact list
-    listItem: { 
-        flex: 1/8,
-        paddingHorizontal: 4,
-        paddingVertical: 8,
-        borderWidth: 1,
-        borderRadius: 3,
-        borderLeftColor: 'rgba(0,0,0,0)',
-        borderRightColor: 'rgba(0,0,0,0)',
-        borderBottomColor: 'rgba(29, 41, 57, 0.25)',
-        borderTopColor: 'rgba(29, 41, 57, 0)',
-    },
-    listText: {
-        fontSize: 16,
-        fontWeight: "bold",
-        padding: 3,
-        color: '#1D2939',
-        textAlign: 'left',
-    },
-    listPreviewTest: {
-        fontSize: 14,
-        fontWeight: "normal",
-        padding: 3,
-        color: '#1D2939',
-        textAlign: 'left',
-    },
-    listPreviewUrgentText: {
-        fontSize: 14,
-        fontWeight: "normal",
-        padding: 3,
-        color: '#ec5557ff',
-        textAlign: 'left',
-    }
-})

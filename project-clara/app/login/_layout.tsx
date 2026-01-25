@@ -11,7 +11,7 @@ export default function RootLayout() {
         },
         headerTitleStyle: {
           color: useThemeColor({},"text")
-        }
+        },
       }}>
         <Stack.Screen name="index" options={{title: "Login"}}/>
         <Stack.Screen name="school-selection" options={{title: "School Selection"}}/>

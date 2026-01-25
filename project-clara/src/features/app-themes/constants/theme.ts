@@ -8,21 +8,25 @@ const tintColorDark = '#fff';
 export const Colors = {
   light: {
     text: '#11181C',
+    listText: '#1D2939',
     background: '#fff',
     cardBackground: '#f5f5f5ff',
     tint: tintColorLight,
     icon: '#687076',
     tabIconDefault: '#687076',
     tabIconSelected: tintColorLight,
+    urgent: '#ec5557ff',
   },
   dark: {
     text: '#ECEDEE',
+    listText: '#76a4e0',
     background: '#151718',
     cardBackground: '#282828',
     tint: tintColorDark,
     icon: '#9BA1A6',
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
+    urgent: '#ec5557ff',
   },
 };
 

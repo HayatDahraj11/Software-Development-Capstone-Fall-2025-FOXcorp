@@ -1,6 +1,5 @@
-import { Pressable, StyleSheet, Text, View, Appearance } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { Colors } from "@/src/features/app-themes/constants/theme";
 import { useThemeColor } from "../../app-themes/logic/use-theme-color";
 
 {/* Card will take in a header string, a preview string, 
@@ -50,7 +49,7 @@ export default function Card({header, preview, onPress, theme, urgent}: Props) {
             height: '100%',
             marginRight: 8,
             borderRadius: 20,
-            backgroundColor: '#ff0000',
+            backgroundColor: useThemeColor({}, "urgent"),
         },
 
         // the "list" card style, a smaller container meant to be displayed in a compact list
@@ -69,21 +68,21 @@ export default function Card({header, preview, onPress, theme, urgent}: Props) {
             fontSize: 16,
             fontWeight: "bold",
             padding: 3,
-            color: '#1D2939',
+            color: useThemeColor({}, "listText"),
             textAlign: 'left',
         },
         listPreviewTest: {
             fontSize: 14,
             fontWeight: "normal",
             padding: 3,
-            color: '#1D2939',
+            color: useThemeColor({}, "listText"),
             textAlign: 'left',
         },
         listPreviewUrgentText: {
             fontSize: 14,
             fontWeight: "normal",
             padding: 3,
-            color: '#ec5557ff',
+            color: useThemeColor({}, "urgent"),
             textAlign: 'left',
         }
     })

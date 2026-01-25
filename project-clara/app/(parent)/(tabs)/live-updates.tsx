@@ -2,7 +2,7 @@ import { Href, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
-import { Colors } from "@/src/features/app-themes/constants/theme";
+import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import { debug_kids, debug_parent } from "@/src/features/auth/logic/debug_parent_data";
 import Card from "@/src/features/cards/ui/Card";
 import Parent_ChildPicker from "@/src/features/child-selection/ui/Parent_ChildPicker";
@@ -121,11 +121,42 @@ export default function ParentLiveUpdatesScreen() {
     
   }, [childSelected, fullList])
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: useThemeColor({}, "background"),
+    },
+    headerContainer: {
+      flex: 1/10,
+      alignContent: 'flex-start',
+      justifyContent: 'center',
+      flexDirection: 'column',
+    },
+    dropdownContainer: {
+        flexDirection: 'row',
+        width: '20%',
+        height: '80%',
+        backgroundColor: useThemeColor({}, "cardBackground"),
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 10,
+        marginHorizontal: 20,
+        shadowColor: useThemeColor({}, "tabIconDefault"),
+    },
+    dropdownLabel: {
+        color: useThemeColor({}, "text"),
+        fontSize: 14,
+        fontWeight: '600',
+    },
+    flatListContainer: {
+    }
+  });
+
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
         <Pressable style={styles.dropdownContainer} onPress={() => setIsModalVisible(true)}>
-          <MaterialIcons name={"keyboard-arrow-down"} size={22} color={Colors.light.icon}/>
+          <MaterialIcons name={"keyboard-arrow-down"} size={22} color={useThemeColor({}, "icon")}/>
           <Text style={styles.dropdownLabel}>{childSelected.firstName}</Text>
         </Pressable>
       </View>
@@ -156,33 +187,3 @@ export default function ParentLiveUpdatesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.light.background,
-  },
-  headerContainer: {
-    flex: 1/10,
-    alignContent: 'flex-start',
-    justifyContent: 'center',
-    flexDirection: 'column',
-  },
-  dropdownContainer: {
-      flexDirection: 'row',
-      width: '20%',
-      height: '80%',
-      backgroundColor: '#d4d4d4ff',
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderRadius: 10,
-      marginHorizontal: 20,
-      shadowColor: Colors.light.tabIconDefault,
-  },
-  dropdownLabel: {
-      color: Colors.light.text,
-      fontSize: 14,
-      fontWeight: '600',
-  },
-  flatListContainer: {
-  }
-});

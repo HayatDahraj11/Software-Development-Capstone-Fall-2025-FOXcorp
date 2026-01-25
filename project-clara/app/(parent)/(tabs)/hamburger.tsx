@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { Alert, ScrollView, StyleSheet, View } from "react-native";
 
 import { useParentLoginContext } from "@/context/ParentLoginContext";
+import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import Card from "@/src/features/cards/ui/Card";
 
 async function AWSSignOut() {
@@ -60,11 +61,32 @@ export default function ParentHamburgerScreen() {
       else { }
   };
 
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      flexDirection: 'column',
+      backgroundColor: useThemeColor({},"background"),
+    },
+    cardContainer: {
+      marginLeft: 12,
+      marginRight: 12,
+      flexDirection: 'row',
+      justifyContent: 'flex-start',
+      alignItems: 'center',
+    },
+    card: {
+      flex: 1
+    },
+    cardIconContainer: {
+      flex: 1/14,
+    },
+  });
+
   return (
     <View style={styles.container}>
       <ScrollView>
         <View style={styles.cardContainer}>
-          <MaterialIcons style={styles.cardIconContainer} name="settings" size={24} color="black"/>
+          <MaterialIcons style={styles.cardIconContainer} name="settings" size={24} color={useThemeColor({},"tabIconDefault")}/>
           <View style={styles.card}>
             <Card
               header="Settings"
@@ -75,7 +97,7 @@ export default function ParentHamburgerScreen() {
           </View>
         </View>
         <View style={styles.cardContainer}>
-          <MaterialIcons style={styles.cardIconContainer} name="manage-accounts" size={24} color="black"/>
+          <MaterialIcons style={styles.cardIconContainer} name="manage-accounts" size={24} color={useThemeColor({},"tabIconDefault")}/>
           <View style={styles.card}>
             <Card
             header="Account"
@@ -86,7 +108,7 @@ export default function ParentHamburgerScreen() {
           </View>
         </View>
         <View style={styles.cardContainer}>
-          <MaterialIcons style={styles.cardIconContainer} name="notifications" size={24} color="black"/>
+          <MaterialIcons style={styles.cardIconContainer} name="notifications" size={24} color={useThemeColor({},"tabIconDefault")}/>
           <View style={styles.card}>
             <Card
               header="Notifications"
@@ -97,7 +119,7 @@ export default function ParentHamburgerScreen() {
           </View>
         </View>
         <View style={styles.cardContainer}>
-          <MaterialIcons style={styles.cardIconContainer} name="logout" size={24} color="red"/>
+          <MaterialIcons style={styles.cardIconContainer} name="logout" size={24} color={useThemeColor({},"urgent")}/>
           <View style={styles.card}>
             <Card
               header="Logout"
@@ -111,23 +133,3 @@ export default function ParentHamburgerScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: 'column',
-  },
-  cardContainer: {
-    marginLeft: 12,
-    marginRight: 12,
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-  },
-  card: {
-    flex: 1
-  },
-  cardIconContainer: {
-    flex: 1/14,
-  },
-});

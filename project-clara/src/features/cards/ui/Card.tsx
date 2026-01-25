@@ -61,7 +61,7 @@ export default function Card({header, preview, onPress, theme, urgent}: Props) {
             borderRadius: 3,
             borderLeftColor: 'rgba(0,0,0,0)',
             borderRightColor: 'rgba(0,0,0,0)',
-            borderBottomColor: 'rgba(29, 41, 57, 0.25)',
+            borderBottomColor: useThemeColor({}, "listBorderTranslucent"),
             borderTopColor: 'rgba(29, 41, 57, 0)',
         },
         listText: {

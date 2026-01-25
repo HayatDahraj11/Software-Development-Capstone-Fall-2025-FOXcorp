@@ -1,23 +1,22 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 
-import { Colors } from "@/src/features/app-themes/constants/theme";
+import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 
 export default function ParentTabLayout() {
-    {}
 
     return (
         <Tabs
             backBehavior="fullHistory"
             screenOptions={{
-                tabBarActiveTintColor: Colors.light.tabIconSelected,
+                tabBarActiveTintColor: useThemeColor({},"tabIconSelected"),
                 headerStyle: {
-                    backgroundColor: Colors.light.background,
+                    backgroundColor: useThemeColor({},"background"),
                 },
                 headerShadowVisible: false,
-                headerTintColor: Colors.light.text,
+                headerTintColor: useThemeColor({},"text"),
                 tabBarStyle: {
-                    backgroundColor: Colors.light.background
+                    backgroundColor: useThemeColor({},"background"),
                 },
             }}
         >

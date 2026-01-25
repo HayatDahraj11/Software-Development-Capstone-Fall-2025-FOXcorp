@@ -2,7 +2,7 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
-import { Colors } from "@/src/features/app-themes/constants/theme";
+import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import { debug_parent } from "@/src/features/auth/logic/debug_parent_data";
 import Card from "@/src/features/cards/ui/Card";
 import Parent_ChildPicker from "@/src/features/child-selection/ui/Parent_ChildPicker";
@@ -67,13 +67,43 @@ export default function ParentGeneralInfoScreen() {
 
   };
 
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: useThemeColor({}, "background"),
+    },
+    headerContainer: {
+      flex: 1/10,
+      alignContent: 'flex-start',
+      justifyContent: 'center',
+      flexDirection: 'column',
+    },
+    dropdownContainer: {
+      flexDirection: 'row',
+      width: '20%',
+      height: '80%',
+      backgroundColor: useThemeColor({}, "cardBackground"),
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: 10,
+      marginHorizontal: 20,
+      shadowColor: useThemeColor({}, "tabIconDefault"),
+    },
+    dropdownLabel: {
+      color: useThemeColor({}, "text"),
+      fontSize: 14,
+      fontWeight: '600',
+    },
+  });
+
   // when linking to the doc pages, access the [studentId] folder using param: {studentId: childSelected.studentId}
   // you can also pass the student object as a param, { student = childSelected }
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
         <Pressable style={styles.dropdownContainer} onPress={() => setIsModalVisible(true)}>
-          <MaterialIcons name={"keyboard-arrow-down"} size={22} color={Colors.light.icon}/>
+          <MaterialIcons name={"keyboard-arrow-down"} size={22} color={useThemeColor({}, "icon")}/>
           <Text style={styles.dropdownLabel}>{childSelected.firstName}</Text>
         </Pressable>
       </View>
@@ -105,32 +135,3 @@ export default function ParentGeneralInfoScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.light.background,
-  },
-  headerContainer: {
-    flex: 1/10,
-    alignContent: 'flex-start',
-    justifyContent: 'center',
-    flexDirection: 'column',
-  },
-  dropdownContainer: {
-      flexDirection: 'row',
-      width: '20%',
-      height: '80%',
-      backgroundColor: '#d4d4d4ff',
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderRadius: 10,
-      marginHorizontal: 20,
-      shadowColor: Colors.light.tabIconDefault,
-  },
-  dropdownLabel: {
-      color: Colors.light.text,
-      fontSize: 14,
-      fontWeight: '600',
-  },
-});

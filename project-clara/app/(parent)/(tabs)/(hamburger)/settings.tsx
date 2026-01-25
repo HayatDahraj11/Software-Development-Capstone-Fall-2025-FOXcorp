@@ -1,13 +1,20 @@
+import { useState } from "react";
 import { Appearance, ScrollView, StyleSheet, View } from "react-native";
 
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import Card from "@/src/features/cards/ui/Card";
 
 export default function ParentGeneralInfoScreen() {
+  const [colorSchemeSelected, setColorSchemeSelected] = useState<string | null | undefined>(Appearance.getColorScheme())
+
   const toggleDarkMode = () => {
     if(Appearance.getColorScheme() === "light") {
       Appearance.setColorScheme("dark")
-    } else { Appearance.setColorScheme("light") }
+      setColorSchemeSelected("dark")
+    } else { 
+      Appearance.setColorScheme("light") 
+      setColorSchemeSelected("light")
+    }
   }
 
   const styles = StyleSheet.create({
@@ -29,7 +36,7 @@ export default function ParentGeneralInfoScreen() {
       <ScrollView>
         <Card
           header="Toggle Darkmode"
-          preview={"Current mode is: "+Appearance.getColorScheme()}
+          preview={"Current mode is: "+colorSchemeSelected}
           onPress={() => toggleDarkMode()}
         />
       </ScrollView>

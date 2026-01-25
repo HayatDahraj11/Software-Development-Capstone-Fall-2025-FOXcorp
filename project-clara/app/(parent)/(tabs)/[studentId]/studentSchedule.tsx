@@ -4,6 +4,7 @@ import { FlatList, StyleSheet, View } from "react-native";
 
 import Parent_ViewClassModal from "@/src/features/class-viewer/ui/Parent_ViewClassModal";
 import Card from "@/src/features/cards/ui/Card";
+import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 
 // temp class list flatlist will use
 const FlatListTempData = [
@@ -46,6 +47,18 @@ export default function StudentDocumentationScreen() {
         setIsModalVisible(true);
     };
 
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: useThemeColor({},"background")
+        },
+        listContainer: {
+                paddingHorizontal: 20,
+                justifyContent: 'center',
+                marginTop: 10,
+            },
+    });
+
     return (
     <View style={styles.container}>
         <FlatList
@@ -72,13 +85,3 @@ export default function StudentDocumentationScreen() {
     );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  listContainer: {
-        paddingHorizontal: 20,
-        justifyContent: 'center',
-        marginTop: 10,
-    },
-});

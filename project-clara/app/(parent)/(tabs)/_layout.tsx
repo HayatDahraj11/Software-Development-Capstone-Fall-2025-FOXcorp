@@ -11,7 +11,9 @@ export default function ParentTabLayout() {
             screenOptions={{
                 tabBarActiveTintColor: useThemeColor({},"tabIconSelected"),
                 headerStyle: {
-                    backgroundColor: useThemeColor({},"background"),
+                    backgroundColor: useThemeColor({},"headerBackground"),
+                    borderBottomColor: useThemeColor({},'listBorderTranslucent'),
+                    borderBottomWidth: 1
                 },
                 headerShadowVisible: false,
                 headerTintColor: useThemeColor({},"text"),

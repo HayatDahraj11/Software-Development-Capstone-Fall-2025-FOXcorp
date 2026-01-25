@@ -8,6 +8,7 @@ import { Image } from "expo-image";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { Colors } from "@/src/features/app-themes/constants/theme";
+import { useThemeColor } from "../../app-themes/logic/use-theme-color";
 
 
 type Props = {
@@ -21,7 +22,101 @@ type Props = {
 const PlaceholderImage = require('@/assets/images/icon.png')
 
 export default function Parent_ViewClassModal({isVisible, onCloseModal, classId, studentId, onClickProfilePic}: Props) {
-    
+    const styles = StyleSheet.create ({
+        overlay: {
+            flex: 1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0,0,0,0.5)',
+        },
+        modalContainer: {
+            width: '80%',
+            height: '50%',
+            borderRadius: 10,
+            position: 'relative',
+            backgroundColor: useThemeColor({},"modalBackground"),
+        },
+        modalContent: {
+            flex: 1,
+            padding: 0,
+            flexDirection: 'column',
+            justifyContent: 'flex-start',
+        },
+        titleContainer: {
+            padding: 10,
+        },
+        classContainer: {
+            paddingHorizontal: 16,
+            paddingVertical: 8,
+            flex: 1/7,
+            flexDirection: 'row',
+            alignItems: 'stretch',
+            justifyContent: 'space-between',
+        },
+        classText: {
+            fontSize: 16,
+            fontWeight: 'normal',
+            color: useThemeColor({},'listText'),
+            textAlign: 'center',
+        },
+        teacherContainer: {
+            paddingHorizontal: 16,
+            paddingVertical: 8,
+            flex: 1/4,
+            flexDirection: 'column',
+        },
+        teacherTextContainer: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'flex-start',
+        },
+        teacherText: {
+            fontSize: 16,
+            fontWeight: 'normal',
+            color: useThemeColor({},'listText'),
+            textAlign: 'center',
+            paddingHorizontal: 10,
+            paddingVertical: 5,
+        },
+        teacherNameText: {
+            fontSize: 16,
+            fontWeight: 'bold',
+            color: useThemeColor({},'listText'),
+            textAlign: 'center',
+            paddingHorizontal: 10,
+        },
+        teacherImageContainer: {
+            width: 50,
+            height: 50,
+            borderRadius: 50,
+            alignContent: 'center',
+            justifyContent: 'center',
+            backgroundColor: Colors.dark.background,
+        },
+        teacherImage: {
+            width: '90%',
+            height: '90%',
+            borderRadius: 50,
+            alignSelf: 'center',
+        },
+        notesContainer: {
+            paddingHorizontal: 16,
+            paddingVertical: 8,
+            flex: 1/4,
+            flexDirection: 'column',
+        },
+        notesHeaderText: {
+            fontSize: 16,
+            fontWeight: 'bold',
+            color: useThemeColor({},'listText'),
+            paddingHorizontal: 10,
+        },
+        notesText: {
+            fontSize: 16,
+            fontWeight: 'normal',
+            color: useThemeColor({},'listText'),
+        },
+    })
 
     return (
         <View>
@@ -60,99 +155,3 @@ export default function Parent_ViewClassModal({isVisible, onCloseModal, classId,
         </View>
     )
 }
-
-const styles = StyleSheet.create ({
-    overlay: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0,0,0,0.5)',
-    },
-    modalContainer: {
-        width: '80%',
-        height: '50%',
-        borderRadius: 10,
-        position: 'relative',
-        backgroundColor: '#F7F8FA',
-    },
-    modalContent: {
-        flex: 1,
-        padding: 0,
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
-    },
-    titleContainer: {
-        padding: 10,
-    },
-    classContainer: {
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        flex: 1/7,
-        flexDirection: 'row',
-        alignItems: 'stretch',
-        justifyContent: 'space-between',
-    },
-    classText: {
-        fontSize: 16,
-        fontWeight: 'normal',
-        color: '#1D2939',
-        textAlign: 'center',
-    },
-    teacherContainer: {
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        flex: 1/4,
-        flexDirection: 'column',
-    },
-    teacherTextContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-    },
-    teacherText: {
-        fontSize: 16,
-        fontWeight: 'normal',
-        color: '#1D2939',
-        textAlign: 'center',
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-    },
-    teacherNameText: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#1D2939',
-        textAlign: 'center',
-        paddingHorizontal: 10,
-    },
-    teacherImageContainer: {
-        width: 50,
-        height: 50,
-        borderRadius: 50,
-        alignContent: 'center',
-        justifyContent: 'center',
-        backgroundColor: Colors.dark.background,
-    },
-    teacherImage: {
-        width: '90%',
-        height: '90%',
-        borderRadius: 50,
-        alignSelf: 'center',
-    },
-    notesContainer: {
-        paddingHorizontal: 16,
-        paddingVertical: 8,
-        flex: 1/4,
-        flexDirection: 'column',
-    },
-    notesHeaderText: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#1D2939',
-        paddingHorizontal: 10,
-    },
-    notesText: {
-        fontSize: 16,
-        fontWeight: 'normal',
-        color: '#1D2939',
-    },
-})

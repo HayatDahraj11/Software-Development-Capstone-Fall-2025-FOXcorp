@@ -3,7 +3,7 @@ import { Tabs } from "expo-router";
 
 export default function ParentGenInfoStudentIDLayout() {
 
-    const headerBackgroundColor = useThemeColor({},"background")
+    const headerBackgroundColor = useThemeColor({},"headerBackground")
     const headerBottomBorderColor = useThemeColor({}, "listBorderTranslucent")
     const headerTextColor = useThemeColor({},"text")
 

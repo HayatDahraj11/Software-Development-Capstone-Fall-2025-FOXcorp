@@ -1,17 +1,16 @@
-import { Colors } from "@/src/features/app-themes/constants/theme";
 import { useThemeColor } from "@/app-example/hooks/use-theme-color";
 import SchoolPicker from "@/src/features/school-selection/ui/SchoolPicker";
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 

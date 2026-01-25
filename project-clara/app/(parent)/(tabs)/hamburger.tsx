@@ -1,12 +1,10 @@
-import { useState } from "react";
-import { StyleSheet, Text, View, ScrollView, Pressable, Alert } from "react-native";
-import { useRouter, Href } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
-import { getCurrentUser, signOut } from "aws-amplify/auth";
+import { signOut } from "aws-amplify/auth";
+import { useRouter } from "expo-router";
+import { Alert, ScrollView, StyleSheet, View } from "react-native";
 
-import Card from "@/components/Card";
 import { useParentLoginContext } from "@/context/ParentLoginContext";
-import { Colors } from "@/constants/theme";
+import Card from "@/src/features/cards/ui/Card";
 
 async function AWSSignOut() {
   try {

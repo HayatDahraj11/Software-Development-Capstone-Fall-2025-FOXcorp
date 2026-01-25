@@ -1,12 +1,12 @@
+import { useRouter } from "expo-router";
 import { useState } from "react";
-import { StyleSheet, Text, View, ScrollView, Pressable } from "react-native";
-import { useRouter, Href } from "expo-router";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
-import Card from "@/components/Card";
-import { debug_parent, debug_kids } from "@/constants/debug_parent_data";
-import { Colors } from "@/constants/theme";
+import { Colors } from "@/src/features/app-themes/constants/theme";
+import { debug_parent } from "@/src/features/auth/logic/debug_parent_data";
+import Card from "@/src/features/cards/ui/Card";
+import Parent_ChildPicker from "@/src/features/child-selection/ui/Parent_ChildPicker";
 import { MaterialIcons } from "@expo/vector-icons";
-import Parent_ChildPicker from "@/components/Parent_ChildPicker";
 
 export default function ParentGeneralInfoScreen() {
   const router = useRouter();

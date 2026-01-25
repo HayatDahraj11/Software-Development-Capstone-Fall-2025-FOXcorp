@@ -1,9 +1,9 @@
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import { StyleSheet, View, FlatList } from "react-native";
-import { useLocalSearchParams, useRouter, Href } from "expo-router";
+import { FlatList, StyleSheet, View } from "react-native";
 
-import Card from "@/components/Card";
-import Parent_ViewClassModal from "@/components/Parent_ViewClassModal";
+import Parent_ViewClassModal from "@/src/features/class-viewer/ui/Parent_ViewClassModal";
+import Card from "@/src/features/cards/ui/Card";
 
 // temp class list flatlist will use
 const FlatListTempData = [

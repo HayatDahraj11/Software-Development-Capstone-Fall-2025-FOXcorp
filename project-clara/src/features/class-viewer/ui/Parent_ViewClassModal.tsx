@@ -3,12 +3,11 @@
 // currently, this modal is designed before we have the backend role stuff set up
 // when we have the backend ready, information about the class will be pulled based on class and student Id
 // for now, this is static
-import { Modal, View, Text, Pressable, StyleSheet, FlatList, TextInput } from "react-native";
-import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
+import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
-import { Colors } from "@/constants/theme";
-import { useEffect, useState } from "react";
+import { Colors } from "@/src/features/app-themes/constants/theme";
 
 
 type Props = {

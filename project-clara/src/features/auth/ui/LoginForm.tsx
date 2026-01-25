@@ -1,18 +1,18 @@
-import {
-    StyleSheet,
-    TextInput,
-    View,
-    Pressable,
-    Text,
-    ActivityIndicator,
-    TouchableOpacity,
-    KeyboardAvoidingView,
-    Platform,
-} from "react-native";
 import { Feather } from "@expo/vector-icons";
 import Checkbox from "expo-checkbox";
+import {
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
-import { Colors } from "@/constants/theme";
+import { Colors } from "@/src/features/app-themes/constants/theme";
 import { useLogin } from "../logic/useLogin";
 
 type Props = {

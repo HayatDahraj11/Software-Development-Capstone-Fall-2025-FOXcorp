@@ -1,7 +1,7 @@
-import { StyleSheet, View, ScrollView } from "react-native";
-import { useLocalSearchParams, useRouter, Href } from "expo-router";
+import { Href, useLocalSearchParams, useRouter } from "expo-router";
+import { ScrollView, StyleSheet, View } from "react-native";
 
-import Card from "@/components/Card";
+import Card from "@/src/features/cards/ui/Card";
 
 export default function StudentDocumentationScreen() {
     const { studentId } = useLocalSearchParams();

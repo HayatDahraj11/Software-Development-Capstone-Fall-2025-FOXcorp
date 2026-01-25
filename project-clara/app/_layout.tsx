@@ -8,7 +8,7 @@ import { Amplify } from "aws-amplify";
 import awsconfig from "../src/aws-exports"; // relative import to the typed config
 // --- Amplify Imports End ---
 
-import { useColorScheme } from "@/hooks/use-color-scheme";
+import { useColorScheme } from "@/src/features/app-themes/logic/use-color-scheme";
 
 // --- Configure Amplify Start ---
 // Configure Amplify once at startup

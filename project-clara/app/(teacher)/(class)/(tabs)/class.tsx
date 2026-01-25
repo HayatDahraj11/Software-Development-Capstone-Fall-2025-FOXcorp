@@ -1,7 +1,7 @@
-import { Href, useRouter } from "expo-router";
-import { Colors } from "@/constants/theme";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Colors } from "@/src/features/app-themes/constants/theme";
 import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 export default function ClassHome() {
 const router = useRouter();

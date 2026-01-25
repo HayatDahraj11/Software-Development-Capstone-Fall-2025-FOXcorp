@@ -1,18 +1,18 @@
-import { useState, useEffect } from "react";
-import {
-    StyleSheet,
-    View,
-    Pressable,
-    Text,
-    KeyboardAvoidingView,
-    Platform,
-    TouchableOpacity,
-} from "react-native";
+import { Colors } from "@/src/features/app-themes/constants/theme";
+import SchoolPicker from "@/src/features/school-selection/ui/SchoolPicker";
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from "expo-router";
-import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
-import { Colors } from "@/constants/theme";
-import SchoolPicker from "@/src/features/school-selection/ui/SchoolPicker";
+import { useEffect, useState } from "react";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 export default function SchoolSelection() {
     const router = useRouter();

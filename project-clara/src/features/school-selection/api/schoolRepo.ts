@@ -4,8 +4,6 @@ import type { School, ListSchoolsQuery } from "@/src/API";
 
 export type SchoolItem = Pick<School, "id" | "name" | "address">;
 
-const client = generateClient();
-
 const FALLBACK_SCHOOLS: SchoolItem[] = [
     { id: "1", name: "University of North Texas", address: null },
     { id: "2", name: "Texas Woman's University", address: null },
@@ -15,6 +13,7 @@ const FALLBACK_SCHOOLS: SchoolItem[] = [
 
 export async function fetchSchoolsFromRepo(): Promise<SchoolItem[]> {
     try {
+        const client = generateClient();
         const response = await client.graphql({ query: listSchools });
         const data = response.data as ListSchoolsQuery;
         const items = data.listSchools?.items ?? [];

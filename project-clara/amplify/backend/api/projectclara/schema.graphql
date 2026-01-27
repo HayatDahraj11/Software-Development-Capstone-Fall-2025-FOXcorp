@@ -5,4 +5,35 @@ type School @model @auth(rules: [
   id: ID!
   name: String!
   address: String
+  students: [Student] @hasMany
+}
+
+type Parent @model @auth(rules: [
+  { allow: owner },
+  { allow: private, operations: [read] },
+  { allow: public, provider: apiKey }
+]) {
+  id: ID!
+  cognitoUserId: String @index(name: "byCognitoUser")
+  firstName: String!
+  lastName: String!
+  phoneNumber: String
+  canEditRecords: Boolean
+  students: [Student] @manyToMany(relationName: "ParentStudents")
+}
+
+type Student @model @auth(rules: [
+  { allow: private, operations: [read] },
+  { allow: groups, groups: ["Teachers"], operations: [read, update] },
+  { allow: public, provider: apiKey }
+]) {
+  id: ID!
+  firstName: String!
+  lastName: String!
+  dateOfBirth: AWSDate
+  gradeLevel: Int
+  attendanceRate: Float
+  currentStatus: String
+  school: School @belongsTo
+  parents: [Parent] @manyToMany(relationName: "ParentStudents")
 }

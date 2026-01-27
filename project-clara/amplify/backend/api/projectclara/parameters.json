@@ -1,5 +1,11 @@
 {
   "AppSyncApiName": "projectclara",
   "DynamoDBBillingMode": "PAY_PER_REQUEST",
-  "DynamoDBEnableServerSideEncryption": false
+  "DynamoDBEnableServerSideEncryption": false,
+  "AuthCognitoUserPoolId": {
+    "Fn::GetAtt": [
+      "authprojectclara0170b5bc",
+      "Outputs.UserPoolId"
+    ]
+  }
 }

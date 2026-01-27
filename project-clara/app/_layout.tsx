@@ -33,7 +33,7 @@ export default function RootLayout() {
         <Stack.Screen name="(parent)" options={{ headerShown: false }} />
         <Stack.Screen name="(teacher)" options={{ headerShown: false }} />
       </Stack>
-      <StatusBar style={colorScheme === "light" ? "light" : "dark"} />
+      <StatusBar style={colorScheme === "light" ? "dark" : "light"} />
     </ThemeProvider>
   );
 }

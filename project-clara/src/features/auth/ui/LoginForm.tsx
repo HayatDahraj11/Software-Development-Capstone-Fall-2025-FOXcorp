@@ -1,18 +1,18 @@
 import { Feather } from "@expo/vector-icons";
 import Checkbox from "expo-checkbox";
 import {
-  ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
-import { Colors } from "@/src/features/app-themes/constants/theme";
+import { useThemeColor } from "@/app-example/hooks/use-theme-color";
 import { useLogin } from "../logic/useLogin";
 
 type Props = {
@@ -35,6 +35,118 @@ export default function LoginForm({ schoolName }: Props) {
         handleLogin,
     } = useLogin();
 
+
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            justifyContent: "center",
+            padding: 24,
+            backgroundColor: useThemeColor({},"background"),
+        },
+        headerContainer: {
+            alignItems: "center",
+            marginBottom: 40,
+        },
+        logoContainer: {
+            width: 80,
+            height: 80,
+            backgroundColor: useThemeColor({},"fullBright"),
+            borderRadius: 40,
+            justifyContent: "center",
+            alignItems: "center",
+            marginBottom: 20,
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 3.84,
+            elevation: 5,
+        },
+        title: {
+            fontSize: 32,
+            fontWeight: "bold",
+            color: useThemeColor({},"text"),
+            textAlign: "center",
+        },
+        subtitle: {
+            fontSize: 16,
+            color: useThemeColor({},"placeholderText"),
+            marginTop: 8,
+            textAlign: "center",
+        },
+        formContainer: {
+            width: "100%",
+        },
+        inputContainer: {
+            flexDirection: "row",
+            alignItems: "center",
+            width: "100%",
+            height: 56,
+            backgroundColor: useThemeColor({},"fullBright"),
+            borderRadius: 12,
+            paddingHorizontal: 16,
+            marginTop: 16,
+            borderWidth: 1,
+            borderColor: useThemeColor({},"buttonBorder"),
+        },
+        icon: {
+            marginRight: 12,
+        },
+        input: {
+            flex: 1,
+            height: "100%",
+            fontSize: 16,
+            color: useThemeColor({},"listText"),
+        },
+        eyeIcon: {
+            padding: 5,
+        },
+        errorText: {
+            alignSelf: "flex-start",
+            color: useThemeColor({},"urgent"),
+            marginTop: 6,
+            marginLeft: 4,
+        },
+        formErrorText: {
+            color: useThemeColor({},"urgent"),
+            textAlign: "center",
+            marginTop: 16,
+        },
+        rememberMeContainer: {
+            flexDirection: "row",
+            alignItems: "center",
+            marginTop: 16,
+        },
+        rememberMeText: {
+            marginLeft: 8,
+            fontSize: 16,
+            color: useThemeColor({},"text"),
+        },
+        pressable: {
+            width: "100%",
+            height: 56,
+            marginTop: 24,
+            backgroundColor: useThemeColor({},"tint"),
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: 12,
+            shadowColor: useThemeColor({},"tint"),
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 8,
+            elevation: 5,
+        },
+        pressableDisabled: {
+            backgroundColor: "#A9A9A9",
+            shadowOpacity: 0,
+        },
+        pressableLabel: {
+            color: useThemeColor({},"fullBright"),
+            fontSize: 18,
+            fontWeight: "600",
+        },
+    });
+        const tintColor = useThemeColor({},"tint") // workaround for using useThemeColor in a conditional.
+
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -42,7 +154,7 @@ export default function LoginForm({ schoolName }: Props) {
         >
             <View style={styles.headerContainer}>
                 <View style={styles.logoContainer}>
-                    <Feather name="book-open" size={40} color={Colors.light.tint} />
+                    <Feather name="book-open" size={40} color={useThemeColor({},"tint")} />
                 </View>
                 <Text style={styles.title}>Welcome Back</Text>
                 <Text style={styles.subtitle}>Logging in to: {schoolName}</Text>
@@ -90,7 +202,7 @@ export default function LoginForm({ schoolName }: Props) {
                     <Checkbox
                         value={rememberMe}
                         onValueChange={setRememberMe}
-                        color={rememberMe ? Colors.light.tint : undefined}
+                        color={rememberMe ? tintColor : undefined}
                     />
                     <Text style={styles.rememberMeText}>Remember Me</Text>
                 </View>
@@ -116,113 +228,3 @@ export default function LoginForm({ schoolName }: Props) {
         </KeyboardAvoidingView>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: "center",
-        padding: 24,
-        backgroundColor: "#F7F8FA",
-    },
-    headerContainer: {
-        alignItems: "center",
-        marginBottom: 40,
-    },
-    logoContainer: {
-        width: 80,
-        height: 80,
-        backgroundColor: "#FFFFFF",
-        borderRadius: 40,
-        justifyContent: "center",
-        alignItems: "center",
-        marginBottom: 20,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3.84,
-        elevation: 5,
-    },
-    title: {
-        fontSize: 32,
-        fontWeight: "bold",
-        color: "#1D2939",
-        textAlign: "center",
-    },
-    subtitle: {
-        fontSize: 16,
-        color: "#667085",
-        marginTop: 8,
-        textAlign: "center",
-    },
-    formContainer: {
-        width: "100%",
-    },
-    inputContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        width: "100%",
-        height: 56,
-        backgroundColor: "#FFFFFF",
-        borderRadius: 12,
-        paddingHorizontal: 16,
-        marginTop: 16,
-        borderWidth: 1,
-        borderColor: "#E4E7EB",
-    },
-    icon: {
-        marginRight: 12,
-    },
-    input: {
-        flex: 1,
-        height: "100%",
-        fontSize: 16,
-        color: "#1D2939",
-    },
-    eyeIcon: {
-        padding: 5,
-    },
-    errorText: {
-        alignSelf: "flex-start",
-        color: "#D92D20",
-        marginTop: 6,
-        marginLeft: 4,
-    },
-    formErrorText: {
-        color: "#D92D20",
-        textAlign: "center",
-        marginTop: 16,
-    },
-    rememberMeContainer: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginTop: 16,
-    },
-    rememberMeText: {
-        marginLeft: 8,
-        fontSize: 16,
-        color: "#1D2939",
-    },
-    pressable: {
-        width: "100%",
-        height: 56,
-        marginTop: 24,
-        backgroundColor: Colors.light.tint,
-        alignItems: "center",
-        justifyContent: "center",
-        borderRadius: 12,
-        shadowColor: Colors.light.tint,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-        elevation: 5,
-    },
-    pressableDisabled: {
-        backgroundColor: "#A9A9A9",
-        shadowOpacity: 0,
-    },
-    pressableLabel: {
-        color: "#FFFFFF",
-        fontSize: 18,
-        fontWeight: "600",
-    },
-});

@@ -1,16 +1,16 @@
-import { Colors } from "@/src/features/app-themes/constants/theme";
+import { useThemeColor } from "@/app-example/hooks/use-theme-color";
 import SchoolPicker from "@/src/features/school-selection/ui/SchoolPicker";
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
@@ -47,6 +47,92 @@ export default function SchoolSelection() {
         };
     });
 
+    const styles = StyleSheet.create({
+        container: {
+            flex: 1,
+            justifyContent: 'center',
+            padding: 24,
+            backgroundColor: useThemeColor({},"background"),
+        },
+        headerContainer: {
+            alignItems: 'center',
+            marginBottom: 40,
+        },
+        logoContainer: {
+            width: 80,
+            height: 80,
+            backgroundColor: useThemeColor({},"fullBright"),
+            borderRadius: 40,
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginBottom: 20,
+            shadowColor: "#000",
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 3.84,
+            elevation: 5,
+        },
+        title: {
+            fontSize: 32,
+            fontWeight: 'bold',
+            color: useThemeColor({},"text"),
+            textAlign: 'center',
+        },
+        formContainer: {
+            width: '100%',
+        },
+        selectionInput: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            width: '100%',
+            height: 56,
+            backgroundColor: useThemeColor({},"fullBright"),
+            borderRadius: 12,
+            paddingHorizontal: 16,
+            borderWidth: 1,
+            borderColor: useThemeColor({},"buttonBorder"),
+        },
+        selectionInputText: {
+            fontSize: 16,
+            color: useThemeColor({},"listText"),
+        },
+        placeholderText: {
+            fontSize: 16,
+            color: useThemeColor({},"placeholderText"),
+        },
+        changeSchoolText: {
+            color: useThemeColor({},"tint"),
+            textAlign: 'right',
+            marginTop: 8,
+            fontWeight: '500',
+            textDecorationLine: 'underline',
+        },
+        continueButtonContainer: {
+            width: '100%',
+        },
+        pressable: {
+            flexDirection: 'row',
+            width: '100%',
+            height: 56,
+            marginTop: 24,
+            backgroundColor: useThemeColor({},"tint"),
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: 12,
+            shadowColor: useThemeColor({},"tint"),
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 8,
+            elevation: 5,
+        },
+        pressableLabel: {
+            color: useThemeColor({},"fullBright"),
+            fontSize: 18,
+            fontWeight: '600',
+        },
+    });
+
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -54,7 +140,7 @@ export default function SchoolSelection() {
         >
             <View style={styles.headerContainer}>
                 <View style={styles.logoContainer}>
-                    <Feather name="book-open" size={40} color={Colors.light.tint} />
+                    <Feather name="book-open" size={40} color={useThemeColor({},"tint")} />
                 </View>
                 <Text style={styles.title}>Please select your school</Text>
             </View>
@@ -66,7 +152,7 @@ export default function SchoolSelection() {
                     ) : (
                         <Text style={styles.placeholderText}>Select your school...</Text>
                     )}
-                    <Feather name="chevron-down" size={20} color="#667085" />
+                    <Feather name="chevron-down" size={20} color={useThemeColor({},"placeholderText")} />
                 </Pressable>
 
                 {school && (
@@ -81,7 +167,7 @@ export default function SchoolSelection() {
                         onPress={sendToLogin}
                     >
                         <Text style={styles.pressableLabel}>Continue to Login</Text>
-                        <Feather name="arrow-right" size={20} color="#FFFFFF" style={{ marginLeft: 8 }} />
+                        <Feather name="arrow-right" size={20} color={useThemeColor({},"fullBright")} style={{ marginLeft: 8 }} />
                     </Pressable>
                 </Animated.View>
 
@@ -94,89 +180,3 @@ export default function SchoolSelection() {
         </KeyboardAvoidingView>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        padding: 24,
-        backgroundColor: '#F7F8FA',
-    },
-    headerContainer: {
-        alignItems: 'center',
-        marginBottom: 40,
-    },
-    logoContainer: {
-        width: 80,
-        height: 80,
-        backgroundColor: '#FFFFFF',
-        borderRadius: 40,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 20,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 3.84,
-        elevation: 5,
-    },
-    title: {
-        fontSize: 32,
-        fontWeight: 'bold',
-        color: '#1D2939',
-        textAlign: 'center',
-    },
-    formContainer: {
-        width: '100%',
-    },
-    selectionInput: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        width: '100%',
-        height: 56,
-        backgroundColor: '#FFFFFF',
-        borderRadius: 12,
-        paddingHorizontal: 16,
-        borderWidth: 1,
-        borderColor: '#E4E7EB',
-    },
-    selectionInputText: {
-        fontSize: 16,
-        color: '#1D2939',
-    },
-    placeholderText: {
-        fontSize: 16,
-        color: '#98A2B3',
-    },
-    changeSchoolText: {
-        color: Colors.light.tint,
-        textAlign: 'right',
-        marginTop: 8,
-        fontWeight: '500',
-        textDecorationLine: 'underline',
-    },
-    continueButtonContainer: {
-        width: '100%',
-    },
-    pressable: {
-        flexDirection: 'row',
-        width: '100%',
-        height: 56,
-        marginTop: 24,
-        backgroundColor: Colors.light.tint,
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 12,
-        shadowColor: Colors.light.tint,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-        elevation: 5,
-    },
-    pressableLabel: {
-        color: '#FFFFFF',
-        fontSize: 18,
-        fontWeight: '600',
-    },
-});

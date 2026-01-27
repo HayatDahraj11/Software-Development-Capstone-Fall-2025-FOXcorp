@@ -2,7 +2,7 @@ import { sendPushNotification, usePushNotifications } from "@/src/features/notif
 import { Href, useRouter } from "expo-router";
 import { FlatList, StyleSheet, View } from "react-native";
 
-import { Colors } from "@/src/features/app-themes/constants/theme";
+import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import Card from "@/src/features/cards/ui/Card";
 
 export default function ParentHomeScreen() {
@@ -49,6 +49,13 @@ export default function ParentHomeScreen() {
         }
     }
 
+    const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: useThemeColor({}, "background"),
+    },
+});
+
     return (
         <View style={styles.container}>
             <FlatList
@@ -70,10 +77,3 @@ export default function ParentHomeScreen() {
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: Colors.light.background,
-    },
-});

@@ -37,6 +37,7 @@ function DefaultSettings(): LocalSettings {
 // searches storage for settings matching user id in usercredentials
 // returns settings on success, returns a failure message on fail
 export async function QueryLocalStorageForUser(credentials: UserCredentials): Promise<StorageQueryResult> {
+    console.log("query entered")
     const defaultSettings: LocalSettings = DefaultSettings()
     // grabbing stored data
     try{
@@ -49,6 +50,7 @@ export async function QueryLocalStorageForUser(credentials: UserCredentials): Pr
                 userSettings.app_theme = defaultSettings.app_theme;
             }
 
+            console.log("Settings for for this user, returning them!")
             return { success: true, message: "User settings found!", user_settings: userSettings }
         } 
         // if there is a matching id but no settings in it, throw an error
@@ -68,6 +70,7 @@ export async function CreateLocalStorageForUser(credentials: UserCredentials): P
         const userDefaults:LocalSettings = DefaultSettings(); 
         const userDefaultsStringify = JSON.stringify(userDefaults); 
         await AsyncStorage.setItem(credentials.id, userDefaultsStringify)
+        console.log("Default settings created for ths user, returning success!")
         return { success: true, message: "New settings created for user" }
     } catch(e) {
         const err = e as {name?: string, message?: string}

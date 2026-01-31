@@ -1,38 +1,45 @@
-import { useParentLoginContext } from "@/context/ParentLoginContext";
+import { debug_parent } from "@/src/features/auth/logic/debug_parent_data";
+import { useStoredSettings } from "@/src/features/in-app-settings/logic/useStoredSettings";
 import { Redirect } from "expo-router";
-import { getCurrentUser } from "aws-amplify/auth";
-
-// function to see if user is actually logged in to an AWS account or not
-// if not, we will assume its a debug account and use local hard-coded information
-
-async function isSignedIn() {
-    try {
-        const userDetails = await getCurrentUser();
-        console.log("Logged in to Parent AWS account successfully! Continuing.");
-        return true;
-    } catch(error) {
-        console.log(`Accessed Parent views while not logged in, assuming debug login.\nError: ${error}`);
-        return false;
-    };
-}; 
+import { useEffect } from "react";
+import { Appearance, Text, View } from "react-native";
 
 
 
 export default function Index() {
     
-    const {isDebug, updateIsDebug} = useParentLoginContext();
+    // grabbing user settings from storage
+    const {
+        app_theme,
+        isLoading,
+        handleStoredSettings
+    } = useStoredSettings(debug_parent.guardianUser.userId) // for now, hardwired to use debug parent. will change later
+
+    console.log(isLoading)
+
+    useEffect(() => {
+        handleStoredSettings();
+    }, [handleStoredSettings])
     
-    isSignedIn().then((isSigned) => {
-        if(isSigned) {
-            updateIsDebug(false);
+    if(!isLoading) {
+        if(app_theme === "light") {
+            Appearance.setColorScheme("light")
+        } else if(app_theme === "dark") {
+            Appearance.setColorScheme("dark")
         } else {
-            updateIsDebug(true);
-        };
-    })
-    
+            Appearance.setColorScheme("dark")
+            console.warn("Settings did not have properly formatted color scheme. Setting to dark.")
+        }
+    }
 
     return (
-        <Redirect href="/(parent)/(tabs)/home"/>
+        <View>
+            {isLoading ? (
+                <Text style={{color:"white"}}>Hello! I am a placeholder! Ignore me...</Text>
+            ) : (
+                <Redirect href="/(parent)/(tabs)/home"/>
+            )}
+        </View>
     );
 }
 

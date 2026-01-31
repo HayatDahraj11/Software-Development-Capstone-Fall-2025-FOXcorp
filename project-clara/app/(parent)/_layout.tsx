@@ -1,5 +1,5 @@
+import { ParentLoginProvider } from "context/ParentLoginContext";
 import { Stack } from "expo-router";
-import { ParentLoginProvider } from "context/ParentLoginContext"
 
 export default function ParentLayout() {
     return (
@@ -7,6 +7,7 @@ export default function ParentLayout() {
         // see context/ParentLoginContext.js
         <ParentLoginProvider>
             <Stack>
+                <Stack.Screen name="index" options={{headerShown: false}}/>
                 <Stack.Screen name="(tabs)" options={{headerShown: false}}/>
             </Stack>
         </ParentLoginProvider>

@@ -12,24 +12,17 @@ export default function Index() {
     const {
         app_theme,
         isLoading,
-        handleStoredSettings
+        handleStoredSettings,
+        matchAppToStoredSettings
     } = useStoredSettings(debug_parent.guardianUser.userId) // for now, hardwired to use debug parent. will change later
 
     useEffect(() => {
         handleStoredSettings();
+        matchAppToStoredSettings();
     }, [])
     
     
-    if(!isLoading) {
-        if(app_theme === "light") {
-            Appearance.setColorScheme("light")
-        } else if(app_theme === "dark") {
-            Appearance.setColorScheme("dark")
-        } else {
-            Appearance.setColorScheme("dark")
-            console.warn("Settings did not have properly formatted color scheme. Setting to dark.")
-        }
-    }
+    
     
     return (
         <View>

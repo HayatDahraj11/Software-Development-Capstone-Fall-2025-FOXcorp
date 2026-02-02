@@ -77,3 +77,18 @@ export async function createLocalStorageForUser(credentials: UserCredentials, sy
         return { success: false, message: "See logs for error" }
     }
 }
+
+// updates existing user settings
+// returns whether it was a success or not
+export async function updateLocalStorageForUser(credentials: UserCredentials, newSettings: LocalSettings): Promise<StorageCreationResult> {
+    const newSettingsStringify = JSON.stringify(newSettings);
+    try {
+        await AsyncStorage.setItem(credentials.id, newSettingsStringify);
+        console.log("Settings saved successfully.");
+        return { success: true, message: "Settings saved successfully." };
+    } catch(e) {
+        const err = e as {name?: string, message?: string}
+        console.error("storage_handler.ts, updateLocalStorageForUser: ",err.message)
+        return { success: false, message: "See logs for error" }
+    }
+}

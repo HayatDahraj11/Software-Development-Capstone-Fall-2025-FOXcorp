@@ -37,3 +37,29 @@ type Student @model @auth(rules: [
   school: School @belongsTo
   parents: [Parent] @manyToMany(relationName: "ParentStudents")
 }
+
+type Teacher @model @auth(rules: [
+  { allow: owner },
+  { allow: private, operations: [read] },
+  { allow: public, provider: apiKey }
+]) {
+  id: ID!
+  cognitoUserId: String @index(name: "byCognitoUser")
+  firstName: String!
+  lastName: String!
+  email: String
+  schoolId: ID! @index(name: "bySchool")
+  classes: [Class] @hasMany(indexName: "byTeacher", fields: ["id"])
+}
+
+type Class @model @auth(rules: [
+  { allow: private, operations: [read] },
+  { allow: groups, groups: ["Teachers"], operations: [create, read, update] },
+  { allow: public, provider: apiKey }
+]) {
+  id: ID!
+  name: String!
+  teacherId: ID! @index(name: "byTeacher")
+  schoolId: ID! @index(name: "bySchool")
+  teacher: Teacher @belongsTo(fields: ["teacherId"])
+}

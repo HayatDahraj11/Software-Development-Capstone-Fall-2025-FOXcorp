@@ -14,7 +14,7 @@ const FALLBACK_SCHOOLS: SchoolItem[] = [
 export async function fetchSchoolsFromRepo(): Promise<SchoolItem[]> {
     try {
         const client = generateClient();
-        const response = await client.graphql({ query: listSchools });
+        const response = await client.graphql({ query: listSchools, authMode: 'apiKey' });
         const data = response.data as ListSchoolsQuery;
         const items = data.listSchools?.items ?? [];
 

@@ -23,6 +23,7 @@ export const Colors = {
     tabIconDefault: '#687076',
     tabIconSelected: tintColorLight,
     urgent: '#ec5557ff',
+    boxBorder: '#11181C',
   },
   dark: {
     text: '#ECEDEE',
@@ -41,6 +42,7 @@ export const Colors = {
     tabIconDefault: '#9BA1A6',
     tabIconSelected: tintColorDark,
     urgent: '#ec5557ff',
+    boxBorder: '#ECEDEE',
   },
 };
 

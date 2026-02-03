@@ -1,11 +1,19 @@
 import { Href, useRouter } from "expo-router";
 import { FlatList, StyleSheet, View } from "react-native";
 
-import { Colors } from "@/src/features/app-themes/constants/theme";
+import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import Card from "@/src/features/cards/ui/Card";
 
 export default function attendanceList() {
   const router = useRouter();
+
+  
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: useThemeColor({}, "background")
+  },
+});
 
   const CardFlatListData = [
         {
@@ -101,10 +109,3 @@ export default function attendanceList() {
 }
 
 
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.light.background
-  },
-});

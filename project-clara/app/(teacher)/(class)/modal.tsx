@@ -3,40 +3,6 @@ import { router } from "expo-router";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 
 export default function Modal() {
-  return (
-    <Pressable style={styles.overlay} onPress={() => router.back()}>
-      <Pressable style={styles.card} onPress={(e) => e.stopPropagation()}>
-        <View style={styles.headerRow}>
-          <Text style={styles.nameText}>Student Name</Text>
-
-          <View style={styles.parentRow}>
-            <Text style={styles.parentText}>Parent Name</Text>
-            <Pressable onPress={() => router.push("/messaging")}>
-              <Ionicons name="mail-outline" size={22} color="black" />
-            </Pressable>
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Medical/Record info</Text>
-          <Text>Medical Records Stuff</Text>
-        </View>
-
-        <View style={styles.divider} />
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Notes</Text>
-          <TextInput
-            style={styles.textInput}
-            placeholder="Teacher notes"
-            multiline
-          />
-        </View>
-      </Pressable>
-    </Pressable>
-
-  );
-}
 
 const styles = StyleSheet.create({
   overlay: {
@@ -96,3 +62,39 @@ const styles = StyleSheet.create({
     textAlignVertical: "top",
   },
 });
+
+  return (
+    <Pressable style={styles.overlay} onPress={() => router.back()}>
+      <Pressable style={styles.card} onPress={(e) => e.stopPropagation()}>
+        <View style={styles.headerRow}>
+          <Text style={styles.nameText}>Student Name</Text>
+
+          <View style={styles.parentRow}>
+            <Text style={styles.parentText}>Parent Name</Text>
+            <Pressable onPress={() => router.push("/messaging")}>
+              <Ionicons name="mail-outline" size={22} color="black" />
+            </Pressable>
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Medical/Record info</Text>
+          <Text>Medical Records Stuff</Text>
+        </View>
+
+        <View style={styles.divider} />
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Notes</Text>
+          <TextInput
+            style={styles.textInput}
+            placeholder="Teacher notes"
+            multiline
+          />
+        </View>
+      </Pressable>
+    </Pressable>
+
+  );
+}
+

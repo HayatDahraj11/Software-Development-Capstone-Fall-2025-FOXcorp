@@ -1,11 +1,22 @@
 import { Href, useRouter } from "expo-router";
 import { FlatList, StyleSheet, View } from "react-native";
 
-import { Colors } from "@/src/features/app-themes/constants/theme";
+import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import Card from "@/src/features/cards/ui/Card";
 
 export default function Index() {
     const router = useRouter();
+
+    const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        alignContent: 'flex-start',
+        alignItems: 'center',
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        backgroundColor: useThemeColor({}, "background")
+    },
+});
 
     // list used for making cards with the flat view. this will be done dynamically later
     const CardFlatListData = [
@@ -101,13 +112,3 @@ export default function Index() {
     );
 }
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignContent: 'flex-start',
-        alignItems: 'center',
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
-        backgroundColor: Colors.light.background
-    },
-});

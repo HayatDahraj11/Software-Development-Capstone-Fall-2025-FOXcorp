@@ -1,8 +1,38 @@
-import { Colors } from "@/src/features/app-themes/constants/theme";
+import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import Card from "@/src/features/cards/ui/Card";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 export default function announcements() {
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: useThemeColor({}, "background")
+  },
+
+  scrollContent: {
+    padding: 15,
+    paddingBottom: 80,
+  },
+  section: {
+    marginBottom: 25,
+  },
+  dateRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  line: {
+    flex: 1,
+    height: 1,
+    backgroundColor: useThemeColor({}, "boxBorder"),
+  },
+  dateText: {
+    marginHorizontal: 10,
+    fontSize: 14,
+    color: useThemeColor({}, "boxBorder"),
+  },
+});
 
 const announcements = [
     {
@@ -63,32 +93,3 @@ const announcements = [
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.light.background
-  },
-
-  scrollContent: {
-    padding: 15,
-    paddingBottom: 80,
-  },
-  section: {
-    marginBottom: 25,
-  },
-  dateRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 10,
-  },
-  line: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "black",
-  },
-  dateText: {
-    marginHorizontal: 10,
-    fontSize: 14,
-    color: "black",
-  },
-});

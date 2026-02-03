@@ -1,4 +1,4 @@
-import { Colors } from "@/src/features/app-themes/constants/theme";
+import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import { StyleSheet, Text, View } from "react-native";
 
 export default function grades() {
@@ -13,6 +13,6 @@ export default function grades() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.light.background
+    backgroundColor: useThemeColor({}, "background")
   },
 });

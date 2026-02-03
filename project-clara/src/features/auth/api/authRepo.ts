@@ -42,9 +42,6 @@ export async function loginUser(credentials: LoginCredentials): Promise<LoginRes
         };
     } catch (error: unknown) {
         const err = error as { name?: string; message?: string };
-        console.log("DEBUG - Error name:", err.name);
-        console.log("DEBUG - Error message:", err.message);
-        console.log("DEBUG - Full error:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
 
         let errorMessage = "Login failed. Please check your credentials.";
 
@@ -55,9 +52,7 @@ export async function loginUser(credentials: LoginCredentials): Promise<LoginRes
         } else if (err.name === "UserNotConfirmedException") {
             errorMessage = "Account not confirmed. Please check your email.";
         } else if (err.name === "UserAlreadyAuthenticatedException") {
-            console.log("DEBUG - Handling UserAlreadyAuthenticatedException");
             const user = await getCurrentUser();
-            console.log("DEBUG - Got user:", user.userId);
             return {
                 success: true,
                 message: "Already signed in",

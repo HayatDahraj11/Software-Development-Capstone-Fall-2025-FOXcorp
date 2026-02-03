@@ -75,7 +75,6 @@ export function useLogin(): UseLoginReturn {
 
         try {
             const result = await loginUser({ username, password });
-            console.log("DEBUG - Login result:", result.success, result.userId);
 
             if (result.success && result.userId) {
                 if (rememberMe) {
@@ -84,23 +83,17 @@ export function useLogin(): UseLoginReturn {
                     await clearUsername();
                 }
 
-                // Check if user is a parent by querying Parent table
-                console.log("DEBUG - Querying parent with userId:", result.userId);
                 const client = generateClient();
                 const response = await client.graphql({
                     query: parentsByCognitoUserId,
                     variables: { cognitoUserId: result.userId },
                 });
-                console.log("DEBUG - GraphQL response:", JSON.stringify(response));
                 const data = response.data as ParentsByCognitoUserIdQuery;
                 const parents = data?.parentsByCognitoUserId?.items ?? [];
-                console.log("DEBUG - Parents found:", parents.length);
 
                 if (parents.length > 0) {
-                    console.log("DEBUG - Routing to parent");
                     router.replace("/(parent)/(tabs)");
                 } else {
-                    console.log("DEBUG - Routing to teacher");
                     router.replace("/(teacher)");
                 }
                 return;

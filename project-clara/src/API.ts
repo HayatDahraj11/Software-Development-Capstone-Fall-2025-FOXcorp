@@ -119,6 +119,7 @@ export type Student = {
   currentStatus?: string | null,
   school?: School | null,
   parents?: ModelParentStudentsConnection | null,
+  enrollments?: ModelEnrollmentConnection | null,
   createdAt: string,
   updatedAt: string,
   schoolStudentsId?: string | null,
@@ -130,6 +131,8 @@ export type School = {
   name: string,
   address?: string | null,
   students?: ModelStudentConnection | null,
+  teachers?: ModelTeacherConnection | null,
+  classes?: ModelClassConnection | null,
   createdAt: string,
   updatedAt: string,
 };
@@ -138,6 +141,61 @@ export type ModelStudentConnection = {
   __typename: "ModelStudentConnection",
   items:  Array<Student | null >,
   nextToken?: string | null,
+};
+
+export type ModelTeacherConnection = {
+  __typename: "ModelTeacherConnection",
+  items:  Array<Teacher | null >,
+  nextToken?: string | null,
+};
+
+export type Teacher = {
+  __typename: "Teacher",
+  id: string,
+  name: string,
+  cognitoUserId?: string | null,
+  schoolId: string,
+  school?: School | null,
+  classes?: ModelClassConnection | null,
+  createdAt: string,
+  updatedAt: string,
+};
+
+export type ModelClassConnection = {
+  __typename: "ModelClassConnection",
+  items:  Array<Class | null >,
+  nextToken?: string | null,
+};
+
+export type Class = {
+  __typename: "Class",
+  id: string,
+  name: string,
+  teacherId: string,
+  schoolId: string,
+  teacher?: Teacher | null,
+  school?: School | null,
+  enrollments?: ModelEnrollmentConnection | null,
+  createdAt: string,
+  updatedAt: string,
+};
+
+export type ModelEnrollmentConnection = {
+  __typename: "ModelEnrollmentConnection",
+  items:  Array<Enrollment | null >,
+  nextToken?: string | null,
+};
+
+export type Enrollment = {
+  __typename: "Enrollment",
+  id: string,
+  studentId: string,
+  classId: string,
+  currentGrade?: number | null,
+  student?: Student | null,
+  class?: Class | null,
+  createdAt: string,
+  updatedAt: string,
 };
 
 export type ModelParentStudentsConnection = {
@@ -173,6 +231,93 @@ export type Parent = {
 };
 
 export type DeleteStudentInput = {
+  id: string,
+};
+
+export type CreateTeacherInput = {
+  id?: string | null,
+  name: string,
+  cognitoUserId?: string | null,
+  schoolId: string,
+};
+
+export type ModelTeacherConditionInput = {
+  name?: ModelStringInput | null,
+  cognitoUserId?: ModelStringInput | null,
+  schoolId?: ModelIDInput | null,
+  and?: Array< ModelTeacherConditionInput | null > | null,
+  or?: Array< ModelTeacherConditionInput | null > | null,
+  not?: ModelTeacherConditionInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type UpdateTeacherInput = {
+  id: string,
+  name?: string | null,
+  cognitoUserId?: string | null,
+  schoolId?: string | null,
+};
+
+export type DeleteTeacherInput = {
+  id: string,
+};
+
+export type CreateClassInput = {
+  id?: string | null,
+  name: string,
+  teacherId: string,
+  schoolId: string,
+};
+
+export type ModelClassConditionInput = {
+  name?: ModelStringInput | null,
+  teacherId?: ModelIDInput | null,
+  schoolId?: ModelIDInput | null,
+  and?: Array< ModelClassConditionInput | null > | null,
+  or?: Array< ModelClassConditionInput | null > | null,
+  not?: ModelClassConditionInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type UpdateClassInput = {
+  id: string,
+  name?: string | null,
+  teacherId?: string | null,
+  schoolId?: string | null,
+};
+
+export type DeleteClassInput = {
+  id: string,
+};
+
+export type CreateEnrollmentInput = {
+  id?: string | null,
+  studentId: string,
+  classId: string,
+  currentGrade?: number | null,
+};
+
+export type ModelEnrollmentConditionInput = {
+  studentId?: ModelIDInput | null,
+  classId?: ModelIDInput | null,
+  currentGrade?: ModelFloatInput | null,
+  and?: Array< ModelEnrollmentConditionInput | null > | null,
+  or?: Array< ModelEnrollmentConditionInput | null > | null,
+  not?: ModelEnrollmentConditionInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type UpdateEnrollmentInput = {
+  id: string,
+  studentId?: string | null,
+  classId?: string | null,
+  currentGrade?: number | null,
+};
+
+export type DeleteEnrollmentInput = {
   id: string,
 };
 
@@ -283,6 +428,48 @@ export type DeleteParentStudentsInput = {
   id: string,
 };
 
+export type ModelTeacherFilterInput = {
+  id?: ModelIDInput | null,
+  name?: ModelStringInput | null,
+  cognitoUserId?: ModelStringInput | null,
+  schoolId?: ModelIDInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  and?: Array< ModelTeacherFilterInput | null > | null,
+  or?: Array< ModelTeacherFilterInput | null > | null,
+  not?: ModelTeacherFilterInput | null,
+};
+
+export type ModelClassFilterInput = {
+  id?: ModelIDInput | null,
+  name?: ModelStringInput | null,
+  teacherId?: ModelIDInput | null,
+  schoolId?: ModelIDInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  and?: Array< ModelClassFilterInput | null > | null,
+  or?: Array< ModelClassFilterInput | null > | null,
+  not?: ModelClassFilterInput | null,
+};
+
+export type ModelEnrollmentFilterInput = {
+  id?: ModelIDInput | null,
+  studentId?: ModelIDInput | null,
+  classId?: ModelIDInput | null,
+  currentGrade?: ModelFloatInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  and?: Array< ModelEnrollmentFilterInput | null > | null,
+  or?: Array< ModelEnrollmentFilterInput | null > | null,
+  not?: ModelEnrollmentFilterInput | null,
+};
+
+export enum ModelSortDirection {
+  ASC = "ASC",
+  DESC = "DESC",
+}
+
+
 export type ModelSchoolFilterInput = {
   id?: ModelIDInput | null,
   name?: ModelStringInput | null,
@@ -321,12 +508,6 @@ export type ModelParentConnection = {
   nextToken?: string | null,
 };
 
-export enum ModelSortDirection {
-  ASC = "ASC",
-  DESC = "DESC",
-}
-
-
 export type ModelStudentFilterInput = {
   id?: ModelIDInput | null,
   firstName?: ModelStringInput | null,
@@ -355,15 +536,15 @@ export type ModelParentStudentsFilterInput = {
   owner?: ModelStringInput | null,
 };
 
-export type ModelSubscriptionSchoolFilterInput = {
+export type ModelSubscriptionTeacherFilterInput = {
   id?: ModelSubscriptionIDInput | null,
   name?: ModelSubscriptionStringInput | null,
-  address?: ModelSubscriptionStringInput | null,
+  cognitoUserId?: ModelSubscriptionStringInput | null,
+  schoolId?: ModelSubscriptionIDInput | null,
   createdAt?: ModelSubscriptionStringInput | null,
   updatedAt?: ModelSubscriptionStringInput | null,
-  and?: Array< ModelSubscriptionSchoolFilterInput | null > | null,
-  or?: Array< ModelSubscriptionSchoolFilterInput | null > | null,
-  schoolStudentsId?: ModelSubscriptionIDInput | null,
+  and?: Array< ModelSubscriptionTeacherFilterInput | null > | null,
+  or?: Array< ModelSubscriptionTeacherFilterInput | null > | null,
 };
 
 export type ModelSubscriptionIDInput = {
@@ -394,6 +575,51 @@ export type ModelSubscriptionStringInput = {
   beginsWith?: string | null,
   in?: Array< string | null > | null,
   notIn?: Array< string | null > | null,
+};
+
+export type ModelSubscriptionClassFilterInput = {
+  id?: ModelSubscriptionIDInput | null,
+  name?: ModelSubscriptionStringInput | null,
+  teacherId?: ModelSubscriptionIDInput | null,
+  schoolId?: ModelSubscriptionIDInput | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+  and?: Array< ModelSubscriptionClassFilterInput | null > | null,
+  or?: Array< ModelSubscriptionClassFilterInput | null > | null,
+};
+
+export type ModelSubscriptionEnrollmentFilterInput = {
+  id?: ModelSubscriptionIDInput | null,
+  studentId?: ModelSubscriptionIDInput | null,
+  classId?: ModelSubscriptionIDInput | null,
+  currentGrade?: ModelSubscriptionFloatInput | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+  and?: Array< ModelSubscriptionEnrollmentFilterInput | null > | null,
+  or?: Array< ModelSubscriptionEnrollmentFilterInput | null > | null,
+};
+
+export type ModelSubscriptionFloatInput = {
+  ne?: number | null,
+  eq?: number | null,
+  le?: number | null,
+  lt?: number | null,
+  ge?: number | null,
+  gt?: number | null,
+  between?: Array< number | null > | null,
+  in?: Array< number | null > | null,
+  notIn?: Array< number | null > | null,
+};
+
+export type ModelSubscriptionSchoolFilterInput = {
+  id?: ModelSubscriptionIDInput | null,
+  name?: ModelSubscriptionStringInput | null,
+  address?: ModelSubscriptionStringInput | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+  and?: Array< ModelSubscriptionSchoolFilterInput | null > | null,
+  or?: Array< ModelSubscriptionSchoolFilterInput | null > | null,
+  schoolStudentsId?: ModelSubscriptionIDInput | null,
 };
 
 export type ModelSubscriptionParentFilterInput = {
@@ -430,18 +656,6 @@ export type ModelSubscriptionStudentFilterInput = {
 };
 
 export type ModelSubscriptionIntInput = {
-  ne?: number | null,
-  eq?: number | null,
-  le?: number | null,
-  lt?: number | null,
-  ge?: number | null,
-  gt?: number | null,
-  between?: Array< number | null > | null,
-  in?: Array< number | null > | null,
-  notIn?: Array< number | null > | null,
-};
-
-export type ModelSubscriptionFloatInput = {
   ne?: number | null,
   eq?: number | null,
   le?: number | null,
@@ -491,6 +705,10 @@ export type CreateStudentMutation = {
       __typename: "ModelParentStudentsConnection",
       nextToken?: string | null,
     } | null,
+    enrollments?:  {
+      __typename: "ModelEnrollmentConnection",
+      nextToken?: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
     schoolStudentsId?: string | null,
@@ -524,9 +742,331 @@ export type DeleteStudentMutation = {
       __typename: "ModelParentStudentsConnection",
       nextToken?: string | null,
     } | null,
+    enrollments?:  {
+      __typename: "ModelEnrollmentConnection",
+      nextToken?: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
     schoolStudentsId?: string | null,
+  } | null,
+};
+
+export type CreateTeacherMutationVariables = {
+  input: CreateTeacherInput,
+  condition?: ModelTeacherConditionInput | null,
+};
+
+export type CreateTeacherMutation = {
+  createTeacher?:  {
+    __typename: "Teacher",
+    id: string,
+    name: string,
+    cognitoUserId?: string | null,
+    schoolId: string,
+    school?:  {
+      __typename: "School",
+      id: string,
+      name: string,
+      address?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    classes?:  {
+      __typename: "ModelClassConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type UpdateTeacherMutationVariables = {
+  input: UpdateTeacherInput,
+  condition?: ModelTeacherConditionInput | null,
+};
+
+export type UpdateTeacherMutation = {
+  updateTeacher?:  {
+    __typename: "Teacher",
+    id: string,
+    name: string,
+    cognitoUserId?: string | null,
+    schoolId: string,
+    school?:  {
+      __typename: "School",
+      id: string,
+      name: string,
+      address?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    classes?:  {
+      __typename: "ModelClassConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type DeleteTeacherMutationVariables = {
+  input: DeleteTeacherInput,
+  condition?: ModelTeacherConditionInput | null,
+};
+
+export type DeleteTeacherMutation = {
+  deleteTeacher?:  {
+    __typename: "Teacher",
+    id: string,
+    name: string,
+    cognitoUserId?: string | null,
+    schoolId: string,
+    school?:  {
+      __typename: "School",
+      id: string,
+      name: string,
+      address?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    classes?:  {
+      __typename: "ModelClassConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type CreateClassMutationVariables = {
+  input: CreateClassInput,
+  condition?: ModelClassConditionInput | null,
+};
+
+export type CreateClassMutation = {
+  createClass?:  {
+    __typename: "Class",
+    id: string,
+    name: string,
+    teacherId: string,
+    schoolId: string,
+    teacher?:  {
+      __typename: "Teacher",
+      id: string,
+      name: string,
+      cognitoUserId?: string | null,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    school?:  {
+      __typename: "School",
+      id: string,
+      name: string,
+      address?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    enrollments?:  {
+      __typename: "ModelEnrollmentConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type UpdateClassMutationVariables = {
+  input: UpdateClassInput,
+  condition?: ModelClassConditionInput | null,
+};
+
+export type UpdateClassMutation = {
+  updateClass?:  {
+    __typename: "Class",
+    id: string,
+    name: string,
+    teacherId: string,
+    schoolId: string,
+    teacher?:  {
+      __typename: "Teacher",
+      id: string,
+      name: string,
+      cognitoUserId?: string | null,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    school?:  {
+      __typename: "School",
+      id: string,
+      name: string,
+      address?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    enrollments?:  {
+      __typename: "ModelEnrollmentConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type DeleteClassMutationVariables = {
+  input: DeleteClassInput,
+  condition?: ModelClassConditionInput | null,
+};
+
+export type DeleteClassMutation = {
+  deleteClass?:  {
+    __typename: "Class",
+    id: string,
+    name: string,
+    teacherId: string,
+    schoolId: string,
+    teacher?:  {
+      __typename: "Teacher",
+      id: string,
+      name: string,
+      cognitoUserId?: string | null,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    school?:  {
+      __typename: "School",
+      id: string,
+      name: string,
+      address?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    enrollments?:  {
+      __typename: "ModelEnrollmentConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type CreateEnrollmentMutationVariables = {
+  input: CreateEnrollmentInput,
+  condition?: ModelEnrollmentConditionInput | null,
+};
+
+export type CreateEnrollmentMutation = {
+  createEnrollment?:  {
+    __typename: "Enrollment",
+    id: string,
+    studentId: string,
+    classId: string,
+    currentGrade?: number | null,
+    student?:  {
+      __typename: "Student",
+      id: string,
+      firstName: string,
+      lastName: string,
+      dateOfBirth?: string | null,
+      gradeLevel?: number | null,
+      attendanceRate?: number | null,
+      currentStatus?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      schoolStudentsId?: string | null,
+    } | null,
+    class?:  {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type UpdateEnrollmentMutationVariables = {
+  input: UpdateEnrollmentInput,
+  condition?: ModelEnrollmentConditionInput | null,
+};
+
+export type UpdateEnrollmentMutation = {
+  updateEnrollment?:  {
+    __typename: "Enrollment",
+    id: string,
+    studentId: string,
+    classId: string,
+    currentGrade?: number | null,
+    student?:  {
+      __typename: "Student",
+      id: string,
+      firstName: string,
+      lastName: string,
+      dateOfBirth?: string | null,
+      gradeLevel?: number | null,
+      attendanceRate?: number | null,
+      currentStatus?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      schoolStudentsId?: string | null,
+    } | null,
+    class?:  {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type DeleteEnrollmentMutationVariables = {
+  input: DeleteEnrollmentInput,
+  condition?: ModelEnrollmentConditionInput | null,
+};
+
+export type DeleteEnrollmentMutation = {
+  deleteEnrollment?:  {
+    __typename: "Enrollment",
+    id: string,
+    studentId: string,
+    classId: string,
+    currentGrade?: number | null,
+    student?:  {
+      __typename: "Student",
+      id: string,
+      firstName: string,
+      lastName: string,
+      dateOfBirth?: string | null,
+      gradeLevel?: number | null,
+      attendanceRate?: number | null,
+      currentStatus?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      schoolStudentsId?: string | null,
+    } | null,
+    class?:  {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
   } | null,
 };
 
@@ -543,6 +1083,14 @@ export type CreateSchoolMutation = {
     address?: string | null,
     students?:  {
       __typename: "ModelStudentConnection",
+      nextToken?: string | null,
+    } | null,
+    teachers?:  {
+      __typename: "ModelTeacherConnection",
+      nextToken?: string | null,
+    } | null,
+    classes?:  {
+      __typename: "ModelClassConnection",
       nextToken?: string | null,
     } | null,
     createdAt: string,
@@ -565,6 +1113,14 @@ export type UpdateSchoolMutation = {
       __typename: "ModelStudentConnection",
       nextToken?: string | null,
     } | null,
+    teachers?:  {
+      __typename: "ModelTeacherConnection",
+      nextToken?: string | null,
+    } | null,
+    classes?:  {
+      __typename: "ModelClassConnection",
+      nextToken?: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -583,6 +1139,14 @@ export type DeleteSchoolMutation = {
     address?: string | null,
     students?:  {
       __typename: "ModelStudentConnection",
+      nextToken?: string | null,
+    } | null,
+    teachers?:  {
+      __typename: "ModelTeacherConnection",
+      nextToken?: string | null,
+    } | null,
+    classes?:  {
+      __typename: "ModelClassConnection",
       nextToken?: string | null,
     } | null,
     createdAt: string,
@@ -687,6 +1251,10 @@ export type UpdateStudentMutation = {
     } | null,
     parents?:  {
       __typename: "ModelParentStudentsConnection",
+      nextToken?: string | null,
+    } | null,
+    enrollments?:  {
+      __typename: "ModelEnrollmentConnection",
       nextToken?: string | null,
     } | null,
     createdAt: string,
@@ -821,6 +1389,319 @@ export type DeleteParentStudentsMutation = {
   } | null,
 };
 
+export type GetTeacherQueryVariables = {
+  id: string,
+};
+
+export type GetTeacherQuery = {
+  getTeacher?:  {
+    __typename: "Teacher",
+    id: string,
+    name: string,
+    cognitoUserId?: string | null,
+    schoolId: string,
+    school?:  {
+      __typename: "School",
+      id: string,
+      name: string,
+      address?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    classes?:  {
+      __typename: "ModelClassConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type ListTeachersQueryVariables = {
+  filter?: ModelTeacherFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListTeachersQuery = {
+  listTeachers?:  {
+    __typename: "ModelTeacherConnection",
+    items:  Array< {
+      __typename: "Teacher",
+      id: string,
+      name: string,
+      cognitoUserId?: string | null,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type GetClassQueryVariables = {
+  id: string,
+};
+
+export type GetClassQuery = {
+  getClass?:  {
+    __typename: "Class",
+    id: string,
+    name: string,
+    teacherId: string,
+    schoolId: string,
+    teacher?:  {
+      __typename: "Teacher",
+      id: string,
+      name: string,
+      cognitoUserId?: string | null,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    school?:  {
+      __typename: "School",
+      id: string,
+      name: string,
+      address?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    enrollments?:  {
+      __typename: "ModelEnrollmentConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type ListClassesQueryVariables = {
+  filter?: ModelClassFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListClassesQuery = {
+  listClasses?:  {
+    __typename: "ModelClassConnection",
+    items:  Array< {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type GetEnrollmentQueryVariables = {
+  id: string,
+};
+
+export type GetEnrollmentQuery = {
+  getEnrollment?:  {
+    __typename: "Enrollment",
+    id: string,
+    studentId: string,
+    classId: string,
+    currentGrade?: number | null,
+    student?:  {
+      __typename: "Student",
+      id: string,
+      firstName: string,
+      lastName: string,
+      dateOfBirth?: string | null,
+      gradeLevel?: number | null,
+      attendanceRate?: number | null,
+      currentStatus?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      schoolStudentsId?: string | null,
+    } | null,
+    class?:  {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type ListEnrollmentsQueryVariables = {
+  filter?: ModelEnrollmentFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListEnrollmentsQuery = {
+  listEnrollments?:  {
+    __typename: "ModelEnrollmentConnection",
+    items:  Array< {
+      __typename: "Enrollment",
+      id: string,
+      studentId: string,
+      classId: string,
+      currentGrade?: number | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type TeachersByCognitoUserIdQueryVariables = {
+  cognitoUserId: string,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelTeacherFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type TeachersByCognitoUserIdQuery = {
+  teachersByCognitoUserId?:  {
+    __typename: "ModelTeacherConnection",
+    items:  Array< {
+      __typename: "Teacher",
+      id: string,
+      name: string,
+      cognitoUserId?: string | null,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type TeachersBySchoolIdQueryVariables = {
+  schoolId: string,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelTeacherFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type TeachersBySchoolIdQuery = {
+  teachersBySchoolId?:  {
+    __typename: "ModelTeacherConnection",
+    items:  Array< {
+      __typename: "Teacher",
+      id: string,
+      name: string,
+      cognitoUserId?: string | null,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type ClassesByTeacherIdQueryVariables = {
+  teacherId: string,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelClassFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ClassesByTeacherIdQuery = {
+  classesByTeacherId?:  {
+    __typename: "ModelClassConnection",
+    items:  Array< {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type ClassesBySchoolIdQueryVariables = {
+  schoolId: string,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelClassFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ClassesBySchoolIdQuery = {
+  classesBySchoolId?:  {
+    __typename: "ModelClassConnection",
+    items:  Array< {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type EnrollmentsByStudentIdQueryVariables = {
+  studentId: string,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelEnrollmentFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type EnrollmentsByStudentIdQuery = {
+  enrollmentsByStudentId?:  {
+    __typename: "ModelEnrollmentConnection",
+    items:  Array< {
+      __typename: "Enrollment",
+      id: string,
+      studentId: string,
+      classId: string,
+      currentGrade?: number | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type EnrollmentsByClassIdQueryVariables = {
+  classId: string,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelEnrollmentFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type EnrollmentsByClassIdQuery = {
+  enrollmentsByClassId?:  {
+    __typename: "ModelEnrollmentConnection",
+    items:  Array< {
+      __typename: "Enrollment",
+      id: string,
+      studentId: string,
+      classId: string,
+      currentGrade?: number | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
 export type GetSchoolQueryVariables = {
   id: string,
 };
@@ -833,6 +1714,14 @@ export type GetSchoolQuery = {
     address?: string | null,
     students?:  {
       __typename: "ModelStudentConnection",
+      nextToken?: string | null,
+    } | null,
+    teachers?:  {
+      __typename: "ModelTeacherConnection",
+      nextToken?: string | null,
+    } | null,
+    classes?:  {
+      __typename: "ModelClassConnection",
       nextToken?: string | null,
     } | null,
     createdAt: string,
@@ -960,6 +1849,10 @@ export type GetStudentQuery = {
     } | null,
     parents?:  {
       __typename: "ModelParentStudentsConnection",
+      nextToken?: string | null,
+    } | null,
+    enrollments?:  {
+      __typename: "ModelEnrollmentConnection",
       nextToken?: string | null,
     } | null,
     createdAt: string,
@@ -1105,6 +1998,315 @@ export type ParentStudentsByStudentIdQuery = {
   } | null,
 };
 
+export type OnCreateTeacherSubscriptionVariables = {
+  filter?: ModelSubscriptionTeacherFilterInput | null,
+};
+
+export type OnCreateTeacherSubscription = {
+  onCreateTeacher?:  {
+    __typename: "Teacher",
+    id: string,
+    name: string,
+    cognitoUserId?: string | null,
+    schoolId: string,
+    school?:  {
+      __typename: "School",
+      id: string,
+      name: string,
+      address?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    classes?:  {
+      __typename: "ModelClassConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnUpdateTeacherSubscriptionVariables = {
+  filter?: ModelSubscriptionTeacherFilterInput | null,
+};
+
+export type OnUpdateTeacherSubscription = {
+  onUpdateTeacher?:  {
+    __typename: "Teacher",
+    id: string,
+    name: string,
+    cognitoUserId?: string | null,
+    schoolId: string,
+    school?:  {
+      __typename: "School",
+      id: string,
+      name: string,
+      address?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    classes?:  {
+      __typename: "ModelClassConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnDeleteTeacherSubscriptionVariables = {
+  filter?: ModelSubscriptionTeacherFilterInput | null,
+};
+
+export type OnDeleteTeacherSubscription = {
+  onDeleteTeacher?:  {
+    __typename: "Teacher",
+    id: string,
+    name: string,
+    cognitoUserId?: string | null,
+    schoolId: string,
+    school?:  {
+      __typename: "School",
+      id: string,
+      name: string,
+      address?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    classes?:  {
+      __typename: "ModelClassConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnCreateClassSubscriptionVariables = {
+  filter?: ModelSubscriptionClassFilterInput | null,
+};
+
+export type OnCreateClassSubscription = {
+  onCreateClass?:  {
+    __typename: "Class",
+    id: string,
+    name: string,
+    teacherId: string,
+    schoolId: string,
+    teacher?:  {
+      __typename: "Teacher",
+      id: string,
+      name: string,
+      cognitoUserId?: string | null,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    school?:  {
+      __typename: "School",
+      id: string,
+      name: string,
+      address?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    enrollments?:  {
+      __typename: "ModelEnrollmentConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnUpdateClassSubscriptionVariables = {
+  filter?: ModelSubscriptionClassFilterInput | null,
+};
+
+export type OnUpdateClassSubscription = {
+  onUpdateClass?:  {
+    __typename: "Class",
+    id: string,
+    name: string,
+    teacherId: string,
+    schoolId: string,
+    teacher?:  {
+      __typename: "Teacher",
+      id: string,
+      name: string,
+      cognitoUserId?: string | null,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    school?:  {
+      __typename: "School",
+      id: string,
+      name: string,
+      address?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    enrollments?:  {
+      __typename: "ModelEnrollmentConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnDeleteClassSubscriptionVariables = {
+  filter?: ModelSubscriptionClassFilterInput | null,
+};
+
+export type OnDeleteClassSubscription = {
+  onDeleteClass?:  {
+    __typename: "Class",
+    id: string,
+    name: string,
+    teacherId: string,
+    schoolId: string,
+    teacher?:  {
+      __typename: "Teacher",
+      id: string,
+      name: string,
+      cognitoUserId?: string | null,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    school?:  {
+      __typename: "School",
+      id: string,
+      name: string,
+      address?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    enrollments?:  {
+      __typename: "ModelEnrollmentConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnCreateEnrollmentSubscriptionVariables = {
+  filter?: ModelSubscriptionEnrollmentFilterInput | null,
+};
+
+export type OnCreateEnrollmentSubscription = {
+  onCreateEnrollment?:  {
+    __typename: "Enrollment",
+    id: string,
+    studentId: string,
+    classId: string,
+    currentGrade?: number | null,
+    student?:  {
+      __typename: "Student",
+      id: string,
+      firstName: string,
+      lastName: string,
+      dateOfBirth?: string | null,
+      gradeLevel?: number | null,
+      attendanceRate?: number | null,
+      currentStatus?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      schoolStudentsId?: string | null,
+    } | null,
+    class?:  {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnUpdateEnrollmentSubscriptionVariables = {
+  filter?: ModelSubscriptionEnrollmentFilterInput | null,
+};
+
+export type OnUpdateEnrollmentSubscription = {
+  onUpdateEnrollment?:  {
+    __typename: "Enrollment",
+    id: string,
+    studentId: string,
+    classId: string,
+    currentGrade?: number | null,
+    student?:  {
+      __typename: "Student",
+      id: string,
+      firstName: string,
+      lastName: string,
+      dateOfBirth?: string | null,
+      gradeLevel?: number | null,
+      attendanceRate?: number | null,
+      currentStatus?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      schoolStudentsId?: string | null,
+    } | null,
+    class?:  {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnDeleteEnrollmentSubscriptionVariables = {
+  filter?: ModelSubscriptionEnrollmentFilterInput | null,
+};
+
+export type OnDeleteEnrollmentSubscription = {
+  onDeleteEnrollment?:  {
+    __typename: "Enrollment",
+    id: string,
+    studentId: string,
+    classId: string,
+    currentGrade?: number | null,
+    student?:  {
+      __typename: "Student",
+      id: string,
+      firstName: string,
+      lastName: string,
+      dateOfBirth?: string | null,
+      gradeLevel?: number | null,
+      attendanceRate?: number | null,
+      currentStatus?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      schoolStudentsId?: string | null,
+    } | null,
+    class?:  {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
 export type OnCreateSchoolSubscriptionVariables = {
   filter?: ModelSubscriptionSchoolFilterInput | null,
 };
@@ -1117,6 +2319,14 @@ export type OnCreateSchoolSubscription = {
     address?: string | null,
     students?:  {
       __typename: "ModelStudentConnection",
+      nextToken?: string | null,
+    } | null,
+    teachers?:  {
+      __typename: "ModelTeacherConnection",
+      nextToken?: string | null,
+    } | null,
+    classes?:  {
+      __typename: "ModelClassConnection",
       nextToken?: string | null,
     } | null,
     createdAt: string,
@@ -1138,6 +2348,14 @@ export type OnUpdateSchoolSubscription = {
       __typename: "ModelStudentConnection",
       nextToken?: string | null,
     } | null,
+    teachers?:  {
+      __typename: "ModelTeacherConnection",
+      nextToken?: string | null,
+    } | null,
+    classes?:  {
+      __typename: "ModelClassConnection",
+      nextToken?: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -1155,6 +2373,14 @@ export type OnDeleteSchoolSubscription = {
     address?: string | null,
     students?:  {
       __typename: "ModelStudentConnection",
+      nextToken?: string | null,
+    } | null,
+    teachers?:  {
+      __typename: "ModelTeacherConnection",
+      nextToken?: string | null,
+    } | null,
+    classes?:  {
+      __typename: "ModelClassConnection",
       nextToken?: string | null,
     } | null,
     createdAt: string,
@@ -1260,6 +2486,10 @@ export type OnCreateStudentSubscription = {
       __typename: "ModelParentStudentsConnection",
       nextToken?: string | null,
     } | null,
+    enrollments?:  {
+      __typename: "ModelEnrollmentConnection",
+      nextToken?: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
     schoolStudentsId?: string | null,
@@ -1292,6 +2522,10 @@ export type OnUpdateStudentSubscription = {
       __typename: "ModelParentStudentsConnection",
       nextToken?: string | null,
     } | null,
+    enrollments?:  {
+      __typename: "ModelEnrollmentConnection",
+      nextToken?: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
     schoolStudentsId?: string | null,
@@ -1322,6 +2556,10 @@ export type OnDeleteStudentSubscription = {
     } | null,
     parents?:  {
       __typename: "ModelParentStudentsConnection",
+      nextToken?: string | null,
+    } | null,
+    enrollments?:  {
+      __typename: "ModelEnrollmentConnection",
       nextToken?: string | null,
     } | null,
     createdAt: string,

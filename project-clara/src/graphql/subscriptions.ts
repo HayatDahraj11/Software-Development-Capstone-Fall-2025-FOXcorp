@@ -8,12 +8,326 @@ type GeneratedSubscription<InputType, OutputType> = string & {
   __generatedSubscriptionOutput: OutputType;
 };
 
+export const onCreateTeacher = /* GraphQL */ `subscription OnCreateTeacher($filter: ModelSubscriptionTeacherFilterInput) {
+  onCreateTeacher(filter: $filter) {
+    id
+    name
+    cognitoUserId
+    schoolId
+    school {
+      id
+      name
+      address
+      createdAt
+      updatedAt
+      __typename
+    }
+    classes {
+      nextToken
+      __typename
+    }
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateTeacherSubscriptionVariables,
+  APITypes.OnCreateTeacherSubscription
+>;
+export const onUpdateTeacher = /* GraphQL */ `subscription OnUpdateTeacher($filter: ModelSubscriptionTeacherFilterInput) {
+  onUpdateTeacher(filter: $filter) {
+    id
+    name
+    cognitoUserId
+    schoolId
+    school {
+      id
+      name
+      address
+      createdAt
+      updatedAt
+      __typename
+    }
+    classes {
+      nextToken
+      __typename
+    }
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateTeacherSubscriptionVariables,
+  APITypes.OnUpdateTeacherSubscription
+>;
+export const onDeleteTeacher = /* GraphQL */ `subscription OnDeleteTeacher($filter: ModelSubscriptionTeacherFilterInput) {
+  onDeleteTeacher(filter: $filter) {
+    id
+    name
+    cognitoUserId
+    schoolId
+    school {
+      id
+      name
+      address
+      createdAt
+      updatedAt
+      __typename
+    }
+    classes {
+      nextToken
+      __typename
+    }
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteTeacherSubscriptionVariables,
+  APITypes.OnDeleteTeacherSubscription
+>;
+export const onCreateClass = /* GraphQL */ `subscription OnCreateClass($filter: ModelSubscriptionClassFilterInput) {
+  onCreateClass(filter: $filter) {
+    id
+    name
+    teacherId
+    schoolId
+    teacher {
+      id
+      name
+      cognitoUserId
+      schoolId
+      createdAt
+      updatedAt
+      __typename
+    }
+    school {
+      id
+      name
+      address
+      createdAt
+      updatedAt
+      __typename
+    }
+    enrollments {
+      nextToken
+      __typename
+    }
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateClassSubscriptionVariables,
+  APITypes.OnCreateClassSubscription
+>;
+export const onUpdateClass = /* GraphQL */ `subscription OnUpdateClass($filter: ModelSubscriptionClassFilterInput) {
+  onUpdateClass(filter: $filter) {
+    id
+    name
+    teacherId
+    schoolId
+    teacher {
+      id
+      name
+      cognitoUserId
+      schoolId
+      createdAt
+      updatedAt
+      __typename
+    }
+    school {
+      id
+      name
+      address
+      createdAt
+      updatedAt
+      __typename
+    }
+    enrollments {
+      nextToken
+      __typename
+    }
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateClassSubscriptionVariables,
+  APITypes.OnUpdateClassSubscription
+>;
+export const onDeleteClass = /* GraphQL */ `subscription OnDeleteClass($filter: ModelSubscriptionClassFilterInput) {
+  onDeleteClass(filter: $filter) {
+    id
+    name
+    teacherId
+    schoolId
+    teacher {
+      id
+      name
+      cognitoUserId
+      schoolId
+      createdAt
+      updatedAt
+      __typename
+    }
+    school {
+      id
+      name
+      address
+      createdAt
+      updatedAt
+      __typename
+    }
+    enrollments {
+      nextToken
+      __typename
+    }
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteClassSubscriptionVariables,
+  APITypes.OnDeleteClassSubscription
+>;
+export const onCreateEnrollment = /* GraphQL */ `subscription OnCreateEnrollment(
+  $filter: ModelSubscriptionEnrollmentFilterInput
+) {
+  onCreateEnrollment(filter: $filter) {
+    id
+    studentId
+    classId
+    currentGrade
+    student {
+      id
+      firstName
+      lastName
+      dateOfBirth
+      gradeLevel
+      attendanceRate
+      currentStatus
+      createdAt
+      updatedAt
+      schoolStudentsId
+      __typename
+    }
+    class {
+      id
+      name
+      teacherId
+      schoolId
+      createdAt
+      updatedAt
+      __typename
+    }
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateEnrollmentSubscriptionVariables,
+  APITypes.OnCreateEnrollmentSubscription
+>;
+export const onUpdateEnrollment = /* GraphQL */ `subscription OnUpdateEnrollment(
+  $filter: ModelSubscriptionEnrollmentFilterInput
+) {
+  onUpdateEnrollment(filter: $filter) {
+    id
+    studentId
+    classId
+    currentGrade
+    student {
+      id
+      firstName
+      lastName
+      dateOfBirth
+      gradeLevel
+      attendanceRate
+      currentStatus
+      createdAt
+      updatedAt
+      schoolStudentsId
+      __typename
+    }
+    class {
+      id
+      name
+      teacherId
+      schoolId
+      createdAt
+      updatedAt
+      __typename
+    }
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateEnrollmentSubscriptionVariables,
+  APITypes.OnUpdateEnrollmentSubscription
+>;
+export const onDeleteEnrollment = /* GraphQL */ `subscription OnDeleteEnrollment(
+  $filter: ModelSubscriptionEnrollmentFilterInput
+) {
+  onDeleteEnrollment(filter: $filter) {
+    id
+    studentId
+    classId
+    currentGrade
+    student {
+      id
+      firstName
+      lastName
+      dateOfBirth
+      gradeLevel
+      attendanceRate
+      currentStatus
+      createdAt
+      updatedAt
+      schoolStudentsId
+      __typename
+    }
+    class {
+      id
+      name
+      teacherId
+      schoolId
+      createdAt
+      updatedAt
+      __typename
+    }
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteEnrollmentSubscriptionVariables,
+  APITypes.OnDeleteEnrollmentSubscription
+>;
 export const onCreateSchool = /* GraphQL */ `subscription OnCreateSchool($filter: ModelSubscriptionSchoolFilterInput) {
   onCreateSchool(filter: $filter) {
     id
     name
     address
     students {
+      nextToken
+      __typename
+    }
+    teachers {
+      nextToken
+      __typename
+    }
+    classes {
       nextToken
       __typename
     }
@@ -35,6 +349,14 @@ export const onUpdateSchool = /* GraphQL */ `subscription OnUpdateSchool($filter
       nextToken
       __typename
     }
+    teachers {
+      nextToken
+      __typename
+    }
+    classes {
+      nextToken
+      __typename
+    }
     createdAt
     updatedAt
     __typename
@@ -50,6 +372,14 @@ export const onDeleteSchool = /* GraphQL */ `subscription OnDeleteSchool($filter
     name
     address
     students {
+      nextToken
+      __typename
+    }
+    teachers {
+      nextToken
+      __typename
+    }
+    classes {
       nextToken
       __typename
     }
@@ -158,6 +488,10 @@ export const onCreateStudent = /* GraphQL */ `subscription OnCreateStudent($filt
       nextToken
       __typename
     }
+    enrollments {
+      nextToken
+      __typename
+    }
     createdAt
     updatedAt
     schoolStudentsId
@@ -189,6 +523,10 @@ export const onUpdateStudent = /* GraphQL */ `subscription OnUpdateStudent($filt
       nextToken
       __typename
     }
+    enrollments {
+      nextToken
+      __typename
+    }
     createdAt
     updatedAt
     schoolStudentsId
@@ -217,6 +555,10 @@ export const onDeleteStudent = /* GraphQL */ `subscription OnDeleteStudent($filt
       __typename
     }
     parents {
+      nextToken
+      __typename
+    }
+    enrollments {
       nextToken
       __typename
     }

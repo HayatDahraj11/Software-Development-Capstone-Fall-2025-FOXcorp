@@ -6,6 +6,8 @@ type School @model @auth(rules: [
   name: String!
   address: String
   students: [Student] @hasMany
+  teachers: [Teacher] @hasMany(indexName: "bySchool", fields: ["id"])
+  classes: [Class] @hasMany(indexName: "bySchool", fields: ["id"])
 }
 
 type Parent @model @auth(rules: [
@@ -36,4 +38,33 @@ type Student @model @auth(rules: [
   currentStatus: String
   school: School @belongsTo
   parents: [Parent] @manyToMany(relationName: "ParentStudents")
+  enrollments: [Enrollment] @hasMany(indexName: "byStudent", fields: ["id"])
+}
+
+type Teacher @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+  name: String!
+  cognitoUserId: String @index(name: "byCognitoUser")
+  schoolId: ID! @index(name: "bySchool")
+  school: School @belongsTo(fields: ["schoolId"])
+  classes: [Class] @hasMany(indexName: "byTeacher", fields: ["id"])
+}
+
+type Class @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+  name: String!
+  teacherId: ID! @index(name: "byTeacher")
+  schoolId: ID! @index(name: "bySchool")
+  teacher: Teacher @belongsTo(fields: ["teacherId"])
+  school: School @belongsTo(fields: ["schoolId"])
+  enrollments: [Enrollment] @hasMany(indexName: "byClass", fields: ["id"])
+}
+
+type Enrollment @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+  studentId: ID! @index(name: "byStudent")
+  classId: ID! @index(name: "byClass")
+  currentGrade: Float
+  student: Student @belongsTo(fields: ["studentId"])
+  class: Class @belongsTo(fields: ["classId"])
 }

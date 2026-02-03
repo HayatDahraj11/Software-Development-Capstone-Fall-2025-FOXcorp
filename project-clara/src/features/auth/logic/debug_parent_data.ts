@@ -25,7 +25,7 @@ export const debug_kids = {
 // the hardcoded user with information that lines up with the class diagrams
 export const debug_parent = {
     guardianUser: {
-        userId: "12",
+        userId: "debug",
         guardianId: "12",
         canEditRecords: true,
         children: [debug_kids.firstChildInfoDictionary, debug_kids.secondChildInfoDictionary],

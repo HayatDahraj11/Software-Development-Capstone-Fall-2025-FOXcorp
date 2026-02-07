@@ -21,9 +21,10 @@ async function isSignedIn() {
 
 
 export default function Index() {
+    const [isAllDone, setIsAllDone] = useState<boolean>(false);
     
     const {isDebug, updateIsDebug} = useParentLoginContext();
-    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [isLoading, setIsLoading] = useState<boolean>(true)
 
     isSignedIn().then((isSigned) => {
         setIsLoading(true)
@@ -33,17 +34,19 @@ export default function Index() {
             updateIsDebug(true);
         };
         setIsLoading(false)
+        setIsAllDone(true)
     })
+
+    if(!isAllDone) {
+        return <Text style={{color:"white"}}>Hello! I am a placeholder! Ignore me...</Text>
+    }
+    
+    console.log("index loading over")
     
 
+
     return (
-        <View>
-            {isLoading ? (
-                <Text style={{color:"white"}}>Hello! I am a placeholder! Ignore me...</Text>
-            ) : (
-                <Redirect href="/(parent)/(tabs)"/>
-            )}
-        </View>
+        <Redirect href="/(parent)/(tabs)"/>
     );
 }
 

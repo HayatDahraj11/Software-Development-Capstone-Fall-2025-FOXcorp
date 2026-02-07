@@ -92,7 +92,7 @@ export function useLogin(): UseLoginReturn {
                 const parents = data?.parentsByCognitoUserId?.items ?? [];
 
                 if (parents.length > 0) {
-                    router.replace("/(parent)/(tabs)");
+                    router.replace("/(parent)/");
                 } else {
                     router.replace("/(teacher)");
                 }

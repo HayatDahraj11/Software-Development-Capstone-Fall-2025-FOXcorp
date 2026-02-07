@@ -109,6 +109,7 @@ export function useStoredSettings(userId: string): UseStoredSettingsReturn {
             if(!settings.user_settings) {
                 throw new Error("Somehow, we got here without user settings?")
             } else {
+                console.log("in the else")
                 // the stuff this function will do will grow as the settings screen grows
 
                 // updating app appearance to match saved app_theme
@@ -117,6 +118,7 @@ export function useStoredSettings(userId: string): UseStoredSettingsReturn {
                 // TODO:
                 // changeable font sizes
                 // changeable button sizes
+                console.log("out the else")
             }
 
         } catch(e) {

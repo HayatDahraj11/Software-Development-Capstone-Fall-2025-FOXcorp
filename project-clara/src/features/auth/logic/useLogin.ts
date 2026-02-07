@@ -101,7 +101,7 @@ export function useLogin(): UseLoginReturn {
 
             if (__DEV__) {
                 if (username === "parent_debug" && password === "debug") {
-                    router.replace("/(parent)/(tabs)");
+                    router.replace("/(parent)/");
                     return;
                 } else if (username === "teacher_debug" && password === "debug") {
                     router.replace("/(teacher)");

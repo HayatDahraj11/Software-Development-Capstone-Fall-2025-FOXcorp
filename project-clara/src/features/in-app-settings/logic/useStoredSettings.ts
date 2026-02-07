@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { Appearance, useColorScheme } from "react-native";
+import { useAppTheme } from "@/src/features/app-themes/logic/ThemeContext";
 import { createLocalStorageForUser, LocalSettings, queryLocalStorageForUser, StorageQueryResult, updateLocalStorageForUser, UserCredentials } from "../api/storage_handler";
 
 
@@ -16,8 +16,7 @@ interface UseStoredSettingsReturn {
 export function useStoredSettings(userId: string): UseStoredSettingsReturn {
     const [isLoading, setIsLoading] = useState<boolean>(false)
 
-    const colorScheme = useColorScheme();
-    const currentSystemTheme: string = colorScheme === "dark" ? "dark" : "light";
+    const { theme: currentSystemTheme, setTheme } = useAppTheme();
 
     const [app_theme, setApp_Theme] = useState<string>(currentSystemTheme)
 
@@ -113,7 +112,7 @@ export function useStoredSettings(userId: string): UseStoredSettingsReturn {
                 // the stuff this function will do will grow as the settings screen grows
 
                 // updating app appearance to match saved app_theme
-                Appearance.setColorScheme(settings.user_settings.app_theme === "light" ? "light" : "dark")
+                setTheme(settings.user_settings.app_theme === "light" ? "light" : "dark")
 
                 // TODO:
                 // changeable font sizes
@@ -127,7 +126,7 @@ export function useStoredSettings(userId: string): UseStoredSettingsReturn {
         } finally {
             setIsLoading(false)
         }
-    }, [userId, currentSystemTheme])
+    }, [userId, currentSystemTheme, setTheme])
 
     return {
         app_theme,

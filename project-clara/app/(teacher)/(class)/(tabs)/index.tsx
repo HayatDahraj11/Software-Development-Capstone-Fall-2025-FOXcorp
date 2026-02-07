@@ -3,7 +3,7 @@ import { debug_teacher } from "@/src/features/auth/logic/debug_teacher_data";
 import { useStoredSettings } from "@/src/features/in-app-settings/logic/useStoredSettings";
 import { Redirect } from "expo-router";
 import { useEffect } from "react";
-import { Appearance, Text, View } from "react-native";
+import { Text, View } from "react-native";
 
 
 
@@ -18,8 +18,11 @@ export default function Index() {
     } = useStoredSettings(debug_teacher.teacherUser.userId) // for now, hardwired to use debug parent. will change later
 
     useEffect(() => {
-        handleStoredSettings();
-        matchAppToStoredSettings();
+        const initSettings = async () => {
+            await handleStoredSettings();
+            await matchAppToStoredSettings();
+        };
+        initSettings();
     }, [])
     
     

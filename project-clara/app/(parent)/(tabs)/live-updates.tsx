@@ -1,57 +1,64 @@
 import { Href, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
-import { debug_kids, debug_parent } from "@/src/features/auth/logic/debug_parent_data";
 import Card from "@/src/features/cards/ui/Card";
 import Parent_ChildPicker from "@/src/features/child-selection/ui/Parent_ChildPicker";
+import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
 import { MaterialIcons } from "@expo/vector-icons";
 
-// list used for making cards with the flat view. this will be done dynamically later
-const CardFlatListData = [
-    {
-      id: 1,
-      child: debug_kids.firstChildInfoDictionary,
-      header: `${debug_kids.firstChildInfoDictionary.firstName} is in ${debug_kids.firstChildInfoDictionary.classes[0]} with [teacherName] until [classEndTime]!`,
-      preview: `They have a test this friday!`,
-      route: ' ',
-      urgent: true,
-    },
-    {
-      id: 2,
-      child: debug_kids.secondChildInfoDictionary,
-      header: `${debug_kids.secondChildInfoDictionary.firstName} is in ${debug_kids.secondChildInfoDictionary.classes[0]} with [teacherName] until [classEndTime]!`,
-      preview: 'They have a 100%',
-      route: ' ',
-      urgent: true,
-    },
-    {
-      id: 3,
-      child: debug_kids.firstChildInfoDictionary,
-      header: `${debug_kids.firstChildInfoDictionary.firstName} has had perfect attendance today. 0 tardies!`,
-      preview: ``,
-      route: ' ',
-    },
-    {
-      id: 4,
-      child: debug_kids.secondChildInfoDictionary,
-      header: `[teacherName] sent out an Announcement from ${debug_kids.secondChildInfoDictionary.classes[0]}!`,
-      preview: `Dear parents, your child has a book report due next Tuesday.`,
-      route: ' ',
-      urgent: true
-    },
-    {
-      id: 5,
-      child: debug_kids.secondChildInfoDictionary,
-      header: `${debug_kids.secondChildInfoDictionary.firstName} has a test in ${debug_kids.secondChildInfoDictionary.classes[0]} on Friday, 11/21!`,
-      preview: ``,
-      route: ' ',
-      urgent: true
-    }
-];
-
 export default function ParentLiveUpdatesScreen() {
+  // context givent parent and student data
+  const {
+      userParent,
+      userStudents,
+  } = useParentLoginContext();
+
+  // list used for making cards with the flat view. this will be done dynamically later
+  const CardFlatListData = useMemo(() => {
+    return [
+      {
+        id: 1,
+        child: userStudents[0],
+        header: `${userStudents[0].firstName} is in ${"--placeholder name--"} with [teacherName] until [classEndTime]!`,
+        preview: `They have a test this friday!`,
+        route: ' ',
+        urgent: true,
+      },
+      {
+        id: 2,
+        child: userStudents[0],
+        header: `${userStudents[0].firstName} is in ${"--placeholder name--"} with [teacherName] until [classEndTime]!`,
+        preview: 'They have a 100%',
+        route: ' ',
+        urgent: true,
+      },
+      {
+        id: 3,
+        child: userStudents[0],
+        header: `${userStudents[0].firstName} has had perfect attendance today. 0 tardies!`,
+        preview: ``,
+        route: ' ',
+      },
+      {
+        id: 4,
+        child: userStudents[0],
+        header: `[teacherName] sent out an Announcement from ${"--placeholder name--"}!`,
+        preview: `Dear parents, your child has a book report due next Tuesday.`,
+        route: ' ',
+        urgent: true
+      },
+      {
+        id: 5,
+        child: userStudents[0],
+        header: `${userStudents[0].firstName} has a test in ${"--placeholder name--"} on Friday, 11/21!`,
+        preview: ``,
+        route: ' ',
+        urgent: true
+      }
+    ]
+  }, [userStudents]) 
 
 
   const router = useRouter();
@@ -65,30 +72,30 @@ export default function ParentLiveUpdatesScreen() {
   };
 
   // this holds which child of the parent's is currently being displayed
-  const [childSelected, setChildSelected] = useState(debug_parent.guardianUser.children[0]);
+  const [childSelected, setChildSelected] = useState(userStudents[0]);
 
   // modal controller states
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const onChildSelected = (id: string) => {
-    let foundKid = debug_parent.guardianUser.children.find(item => item.studentId === id);
+    let foundKid = userStudents.find(item => item.id === id);
     if(foundKid) {
       foundKid = {
-        studentId: foundKid?.studentId,
-        firstName: foundKid?.firstName,
-        lastName: foundKid?.lastName,
-        dob: foundKid?.dob,
-        classes: foundKid?.classes,
-        attendanceRate: foundKid?.attendanceRate
+        id: foundKid.id,
+        firstName: foundKid.firstName,
+        lastName: foundKid.lastName,
+        gradeLevel: foundKid.gradeLevel,
+        currentStatus: foundKid.currentStatus,
+        attendanceRate: foundKid.attendanceRate
       }
       setChildSelected(foundKid);
     } else {
       if(id === "0") {
         const lilbro = {
-          studentId: "0",
+          id: "0",
           firstName: "Everyone",
           lastName: "displayall",
-          dob: "displayall",
-          classes: ["displayall"],
+          gradeLevel: 0,
+          currentStatus: "displayall",
           attendanceRate: -1
         }
         setChildSelected(lilbro)
@@ -106,20 +113,20 @@ export default function ParentLiveUpdatesScreen() {
 
   useEffect(() => {
     // if "Display All" is selected
-    if(childSelected.studentId === '0') {
+    if(childSelected.id === '0') {
       setFilteredList(CardFlatListData); // then display all the cards available
     }
     else {
       // when childSelected is changed, this will parse through the card list and select ones with matching studentIds
       for(let i = 0; i<CardFlatListData.length; i++) {
         const newFilteredData = CardFlatListData.filter(item => 
-          item.child.studentId.match(childSelected.studentId)
+          item.child.id.match(childSelected.id)
         );
         setFilteredList(newFilteredData);
       }
     }
     
-  }, [childSelected, fullList])
+  }, [childSelected, fullList, CardFlatListData])
 
   const styles = StyleSheet.create({
     container: {
@@ -178,8 +185,8 @@ export default function ParentLiveUpdatesScreen() {
       <Parent_ChildPicker 
         isVisible={isModalVisible}
         onCloseModal={() => setIsModalVisible(false)}
-        studentNames={debug_parent.guardianUser.children.map((item) => item.firstName)}
-        studentIds={debug_parent.guardianUser.children.map((item) => item.studentId)}
+        studentNames={userStudents.map((item) => item.firstName)}
+        studentIds={userStudents.map((item) => item.id)}
         onSelect={onChildSelected}
         allowAll={true}
       />

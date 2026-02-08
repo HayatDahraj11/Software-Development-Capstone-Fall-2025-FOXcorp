@@ -20,7 +20,7 @@ export function useUserData(): UseUserDataReturn {
 
         try {
             const data = await fetchParentWithKids();
-            if(data.success) {
+            if(!data.success) {
                 throw new Error(data.message);
             } else if(data.parent && data.students) {
                 setParent(data.parent);

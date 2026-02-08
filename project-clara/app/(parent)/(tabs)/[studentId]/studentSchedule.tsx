@@ -3,6 +3,7 @@ import { useState } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
 
 import Parent_ViewClassModal from "@/src/features/class-viewer/ui/Parent_ViewClassModal";
+import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
 import Card from "@/src/features/cards/ui/Card";
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 
@@ -26,8 +27,16 @@ const FlatListTempData = [
 ]
 
 export default function StudentDocumentationScreen() {
+    // context given student data
+    const {
+        userStudents,
+    } = useParentLoginContext();
+    
     const { studentId } = useLocalSearchParams();
+    const student = userStudents.find(item => item.id === studentId); // grabbing the student we are passed in
+
     const router = useRouter();
+
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
     const [toTeacherId, setToTeacherId] = useState<string | undefined>(undefined);
     const [selectedClassId, setSelectedClassId] = useState<string>("");

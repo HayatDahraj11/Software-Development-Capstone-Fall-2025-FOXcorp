@@ -3,30 +3,43 @@ import { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
-import { debug_parent } from "@/src/features/auth/logic/debug_parent_data";
 import Card from "@/src/features/cards/ui/Card";
 import Parent_ChildPicker from "@/src/features/child-selection/ui/Parent_ChildPicker";
+import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
+import { Student } from "@/src/features/fetch-user-data/api/parent_data_fetcher";
 import { MaterialIcons } from "@expo/vector-icons";
+
+// until we get classes to students link setup, this is the hardcoded data
+const HardcodedClasses = [
+  "English",
+  "French",
+  "Nintendo games",
+]
 
 export default function ParentGeneralInfoScreen() {
   const router = useRouter();
+
+  const {
+        userParent,
+        userStudents,
+  } = useParentLoginContext();
 
   const RouteCard = (route: string): void => {
       // if card has a route, use it. if not, ignore it
       if(route === "studentSchedule") { 
         router.push({ 
           pathname: '/(parent)/(tabs)/[studentId]/studentSchedule',
-          params: {studentId: (childSelected.studentId)},
+          params: {studentId: (childSelected.id)},
         });
       } else if(route === "studentRecords") {
         router.push({ 
           pathname: '/(parent)/(tabs)/[studentId]/studentRecords',
-          params: {studentId: (childSelected.studentId)},
+          params: {studentId: (childSelected.id)},
         });
       } else if(route === "studentDocumentation") {
         router.push({ 
           pathname: '/(parent)/(tabs)/[studentId]/studentDocumentation',
-          params: {studentId: (childSelected.studentId)},
+          params: {studentId: (childSelected.id)},
         });
       }
       else { }
@@ -44,21 +57,21 @@ export default function ParentGeneralInfoScreen() {
   }
 
   // this holds which child of the parent's is currently being displayed
-  const [childSelected, setChildSelected] = useState(debug_parent.guardianUser.children[0]);
+  const [childSelected, setChildSelected] = useState<Student>(userStudents[0]);
 
   // modal controller states
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
   const onChildSelected = (id: string) => {
-    let foundKid = debug_parent.guardianUser.children.find(item => item.studentId === id);
+    let foundKid = userStudents.find(item => item.id === id);
     if(foundKid) {
       foundKid = {
-        studentId: foundKid?.studentId,
-        firstName: foundKid?.firstName,
-        lastName: foundKid?.lastName,
-        dob: foundKid?.dob,
-        classes: foundKid?.classes,
-        attendanceRate: foundKid?.attendanceRate
+        id: foundKid.id,
+        firstName: foundKid.firstName,
+        lastName: foundKid.lastName,
+        gradeLevel: foundKid.gradeLevel,
+        currentStatus: foundKid.currentStatus,
+        attendanceRate: foundKid.attendanceRate
       }
       setChildSelected(foundKid);
     } else {
@@ -110,7 +123,7 @@ export default function ParentGeneralInfoScreen() {
       <ScrollView>
         <Card
           header="Schedule"
-          preview={scheduleListCreation(childSelected.classes)}
+          preview={scheduleListCreation(HardcodedClasses)}
           onPress={() => RouteCard("studentSchedule")}
         />
         <Card
@@ -128,8 +141,8 @@ export default function ParentGeneralInfoScreen() {
       <Parent_ChildPicker 
         isVisible={isModalVisible}
         onCloseModal={() => setIsModalVisible(false)}
-        studentNames={debug_parent.guardianUser.children.map((item) => item.firstName)}
-        studentIds={debug_parent.guardianUser.children.map((item) => item.studentId)}
+        studentNames={userStudents.map((item) => item.firstName)}
+        studentIds={userStudents.map((item) => item.id)}
         onSelect={onChildSelected}
       />
     </View>

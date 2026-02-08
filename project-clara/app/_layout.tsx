@@ -8,6 +8,7 @@ import { Amplify } from "aws-amplify";
 import awsconfig from "../src/aws-exports"; // relative import to the typed config
 // --- Amplify Imports End ---
 
+import { AppThemeProvider } from "@/src/features/app-themes/logic/ThemeContext";
 import { useColorScheme } from "@/src/features/app-themes/logic/use-color-scheme";
 
 // --- Configure Amplify Start ---
@@ -16,12 +17,12 @@ try {
   Amplify.configure(awsconfig);
 } catch (err) {
   // this was to prevent startup crash — log error and continue
-  
+
   console.error("Amplify.configure failed:", err);
 }
 // --- Configure Amplify End ---
 
-export default function RootLayout() {
+function RootLayoutInner() {
   const colorScheme = useColorScheme();
 
   return (
@@ -35,5 +36,13 @@ export default function RootLayout() {
       </Stack>
       <StatusBar style={colorScheme === "light" ? "dark" : "light"} />
     </ThemeProvider>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <AppThemeProvider>
+      <RootLayoutInner />
+    </AppThemeProvider>
   );
 }

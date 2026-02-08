@@ -43,6 +43,10 @@ export async function loginUser(credentials: LoginCredentials): Promise<LoginRes
     } catch (error: unknown) {
         const err = error as { name?: string; message?: string };
 
+        console.log("LOGIN ERROR name:", err.name);
+        console.log("LOGIN ERROR message:", err.message);
+        console.log("LOGIN ERROR full:", JSON.stringify(error, null, 2));
+
         let errorMessage = "Login failed. Please check your credentials.";
 
         if (err.name === "UserNotFoundException") {

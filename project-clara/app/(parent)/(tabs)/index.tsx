@@ -1,4 +1,4 @@
-import { debug_parent } from "@/src/features/auth/logic/debug_parent_data";
+import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
 import { useStoredSettings } from "@/src/features/in-app-settings/logic/useStoredSettings";
 import { Redirect } from "expo-router";
 import { useEffect, useState } from "react";
@@ -8,13 +8,16 @@ import { Text } from "react-native";
 
 export default function Index() {
     const [isAllDone, setIsAllDone] = useState<boolean>(false);
+    const {
+        userParent,
+    } = useParentLoginContext();
 
     // grabbing user settings from storage
     const {
         isLoading,
         handleStoredSettings,
         matchAppToStoredSettings
-    } = useStoredSettings(debug_parent.guardianUser.userId) // for now, hardwired to use debug parent. will change later
+    } = useStoredSettings(userParent.userId) // for now, hardwired to use debug parent. will change later
 
     const startup = async() => {
         await handleStoredSettings();

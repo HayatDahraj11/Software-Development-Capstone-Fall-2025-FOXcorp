@@ -1,4 +1,4 @@
-import { ParentLoginProvider } from "context/ParentLoginContext";
+import { ParentLoginProvider } from "@/src/features/context/ParentLoginContext";
 import { Stack } from "expo-router";
 
 export default function ParentLayout() {

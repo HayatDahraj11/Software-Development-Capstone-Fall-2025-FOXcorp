@@ -6,7 +6,7 @@ interface UseUserDataReturn {
     isLoading: boolean; // true while functions are doing work and should not be interrupted
     parent: Parent | undefined;
     students: Student[] | undefined;
-    handleParentAndStudentData: () => Promise<void>;
+    handleParentAndStudentData: () => Promise<boolean>;
 }
 
 export function useUserData(): UseUserDataReturn {
@@ -14,7 +14,8 @@ export function useUserData(): UseUserDataReturn {
     const [parent, setParent] = useState<Parent>();
     const [students, setStudents] = useState<Student[]>();
 
-    const handleParentAndStudentData = useCallback(async () => {
+    // returns true on success, false on failure
+    const handleParentAndStudentData = useCallback(async (): Promise<boolean> => {
         setIsLoading(true);
 
         try {
@@ -25,6 +26,7 @@ export function useUserData(): UseUserDataReturn {
                 setParent(data.parent);
                 setStudents(data.students);
                 console.log("Parent and student data grabbed and saved successfully!");
+                return true;
             } else {
                 throw new Error("Somehow, data came back as a success with no parent or student data attached?");
             }
@@ -32,6 +34,7 @@ export function useUserData(): UseUserDataReturn {
         } catch(e) {
             const err = e as {name?: string, message?: string};
             console.error("useUserData.ts, handleParentAndStudentData: ", err.message);
+            return false;
         } finally {
             setIsLoading(false);
         }

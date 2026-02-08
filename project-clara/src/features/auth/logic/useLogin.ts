@@ -74,7 +74,9 @@ export function useLogin(): UseLoginReturn {
         setErrors({});
 
         try {
+            console.log("LOGIN ATTEMPT - username:", username);
             const result = await loginUser({ username, password });
+            console.log("LOGIN RESULT:", JSON.stringify(result, null, 2));
 
             if (result.success && result.userId) {
                 if (rememberMe) {
@@ -111,8 +113,10 @@ export function useLogin(): UseLoginReturn {
 
             setErrors({ form: result.message });
         } catch (err: unknown) {
-            const error = err as { message?: string };
-            console.error("Sign in error", error);
+            const error = err as { name?: string; message?: string };
+            console.log("LOGIN CATCH - name:", error?.name);
+            console.log("LOGIN CATCH - message:", error?.message);
+            console.log("LOGIN CATCH - full:", JSON.stringify(err, null, 2));
             const message = error?.message ?? "Login failed";
             setErrors({ form: message });
         } finally {

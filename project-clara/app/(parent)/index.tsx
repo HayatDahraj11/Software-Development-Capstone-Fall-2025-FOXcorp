@@ -41,7 +41,7 @@ export default function Index() {
         return <Text style={{color:"white"}}>Hello! I am a placeholder! Ignore me...</Text>
     }
     
-    console.log("index loading over")
+    //console.log("index loading over")
     
 
 

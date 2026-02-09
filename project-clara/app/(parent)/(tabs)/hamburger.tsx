@@ -1,37 +1,25 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { signOut } from "aws-amplify/auth";
 import { useRouter } from "expo-router";
-import { Alert, ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import Card from "@/src/features/cards/ui/Card";
 import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
 
-async function AWSSignOut() {
-  try {
-    await signOut();
-    console.log("AWS Signout sent and received");
-    return true
-  } catch(error) {
-    console.log("AWS Signout sent and failed: ",{error})
-    return false
-  }
-}
+
 
 export default function ParentHamburgerScreen() {
   const router = useRouter();
-  const logoutHandler = (): void => {
-    Alert.alert("AWS Logout","AWS Logout attempted, trying to log out.")
-    AWSSignOut().then((success) => {
-      if(success) {
-        Alert.alert("AWS Logout","AWS Logout successful! Rerouting...")
-        router.replace("/login/school-selection")
-      } else {
-        console.log("AWS Signout failed. Sorry!")
-        Alert.alert("AWS Logout failed. Doing Debug logout")
-        router.replace("/login/school-selection")
-      }
-    })
+    
+  const {
+    isContextLoading,
+    onSignOut,
+  } = useParentLoginContext();
+
+  const logoutHandler = async() => {
+    await onSignOut();
+
+    if(!isContextLoading) { router.replace('/login/school-selection') }
   }
 
   const RouteCard = (route: string): void => {

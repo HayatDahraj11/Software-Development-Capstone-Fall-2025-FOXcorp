@@ -19,27 +19,20 @@ async function AWSSignOut() {
 }
 
 export default function ParentHamburgerScreen() {
-  const { isDebug } = useParentLoginContext();
   const router = useRouter();
   const logoutHandler = (): void => {
-    // if this is a debug session, i.e., not using AWS
-    if(isDebug) {
-      Alert.alert("Debug Logout","Debug Logout Successful!")
-      router.replace("/login/school-selection")
-    }
-    // if the user is logged in via aws
-    else {
-      Alert.alert("AWS Logout","AWS Logout attempted, trying to log out.")
-      AWSSignOut().then((success) => {
-        if(success) {
-          Alert.alert("AWS Logout","AWS Logout successful! Rerouting...")
-          router.replace("/login/school-selection")
-        } else {
-          console.log("AWS Signout failed. Sorry!")
-        }
-      })
-    }
-  };  
+    Alert.alert("AWS Logout","AWS Logout attempted, trying to log out.")
+    AWSSignOut().then((success) => {
+      if(success) {
+        Alert.alert("AWS Logout","AWS Logout successful! Rerouting...")
+        router.replace("/login/school-selection")
+      } else {
+        console.log("AWS Signout failed. Sorry!")
+        Alert.alert("AWS Logout failed. Doing Debug logout")
+        router.replace("/login/school-selection")
+      }
+    })
+  }
 
   const RouteCard = (route: string): void => {
       // if card has a route, use it. if not, ignore it

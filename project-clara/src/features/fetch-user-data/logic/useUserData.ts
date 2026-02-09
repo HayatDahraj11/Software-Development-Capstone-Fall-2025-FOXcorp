@@ -23,6 +23,8 @@ export function useUserData(): UseUserDataReturn {
             if(!data.success) {
                 throw new Error(data.message);
             } else if(data.parent && data.students) {
+                console.log(data.parent.firstName);
+                console.log(data.students[0].firstName);
                 setParent(data.parent);
                 setStudents(data.students);
                 console.log("Parent and student data grabbed and saved successfully!");

@@ -39,6 +39,8 @@ type Student @model @auth(rules: [
   school: School @belongsTo
   parents: [Parent] @manyToMany(relationName: "ParentStudents")
   enrollments: [Enrollment] @hasMany(indexName: "byStudent", fields: ["id"])
+  incidents: [Incident] @hasMany(indexName: "byStudent", fields: ["id"])
+  medicalRecord: MedicalRecord @hasOne
 }
 
 type Teacher @model @auth(rules: [{ allow: public }]) {
@@ -67,4 +69,52 @@ type Enrollment @model @auth(rules: [{ allow: public }]) {
   currentGrade: Float
   student: Student @belongsTo(fields: ["studentId"])
   class: Class @belongsTo(fields: ["classId"])
+}
+
+type Announcement @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+
+  title: String!
+  message: String!
+
+  teacherId: ID! @index(name: "byTeacher")
+  schoolId: ID! @index(name: "bySchool")
+  classId: ID @index(name: "byClass")
+
+  teacher: Teacher @belongsTo(fields: ["teacherId"])
+  school: School @belongsTo(fields: ["schoolId"])
+  class: Class @belongsTo(fields: ["classId"])
+
+  createdAt: AWSDateTime
+}
+
+type Incident @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+
+  description: String!
+  severity: String
+  date: AWSDate
+
+  teacherId: ID! @index(name: "byTeacher")
+  studentId: ID! @index(name: "byStudent")
+  classId: ID @index(name: "byClass")
+  schoolId: ID! @index(name: "bySchool")
+
+  teacher: Teacher @belongsTo(fields: ["teacherId"])
+  student: Student @belongsTo(fields: ["studentId"])
+  class: Class @belongsTo(fields: ["classId"])
+  school: School @belongsTo(fields: ["schoolId"])
+}
+
+type MedicalRecord @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+
+  studentId: ID! @index(name: "byStudent")
+
+  allergies: String
+  medications: String
+  conditions: String
+  emergencyNotes: String
+
+  student: Student @belongsTo(fields: ["studentId"])
 }

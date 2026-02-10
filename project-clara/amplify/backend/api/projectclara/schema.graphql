@@ -68,3 +68,27 @@ type Enrollment @model @auth(rules: [{ allow: public }]) {
   student: Student @belongsTo(fields: ["studentId"])
   class: Class @belongsTo(fields: ["classId"])
 }
+type Attendance @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+  studentId: ID! @index(name: "byStudent")
+  classId: ID! @index(name: "byClass")
+  date: AWSDate!
+  status: AttendanceStatus!
+  student: Student @belongsTo(fields: ["studentId"])
+  class: Class @belongsTo(fields: ["classId"])
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+}
+type Announcement @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+  title: String!
+  body: String!
+  createdAt: AWSDateTime!
+  createdBy: ID!
+  schoolId: ID @index(name: "bySchool")
+  classId: ID @index(name: "byClass")
+}

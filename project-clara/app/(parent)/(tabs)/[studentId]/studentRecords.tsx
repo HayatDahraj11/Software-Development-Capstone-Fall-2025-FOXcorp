@@ -1,10 +1,17 @@
 import { Href, useLocalSearchParams, useRouter } from "expo-router";
 import { ScrollView, StyleSheet, View } from "react-native";
+import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
 
 import Card from "@/src/features/cards/ui/Card";
 
 export default function StudentRecordsScreen() {
+    // context given parent and student data
+    const {
+        userStudents,
+    } = useParentLoginContext();
+    
     const { studentId } = useLocalSearchParams();
+    const student = userStudents.find(item => item.id === studentId); // grabbing the student we are passed in
     const router = useRouter();
 
     const RouteCard = (route: string): void => {

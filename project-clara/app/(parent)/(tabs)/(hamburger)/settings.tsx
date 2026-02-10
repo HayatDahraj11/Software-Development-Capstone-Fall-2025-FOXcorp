@@ -6,15 +6,20 @@ import { debug_parent } from "@/src/features/auth/logic/debug_parent_data";
 import Card from "@/src/features/cards/ui/Card";
 import { LocalSettings } from "@/src/features/in-app-settings/api/storage_handler";
 import { useStoredSettings } from "@/src/features/in-app-settings/logic/useStoredSettings";
+import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
 
 export default function ParentGeneralInfoScreen() {
+  // context given student data
+  const {
+      userParent,
+  } = useParentLoginContext();
+
   // grabbing user settings from storage
   const {
     app_theme,
-    isLoading,
     updateStoredSettings,
     matchAppToStoredSettings,
-  } = useStoredSettings(debug_parent.guardianUser.userId) // for now, hardwired to use debug parent. will change later
+  } = useStoredSettings(userParent.userId) // for now, hardwired to use debug parent. will change later
 
   const [inProgressSettings, setInProgressSettings] = useState<LocalSettings>({
     app_theme: app_theme

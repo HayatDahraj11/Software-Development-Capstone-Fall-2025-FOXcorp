@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "expo-router";
 import { generateClient } from "aws-amplify/api";
 import { loginUser } from "../api/authRepo";
+import { signOut } from "@aws-amplify/auth";
 import { saveUsername, loadUsername, clearUsername } from "@/utils/storage";
 import { parentsByCognitoUserId } from "@/src/graphql/queries";
 import type { ParentsByCognitoUserIdQuery } from "@/src/API";
@@ -74,6 +75,7 @@ export function useLogin(): UseLoginReturn {
         setErrors({});
 
         try {
+            const templogout = await signOut(); // this ensures we are logged out before attempting another login
             console.log("LOGIN ATTEMPT - username:", username);
             const result = await loginUser({ username, password });
             console.log("LOGIN RESULT:", JSON.stringify(result, null, 2));
@@ -89,6 +91,7 @@ export function useLogin(): UseLoginReturn {
                 const response = await client.graphql({
                     query: parentsByCognitoUserId,
                     variables: { cognitoUserId: result.userId },
+                    authMode: 'apiKey'
                 });
                 const data = response.data as ParentsByCognitoUserIdQuery;
                 const parents = data?.parentsByCognitoUserId?.items ?? [];

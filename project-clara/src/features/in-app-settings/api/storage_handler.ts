@@ -4,6 +4,8 @@
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+const PREVIOUSUSERKEY = "PREVIOUSUSER" // key the previous user's id is stored under
+
 export type UserCredentials = {
     id: string; // user's id
 }
@@ -21,6 +23,12 @@ export type StorageQueryResult = {
 export type StorageCreationResult = {
     success: boolean;
     message: string;
+}
+
+export type StoragePreviousUserQueryResult = {
+    success: boolean;
+    message: string;
+    userId?: string; // id that previous user is tied to
 }
 
 // a default set of settings to replace any missing/incorrect values in stored settings
@@ -59,7 +67,7 @@ export async function queryLocalStorageForUser(credentials: UserCredentials, sys
     } catch(e) {
         const err = e as {name?: string, message?: string}
         console.warn("storage_handler.ts, QueryLocalStorageForUser: ",err.message)
-        return { success: false, message: "See logs for error" }
+        return { success: false, message: `${err.message}` }
     }
 }
 
@@ -74,7 +82,7 @@ export async function createLocalStorageForUser(credentials: UserCredentials, sy
     } catch(e) {
         const err = e as {name?: string, message?: string}
         console.error("storage_handler.ts, CreateLocalStorageForUser: ",err.message)
-        return { success: false, message: "See logs for error" }
+        return { success: false, message: `${err.message}` }
     }
 }
 
@@ -89,6 +97,38 @@ export async function updateLocalStorageForUser(credentials: UserCredentials, ne
     } catch(e) {
         const err = e as {name?: string, message?: string}
         console.error("storage_handler.ts, updateLocalStorageForUser: ",err.message)
-        return { success: false, message: "See logs for error" }
+        return { success: false, message: `${err.message}` }
+    }
+}
+
+// updates previousUser to the currently logged in user's userId
+// this lets the app know whos settings to load on startup
+export async function updatePreviousUserStored(credentials: UserCredentials): Promise<StorageCreationResult> {
+    try {
+        await AsyncStorage.setItem(PREVIOUSUSERKEY, credentials.id);
+        console.log("previousUser set to "+credentials.id);
+        return {success: true, message: ""}
+    } catch(e) {
+        const err = e as {name?: string, message?: string}
+        console.error("storage_handler.ts, updatePreviousUserStored: ",err.message);
+        return {success: false, message: `${err.message}`}
+    }
+}
+
+// queries for previously logged in user's settings
+// if there is no previous user, this returns false
+// if there is a previous user, this returns true
+export async function queryLocalStorageForPreviousUser(): Promise<StoragePreviousUserQueryResult> {
+    try {
+        const previousId = await AsyncStorage.getItem(PREVIOUSUSERKEY);
+        if(previousId === null || previousId === undefined || previousId === "") {
+            throw new Error("There is a previousId key, but value is empty.")
+        }
+
+        return { success: true, message: "Found previous userId.", userId: previousId }
+    } catch(e) {
+        const err = e as {name?:string, message?: string};
+        console.error("storage_handler.ts, queryLocalStorageForPreviousUser: ",err.message);
+        return { success:false, message: `${err.message}` }
     }
 }

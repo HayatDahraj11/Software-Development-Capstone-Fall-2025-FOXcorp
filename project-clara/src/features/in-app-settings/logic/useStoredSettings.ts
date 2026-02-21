@@ -1,12 +1,14 @@
 import { useCallback, useState } from "react";
 import { useAppTheme } from "@/src/features/app-themes/logic/ThemeContext";
-import { createLocalStorageForUser, LocalSettings, queryLocalStorageForUser, StorageQueryResult, updateLocalStorageForUser, UserCredentials } from "../api/storage_handler";
+import { createLocalStorageForUser, LocalSettings, queryLocalStorageForUser, StorageQueryResult, updateLocalStorageForUser, UserCredentials, updatePreviousUserStored, queryLocalStorageForPreviousUser } from "../api/storage_handler";
 
 
 interface UseStoredSettingsReturn {
     app_theme: string;
     isLoading: boolean;
     handleStoredSettings: () => Promise<void>;
+    handlePreviousUserSettings: () => Promise<string>;
+    updatePreviousUserId: () => Promise<void>;
     updateStoredSettings: (newSettings: LocalSettings) => Promise<void>;
     matchAppToStoredSettings: () => Promise<void>;
 }
@@ -76,6 +78,46 @@ export function useStoredSettings(userId: string): UseStoredSettingsReturn {
         }
     }, [userId, currentSystemTheme, updateDataStates])
 
+    const handlePreviousUserSettings = useCallback(async () => {
+        setIsLoading(true);
+
+        try {
+            // check if theres a previous user
+            const previousUserResult = await queryLocalStorageForPreviousUser();
+            if(!previousUserResult.success || !previousUserResult.userId) {
+                throw new Error(previousUserResult.message);
+            }
+
+            // if there's a previous user, return the string 
+            return previousUserResult.userId
+        } catch(e) { // catching here probably means there was no previousId found
+            // if there's any error along the way, we just forget about it all and use system defaults
+            const err = e as {name?: string, message?: string};
+            console.warn("useStoredSettings.ts, handlePreviousUserSettings: ",err.message);
+            return ""
+        } finally {
+            setIsLoading(false);
+        }
+    }, [])
+
+    const updatePreviousUserId = useCallback(async () => {
+        setIsLoading(true)
+        const credentials: UserCredentials = {id: userId}
+
+        try {
+            const results = await updatePreviousUserStored(credentials);
+
+            if(!results.success) {
+                throw new Error(results.message);
+            }
+        } catch(e) {
+            const err = e as {name?: string, message?: string};
+            console.error("useStoredSettings.ts, updatePreviousUserId: ",err.message);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [userId])
+
     // takes in a new set of localsettings and updates the storage to match them
     const updateStoredSettings = useCallback(async (newSettings: LocalSettings) => {
         setIsLoading(true)
@@ -132,6 +174,8 @@ export function useStoredSettings(userId: string): UseStoredSettingsReturn {
         app_theme,
         isLoading,
         handleStoredSettings,
+        handlePreviousUserSettings,
+        updatePreviousUserId,
         updateStoredSettings,
         matchAppToStoredSettings
     }

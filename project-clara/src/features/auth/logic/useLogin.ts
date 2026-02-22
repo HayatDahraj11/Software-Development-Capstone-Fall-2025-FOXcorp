@@ -91,7 +91,7 @@ export function useLogin(): UseLoginReturn {
                 const response = await client.graphql({
                     query: parentsByCognitoUserId,
                     variables: { cognitoUserId: result.userId },
-                    authMode: 'apiKey'
+                    authMode: 'userPool',
                 });
                 const data = response.data as ParentsByCognitoUserIdQuery;
                 const parents = data?.parentsByCognitoUserId?.items ?? [];

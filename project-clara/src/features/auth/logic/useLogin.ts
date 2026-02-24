@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "expo-router";
-import { generateClient } from "aws-amplify/api";
-import { loginUser } from "../api/authRepo";
-import { signOut } from "@aws-amplify/auth";
-import { saveUsername, loadUsername, clearUsername } from "@/utils/storage";
-import { parentsByCognitoUserId } from "@/src/graphql/queries";
 import type { ParentsByCognitoUserIdQuery } from "@/src/API";
+import { parentsByCognitoUserId } from "@/src/graphql/queries";
+import { clearUsername, loadUsername, saveUsername } from "@/utils/storage";
+import { signOut } from "@aws-amplify/auth";
+import { generateClient } from "aws-amplify/api";
+import { useRouter } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
+import { loginUser } from "../api/authRepo";
 
 export type LoginErrors = {
     username?: string;
@@ -91,7 +91,7 @@ export function useLogin(): UseLoginReturn {
                 const response = await client.graphql({
                     query: parentsByCognitoUserId,
                     variables: { cognitoUserId: result.userId },
-                    authMode: 'userPool',
+                    authMode: 'apiKey',
                 });
                 const data = response.data as ParentsByCognitoUserIdQuery;
                 const parents = data?.parentsByCognitoUserId?.items ?? [];

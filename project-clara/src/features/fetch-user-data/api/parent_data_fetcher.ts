@@ -2,8 +2,8 @@
 // and fetching relavent parent data from it
 // this assumes you are past the login screen!
 // this accounts for debug accounts
+import { getTeacher, listClasses, listEnrollments, listParents, listStudents } from '@/src/graphql/queries';
 import { generateClient } from 'aws-amplify/api';
-import { listParents, getParent, listStudents, getStudent, listSchools, parentStudentsByParentId, listClasses, listEnrollments, getTeacher } from '@/src/graphql/queries';
 
 const client = generateClient();
 
@@ -25,7 +25,7 @@ export type Parent = {
     studentIds: string[]; // an array of all id's of the children this parent has
 };
 
-export type Teacher = {
+export type Teacher_parentSide = { // how a parent sees a teacher
     id: string;
     //firstName: string;
     //lastName: string;
@@ -70,7 +70,7 @@ export type StudentClassesFetchResult = {
 export type TeacherIDFetchResult = {
     success: boolean;
     message: string;
-    teacher?: Teacher
+    teacher?: Teacher_parentSide
 }
 
 // pulls the client's parent data and student(s) data
@@ -177,7 +177,7 @@ export async function fetchTeacherByID(teacherid: string): Promise<TeacherIDFetc
         const teacher = teacherResults.data.getTeacher
 
         if(teacher) {
-            const teacherData: Teacher = {
+            const teacherData: Teacher_parentSide = {
                 id: teacher.id,
                 name: teacher.name,
                 schoolId: teacher.schoolId

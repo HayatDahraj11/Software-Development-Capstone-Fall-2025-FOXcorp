@@ -1,11 +1,13 @@
 import { useCallback, useState } from "react";
 import { fetchParentWithKids, Parent, Student } from "../api/parent_data_fetcher";
+import { fetchParentWithKids, Teacher, Student } from "../api/parent_data_fetcher";
 
 
 interface UseUserDataReturn {
     isLoading: boolean; // true while functions are doing work and should not be interrupted
     parent: Parent | undefined;
     students: Student[] | undefined;
+
     handleParentAndStudentData: () => Promise<boolean>;
 }
 

@@ -1,5 +1,5 @@
 import { Href, useRouter } from "expo-router";
-import { useEffect, useState, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
@@ -8,13 +8,60 @@ import Parent_ChildPicker from "@/src/features/child-selection/ui/Parent_ChildPi
 import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
 import { MaterialIcons } from "@expo/vector-icons";
 
+// type for cards that will be generated and displayed on screen
+type DataCard = {
+  studentId: string;
+  header: string;
+  preview: string;
+  route: string;
+  urgent: boolean;
+}
+
 export default function ParentLiveUpdatesScreen() {
   // context givent parent and student data
   const {
       userParent,
       userStudents,
+      userClasses,
+      userEnrollments,
   } = useParentLoginContext();
 
+  const firstLoad = useCallback((): DataCard[] => {
+    let cardset: DataCard[] = []
+
+    // go through each student and generate relevant cards for them
+    for(const stu of userStudents) {
+      const firstEnrollment = userEnrollments.find(enrollment => enrollment.studentId === stu.id) // finding the first enrollment this student is enrolled in
+      const firstClassName = userClasses.find(theclass => theclass.id === firstEnrollment?.classId)?.name
+
+      const attendanceMessage: string = stu.attendanceRate === 100 ? `${stu.firstName} has had a perfect attendance today!` : `${stu.firstName} has missed classes today!`
+
+      const tempClassCard: DataCard = {
+        studentId: stu.id,
+        header: `${stu.firstName} is in ${firstClassName} with [teacherName] until [classEndTime]`,
+        preview: `They have a ${firstEnrollment?.currentGrade} in the class.`,
+        route: " ", // this will route to the class... eventually
+        urgent: true,
+      }
+      const tempAttendanceCard: DataCard = {
+        studentId: stu.id,
+        header: attendanceMessage,
+        preview: "placeholder",
+        route: " ",
+        urgent: false,
+      }
+      cardset.push(tempClassCard);
+      cardset.push(tempAttendanceCard);
+    }
+    
+    return cardset;
+  }, [userClasses, userEnrollments, userStudents])
+
+  let screenCards: DataCard[] = useMemo(() => {
+    return firstLoad();
+  }, [firstLoad]);
+
+  /*
   // list used for making cards with the flat view. this will be done dynamically later
   const CardFlatListData = useMemo(() => {
     return [
@@ -59,6 +106,7 @@ export default function ParentLiveUpdatesScreen() {
       }
     ]
   }, [userStudents]) 
+  */
 
 
   const router = useRouter();
@@ -108,25 +156,25 @@ export default function ParentLiveUpdatesScreen() {
 
   // states for filtering the flatlist by kid
   // made with help from gemini
-  const [filteredList, setFilteredList] = useState(CardFlatListData);
-  const [fullList, setFullList] = useState(CardFlatListData)
+  const [filteredList, setFilteredList] = useState(screenCards);
+  const [fullList, setFullList] = useState(screenCards)
 
   useEffect(() => {
     // if "Display All" is selected
     if(childSelected.id === '0') {
-      setFilteredList(CardFlatListData); // then display all the cards available
+      setFilteredList(screenCards); // then display all the cards available
     }
     else {
       // when childSelected is changed, this will parse through the card list and select ones with matching studentIds
-      for(let i = 0; i<CardFlatListData.length; i++) {
-        const newFilteredData = CardFlatListData.filter(item => 
-          item.child.id.match(childSelected.id)
+      for(let i = 0; i<screenCards.length; i++) {
+        const newFilteredData = screenCards.filter(item => 
+          item.studentId.match(childSelected.id)
         );
         setFilteredList(newFilteredData);
       }
     }
     
-  }, [childSelected, fullList, CardFlatListData])
+  }, [childSelected, fullList, screenCards])
 
   const styles = StyleSheet.create({
     container: {

@@ -16,22 +16,15 @@ export default function Index() {
         isDebug,
         userParent,
         userStudents,
+        userClasses,
+        userEnrollments,
         onSignIn,
     } = useParentLoginContext();
 
     const startup = async() => {
-        await onSignIn();
-        /*
-        if(!isContextLoading) {
-            console.log(`onSignIn() done, info found: 
-                are we debug?: ${isDebug}
-                userParent id: ${userParent.userId}
-                userParent name: ${userParent.firstName}
-                number of students: ${userStudents.length}`)
-            setIsAllDone(true);
-        }*/
-       //console.log("hi!")
-       setIsContextDone(true);
+        await onSignIn();   
+
+        setIsContextDone(true);
     }
 
     useEffect(() => {
@@ -45,7 +38,10 @@ export default function Index() {
                 are we debug?: ${isDebug}
                 userParent id: ${userParent.userId}
                 userParent name: ${userParent.firstName}
-                number of students: ${userStudents.length}`)
+                number of students: ${userStudents.length}
+                first class name: ${userClasses[0].name}
+                number of classes: ${userClasses.length}
+                number of enrollments: ${userEnrollments.length}`)
             setIsAllDone(true);
         }
     }, [isContextDone, isContextLoading])

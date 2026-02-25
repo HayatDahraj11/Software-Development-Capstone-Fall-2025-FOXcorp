@@ -1,7 +1,7 @@
 import { getCurrentUser, signOut } from "aws-amplify/auth";
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
-import { Parent, Student } from "src/features/fetch-user-data/api/parent_data_fetcher";
-import { debug_kids, debug_parent } from "../auth/logic/debug_parent_data";
+import { Class, Enrollment, Parent, Student } from "src/features/fetch-user-data/api/parent_data_fetcher";
+import { debug_kids, debug_parent, debug_classes, debug_enrollments, debug_teachers } from "../auth/logic/debug_parent_data";
 import { useUserData } from "../fetch-user-data/logic/useUserData";
 
 export interface ParentContextType {
@@ -9,6 +9,8 @@ export interface ParentContextType {
     isDebug: boolean;
     userParent: Parent;
     userStudents: Student[];
+    userClasses: Class[];
+    userEnrollments: Enrollment[];
     onSignIn: () => Promise<void>;
     onSignOut: () => Promise<void>;
 }
@@ -26,13 +28,20 @@ export const ParentLoginProvider = ({children}: {children: ReactNode}) => {
         isLoading,
         parent,
         students,
-        handleParentAndStudentData
+        classes,
+        enrollments,
+        teacher_parentSide,
+        handleParentAndStudentData,
+        handleClassDataforParent
     } = useUserData();
 
     const [isDebug, setIsDebug] = useState<boolean>(true);
     // these are assumed to use debug info, and overwritted with real info later
     const [userParent, setUserParent] = useState<Parent>(debug_parent);
     const [userStudents, setUserStudents] = useState<Student[]>(debug_kids);
+    const [userClasses, setUserClasses] = useState<Class[]>(debug_classes);
+    const [userEnrollments, setUserEnrollments] = useState<Enrollment[]>(debug_enrollments);
+    
 
     // function runs when the user first signs in
     // this does not handle sign in operations with aws,
@@ -56,9 +65,14 @@ export const ParentLoginProvider = ({children}: {children: ReactNode}) => {
         if(!debugtemp) {
             const result = await handleParentAndStudentData();
             if(result) {
-                console.log("waiting for state change here.")
-                setIsDebug(false);
-                setIsReadyForStateWaiter(true);
+                const result2 = await handleClassDataforParent();
+                if(result2) {
+                    console.log("waiting for state change here.")
+                    setIsDebug(false);
+                    setIsReadyForStateWaiter(true);
+                } else {
+                    console.log("handleClassDataforParent failed")
+                }
             } else {
                 console.log("handleParentAndStudentData failed")
             }
@@ -78,14 +92,18 @@ export const ParentLoginProvider = ({children}: {children: ReactNode}) => {
             console.log("debug parents and kids returning!")
             setUserParent(debug_parent);
             setUserStudents(debug_kids);  
+            setUserClasses(debug_classes);
+            setUserEnrollments(debug_enrollments);
             setIsReadyForFinalize(true);
-        } else if(parent !== undefined && students !== undefined) {
+        } else if(parent !== undefined && students !== undefined && classes !== undefined && enrollments !== undefined) {
             console.log("found aws parent and student info! returning")
             setUserParent(parent);
             setUserStudents(students);
+            setUserClasses(classes);
+            setUserEnrollments(enrollments);
             setIsReadyForFinalize(true);
         }
-    }, [parent, students, isDebug, isReadyForStateWaiter])
+    }, [parent, students, isDebug, isReadyForStateWaiter, classes, enrollments])
 
     // this useeffect is here so we have to wait for each of the states in the function are updated
     // states are slow! we have to wait like this or data will be missed
@@ -147,6 +165,8 @@ export const ParentLoginProvider = ({children}: {children: ReactNode}) => {
         isDebug,
         userParent,
         userStudents,
+        userClasses,
+        userEnrollments,
         onSignIn,
         onSignOut,
     }

@@ -136,6 +136,7 @@ export async function fetchClassesForStudents(): Promise<StudentClassesFetchResu
         let classesData: Class[] = []
 
         for(const cla of classes) {
+            // sorting all grabbed class data into Class objects
             const temp: Class = {
                 id: cla.id,
                 name: cla.name,
@@ -144,13 +145,15 @@ export async function fetchClassesForStudents(): Promise<StudentClassesFetchResu
             }
             classesData.push(temp);
         }
-
-        const enrollmentsResults = await client.graphql({query: listEnrollments});
-        const enrollments = enrollmentsResults.data.listEnrollments.items;
-
+        
+        // grabbing enrollment informaton
+        const enrollmentResults = await client.graphql({query: listEnrollments});
+        const enrollments = enrollmentResults.data.listEnrollments.items
+        
         let enrollmentsData: Enrollment[] = []
 
         for(const enr of enrollments) {
+            //sorting all grabbing enrollment data into Enrollment objects
             const temp: Enrollment = {
                 id: enr.id,
                 studentId: enr.studentId,
@@ -159,12 +162,12 @@ export async function fetchClassesForStudents(): Promise<StudentClassesFetchResu
             }
             enrollmentsData.push(temp);
         }
-
+        
         const returnMessage: string = "Class and Enrollment data found with "+enrollmentsData.length+" enrollments and "+classesData.length+" classes."
         return { success: true, message: returnMessage, classes: classesData, enrollments: enrollmentsData };
     } catch(e) {
         const err = e as {name?: string, message?: string};
-        console.error("parent_data_fetcher.ts, fetchClassesByStudent(): ", err.message);
+        console.error("parent_data_fetcher.ts, fetchClassesByStudent(): ",err.name, err.message);
         return { success: false, message: `${err.message}` };
     }
 }

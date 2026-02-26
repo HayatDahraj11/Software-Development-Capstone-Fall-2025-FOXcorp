@@ -49,54 +49,7 @@ export default function ParentLiveUpdatesScreen() {
     firstLoad();
   }, [])
 
-  /*
-  // list used for making cards with the flat view. this will be done dynamically later
-  const CardFlatListData = useMemo(() => {
-    return [
-      {
-        id: 1,
-        child: userStudents[0],
-        header: `${userStudents[0].firstName} is in ${"--placeholder name--"} with [teacherName] until [classEndTime]!`,
-        preview: `They have a test this friday!`,
-        route: ' ',
-        urgent: true,
-      },
-      {
-        id: 2,
-        child: userStudents[0],
-        header: `${userStudents[0].firstName} is in ${"--placeholder name--"} with [teacherName] until [classEndTime]!`,
-        preview: 'They have a 100%',
-        route: ' ',
-        urgent: true,
-      },
-      {
-        id: 3,
-        child: userStudents[0],
-        header: `${userStudents[0].firstName} has had perfect attendance today. 0 tardies!`,
-        preview: ``,
-        route: ' ',
-      },
-      {
-        id: 4,
-        child: userStudents[0],
-        header: `[teacherName] sent out an Announcement from ${"--placeholder name--"}!`,
-        preview: `Dear parents, your child has a book report due next Tuesday.`,
-        route: ' ',
-        urgent: true
-      },
-      {
-        id: 5,
-        child: userStudents[0],
-        header: `${userStudents[0].firstName} has a test in ${"--placeholder name--"} on Friday, 11/21!`,
-        preview: ``,
-        route: ' ',
-        urgent: true
-      }
-    ]
-  }, [userStudents]) 
-  */
-
-
+  
   const router = useRouter();
 
   const RouteCard = (route: string): void => {

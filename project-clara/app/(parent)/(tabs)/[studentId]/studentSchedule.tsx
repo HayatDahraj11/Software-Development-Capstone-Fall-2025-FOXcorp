@@ -30,6 +30,9 @@ export default function StudentDocumentationScreen() {
     // context given student data
     const {
         userStudents,
+        userClasses,
+        userEnrollments,
+        getTeacherInfo,
     } = useParentLoginContext();
     
     const { studentId } = useLocalSearchParams();

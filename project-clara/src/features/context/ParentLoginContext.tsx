@@ -14,6 +14,7 @@ export interface ParentContextType {
     onSignIn: () => Promise<void>;
     onSignOut: () => Promise<void>;
     getTeacherInfo: (teacherId: string) => Promise<Teacher_parentSide>;
+    getClassesMappedByStudent: (studentId: string) => string[];
 }
 
 // parent-wide login context
@@ -189,6 +190,13 @@ export const ParentLoginProvider = ({children}: {children: ReactNode}) => {
         }
     }
 
+    // takes in a student id, returns all the classids which that student is enrolled in
+    const getClassesMappedByStudent = (studentId: string): string[] => {
+        const matchingEnrollments: Enrollment[] = userEnrollments.filter((enr) => {return enr.studentId === studentId});
+        const classIdArray: string[] = matchingEnrollments.map(enr => enr.classId);
+        return classIdArray;
+    }
+
 
     const userData = {
         isContextLoading,
@@ -200,6 +208,7 @@ export const ParentLoginProvider = ({children}: {children: ReactNode}) => {
         onSignIn,
         onSignOut,
         getTeacherInfo,
+        getClassesMappedByStudent,
     }
 
     return (

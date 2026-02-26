@@ -49,7 +49,25 @@ export function createStudentAttendanceCard(stu: Student, route?: string): DataC
         itemId: stu.id,
     };
 
-    NEXT_CARD_ID+=1
+    NEXT_CARD_ID+=1;
+
+    return card;
+}
+
+export function createStudentClassListCard(cla: Class, teacherName: string): DataCard {
+    // route is empty
+    // itemId is the class's classId
+
+    const card: DataCard = {
+        id: NEXT_CARD_ID,
+        header: cla.name,
+        preview: teacherName,
+        route: "",
+        theme: "list",
+        itemId: cla.id,
+    };
+
+    NEXT_CARD_ID+=1;
 
     return card;
 }

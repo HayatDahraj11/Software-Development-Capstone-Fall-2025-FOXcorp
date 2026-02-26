@@ -17,17 +17,20 @@ export default function ParentLiveUpdatesScreen() {
       userStudents,
       userClasses,
       userEnrollments,
+      getTeacherInfo,
   } = useParentLoginContext();
 
-  const firstLoad = useCallback((): DataCard[] => {
+  const [screenCards, setScreenCards] = useState<DataCard[]>([]);
+
+  const firstLoad = useCallback(async () => {
     let cardset: DataCard[] = []
 
     // go through each student and generate relevant cards for them
     for(const stu of userStudents) {
       const firstEnrollment = userEnrollments.find(enrollment => enrollment.studentId === stu.id) // finding the first enrollment this student is enrolled in
       const firstClass = userClasses.find(theclass => theclass.id === firstEnrollment?.classId)
-      // TODO: make this not a placeholder, actually call from aws
-      const tempTeach: Teacher_parentSide = { id: "hello!", name: "Mr. Hello!", schoolId: "Hello!!" }
+      // this will call aws if there is a firstClass
+      const tempTeach: Teacher_parentSide = firstClass ? await getTeacherInfo(firstClass.teacherId) : { id: "hello!", name: "Mr. Hello!", schoolId: "Hello!!" }
 
       if(firstEnrollment && firstClass) {
         // calling external function to handle creating data that goes into the card
@@ -39,12 +42,12 @@ export default function ParentLiveUpdatesScreen() {
       cardset.push(attendanceCard);
     }
     
-    return cardset;
-  }, [userClasses, userEnrollments, userStudents])
+    setScreenCards(cardset);
+  }, [userClasses, userEnrollments, userStudents, getTeacherInfo])
 
-  let screenCards: DataCard[] = useMemo(() => {
-    return firstLoad();
-  }, [firstLoad]);
+  useEffect(() => {
+    firstLoad();
+  }, [])
 
   /*
   // list used for making cards with the flat view. this will be done dynamically later

@@ -1,7 +1,7 @@
 import { getCurrentUser, signOut } from "aws-amplify/auth";
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
-import { Class, Enrollment, Parent, Student } from "src/features/fetch-user-data/api/parent_data_fetcher";
-import { debug_kids, debug_parent, debug_classes, debug_enrollments, debug_teachers } from "../auth/logic/debug_parent_data";
+import { Class, Enrollment, Parent, Student, Teacher_parentSide } from "src/features/fetch-user-data/api/parent_data_fetcher";
+import { debug_classes, debug_enrollments, debug_kids, debug_parent, debug_teachers } from "../auth/logic/debug_parent_data";
 import { useUserData } from "../fetch-user-data/logic/useUserData";
 
 export interface ParentContextType {
@@ -13,6 +13,7 @@ export interface ParentContextType {
     userEnrollments: Enrollment[];
     onSignIn: () => Promise<void>;
     onSignOut: () => Promise<void>;
+    getTeacherInfo: (teacherId: string) => Promise<Teacher_parentSide>;
 }
 
 // parent-wide login context
@@ -32,7 +33,8 @@ export const ParentLoginProvider = ({children}: {children: ReactNode}) => {
         enrollments,
         teacher_parentSide,
         handleParentAndStudentData,
-        handleClassDataforParent
+        handleClassDataforParent,
+        handleTeacherDataforParent,
     } = useUserData();
 
     const [isDebug, setIsDebug] = useState<boolean>(true);
@@ -159,6 +161,34 @@ export const ParentLoginProvider = ({children}: {children: ReactNode}) => {
         setIsContextLoading(false);
     }
 
+    const getTeacherInfo = async(teacherId: string): Promise<Teacher_parentSide> => {
+        setIsContextLoading(true);
+
+        try {
+            if(isDebug) {
+                const temp = debug_teachers.find(teach => teach.id === teacherId);
+                if(temp) {
+                    return temp;
+                } else {
+                    return debug_teachers[0];
+                }
+            } else {
+                const result = await handleTeacherDataforParent(teacherId)
+                if(result) {
+                    return result;
+                } else {
+                    throw new Error("handleTeacherDataforParent fail!");
+                }
+            }
+        } catch(e) {
+            const err = e as {name?: string, message?: string};
+            console.warn(`Accessed Teacher info while not logged in, assuming debug login.\nError: ${err.message}`);
+            return debug_teachers[0];
+        } finally {
+            setIsContextLoading(false);
+        }
+    }
+
 
     const userData = {
         isContextLoading,
@@ -169,6 +199,7 @@ export const ParentLoginProvider = ({children}: {children: ReactNode}) => {
         userEnrollments,
         onSignIn,
         onSignOut,
+        getTeacherInfo,
     }
 
     return (

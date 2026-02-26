@@ -11,7 +11,7 @@ interface UseUserDataReturn {
     teacher_parentSide: Teacher_parentSide | undefined; // teacher information that the parent cares about, undefined for other login types
     handleParentAndStudentData: () => Promise<boolean>;
     handleClassDataforParent: () => Promise<boolean>;
-    handleTeacherDataforParent: (teacherid: string) => Promise<boolean>;
+    handleTeacherDataforParent: (teacherid: string) => Promise<Teacher_parentSide | null>;
 }
 
 export function useUserData(): UseUserDataReturn {
@@ -74,7 +74,7 @@ export function useUserData(): UseUserDataReturn {
         }
     }, [])
 
-    const handleTeacherDataforParent = useCallback(async (teacherid: string): Promise<boolean> => {
+    const handleTeacherDataforParent = useCallback(async (teacherid: string): Promise<Teacher_parentSide | null> => {
         setIsLoading(true);
 
         try{
@@ -82,16 +82,16 @@ export function useUserData(): UseUserDataReturn {
             if(!data.success) {
                 throw new Error(data.message);
             } else if(data.teacher) {
-                setTeacher_parentSide(data.teacher);
-                console.log("Teacher data grabbed and save successfully!");
-                return true;
+                //setTeacher_parentSide(data.teacher);
+                //console.log("Teacher data grabbed and save successfully!");
+                return { id: data.teacher.id, name: data.teacher.name, schoolId: data.teacher.schoolId };
             } else {
                 throw new Error("Somehow, data came back as a success with no teacher data attached?")
             }
         } catch(e) {
             const err = e as {name?: string, message?: string};
             console.error("useUserData.ts, handleTeacherDataforParent: ", err.message);
-            return false;
+            return null;
 
         } finally {
             setIsLoading(false);

@@ -125,3 +125,40 @@ type Incident @model @auth(rules: [{ allow: public }]) {
   class: Class @belongsTo(fields: ["classId"])
   school: School @belongsTo(fields: ["schoolId"])
 }
+
+# ── Messaging ────────────────────────────────────────────────────────
+# DIRECT = 1:1 parent↔teacher thread about a specific student
+# GROUP  = teacher broadcast to all parents in a class
+enum ConversationType { DIRECT  GROUP }
+enum SenderType       { PARENT  TEACHER }
+
+# Each conversation stores denormalized names so the inbox list
+# can render without extra lookups (avoids N+1 on every load).
+type Conversation @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+  type: ConversationType!
+  parentId:  ID @index(name: "byParent")
+  teacherId: ID! @index(name: "byTeacher")
+  studentId: ID @index(name: "byStudent")
+  classId:   ID @index(name: "byClass")
+  parentName:  String
+  teacherName: String
+  studentName: String
+  className:   String
+  lastMessageText: String
+  lastMessageAt:   AWSDateTime
+  messages: [Message] @hasMany(indexName: "byConversation", fields: ["id"])
+}
+
+# Messages are sorted by createdAt within their conversation via the
+# composite sort key on the byConversation GSI.
+type Message @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+  conversationId: ID! @index(name: "byConversation", sortKeyFields: ["createdAt"])
+  senderId:   ID!
+  senderType: SenderType!
+  senderName: String!
+  body:       String!
+  createdAt:  AWSDateTime!
+  conversation: Conversation @belongsTo(fields: ["conversationId"])
+}

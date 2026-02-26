@@ -26,6 +26,10 @@ export const getTeacher = /* GraphQL */ `query GetTeacher($id: ID!) {
       nextToken
       __typename
     }
+    incidents {
+      nextToken
+      __typename
+    }
     createdAt
     updatedAt
     __typename
@@ -85,6 +89,14 @@ export const getClass = /* GraphQL */ `query GetClass($id: ID!) {
       nextToken
       __typename
     }
+    attendances {
+      nextToken
+      __typename
+    }
+    incidents {
+      nextToken
+      __typename
+    }
     createdAt
     updatedAt
     __typename
@@ -131,6 +143,7 @@ export const getEnrollment = /* GraphQL */ `query GetEnrollment($id: ID!) {
       createdAt
       updatedAt
       schoolStudentsId
+      studentMedicalRecordId
       __typename
     }
     class {
@@ -173,6 +186,370 @@ export const listEnrollments = /* GraphQL */ `query ListEnrollments(
 ` as GeneratedQuery<
   APITypes.ListEnrollmentsQueryVariables,
   APITypes.ListEnrollmentsQuery
+>;
+export const getAttendance = /* GraphQL */ `query GetAttendance($id: ID!) {
+  getAttendance(id: $id) {
+    id
+    studentId
+    classId
+    date
+    status
+    student {
+      id
+      firstName
+      lastName
+      dateOfBirth
+      gradeLevel
+      attendanceRate
+      currentStatus
+      createdAt
+      updatedAt
+      schoolStudentsId
+      studentMedicalRecordId
+      __typename
+    }
+    class {
+      id
+      name
+      teacherId
+      schoolId
+      createdAt
+      updatedAt
+      __typename
+    }
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetAttendanceQueryVariables,
+  APITypes.GetAttendanceQuery
+>;
+export const listAttendances = /* GraphQL */ `query ListAttendances(
+  $filter: ModelAttendanceFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listAttendances(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      studentId
+      classId
+      date
+      status
+      createdAt
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListAttendancesQueryVariables,
+  APITypes.ListAttendancesQuery
+>;
+export const getAnnouncement = /* GraphQL */ `query GetAnnouncement($id: ID!) {
+  getAnnouncement(id: $id) {
+    id
+    title
+    body
+    createdAt
+    createdBy
+    schoolId
+    classId
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetAnnouncementQueryVariables,
+  APITypes.GetAnnouncementQuery
+>;
+export const listAnnouncements = /* GraphQL */ `query ListAnnouncements(
+  $filter: ModelAnnouncementFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listAnnouncements(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      title
+      body
+      createdAt
+      createdBy
+      schoolId
+      classId
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListAnnouncementsQueryVariables,
+  APITypes.ListAnnouncementsQuery
+>;
+export const getMedicalRecord = /* GraphQL */ `query GetMedicalRecord($id: ID!) {
+  getMedicalRecord(id: $id) {
+    id
+    studentId
+    allergies
+    medications
+    conditions
+    emergencyNotes
+    student {
+      id
+      firstName
+      lastName
+      dateOfBirth
+      gradeLevel
+      attendanceRate
+      currentStatus
+      createdAt
+      updatedAt
+      schoolStudentsId
+      studentMedicalRecordId
+      __typename
+    }
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetMedicalRecordQueryVariables,
+  APITypes.GetMedicalRecordQuery
+>;
+export const listMedicalRecords = /* GraphQL */ `query ListMedicalRecords(
+  $filter: ModelMedicalRecordFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listMedicalRecords(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      studentId
+      allergies
+      medications
+      conditions
+      emergencyNotes
+      createdAt
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListMedicalRecordsQueryVariables,
+  APITypes.ListMedicalRecordsQuery
+>;
+export const getIncident = /* GraphQL */ `query GetIncident($id: ID!) {
+  getIncident(id: $id) {
+    id
+    description
+    severity
+    date
+    teacherId
+    studentId
+    classId
+    schoolId
+    teacher {
+      id
+      name
+      cognitoUserId
+      schoolId
+      createdAt
+      updatedAt
+      __typename
+    }
+    student {
+      id
+      firstName
+      lastName
+      dateOfBirth
+      gradeLevel
+      attendanceRate
+      currentStatus
+      createdAt
+      updatedAt
+      schoolStudentsId
+      studentMedicalRecordId
+      __typename
+    }
+    class {
+      id
+      name
+      teacherId
+      schoolId
+      createdAt
+      updatedAt
+      __typename
+    }
+    school {
+      id
+      name
+      address
+      createdAt
+      updatedAt
+      __typename
+    }
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetIncidentQueryVariables,
+  APITypes.GetIncidentQuery
+>;
+export const listIncidents = /* GraphQL */ `query ListIncidents(
+  $filter: ModelIncidentFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listIncidents(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      description
+      severity
+      date
+      teacherId
+      studentId
+      classId
+      schoolId
+      createdAt
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListIncidentsQueryVariables,
+  APITypes.ListIncidentsQuery
+>;
+export const getConversation = /* GraphQL */ `query GetConversation($id: ID!) {
+  getConversation(id: $id) {
+    id
+    type
+    parentId
+    teacherId
+    studentId
+    classId
+    parentName
+    teacherName
+    studentName
+    className
+    lastMessageText
+    lastMessageAt
+    messages {
+      nextToken
+      __typename
+    }
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetConversationQueryVariables,
+  APITypes.GetConversationQuery
+>;
+export const listConversations = /* GraphQL */ `query ListConversations(
+  $filter: ModelConversationFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listConversations(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      type
+      parentId
+      teacherId
+      studentId
+      classId
+      parentName
+      teacherName
+      studentName
+      className
+      lastMessageText
+      lastMessageAt
+      createdAt
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListConversationsQueryVariables,
+  APITypes.ListConversationsQuery
+>;
+export const getMessage = /* GraphQL */ `query GetMessage($id: ID!) {
+  getMessage(id: $id) {
+    id
+    conversationId
+    senderId
+    senderType
+    senderName
+    body
+    createdAt
+    conversation {
+      id
+      type
+      parentId
+      teacherId
+      studentId
+      classId
+      parentName
+      teacherName
+      studentName
+      className
+      lastMessageText
+      lastMessageAt
+      createdAt
+      updatedAt
+      __typename
+    }
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetMessageQueryVariables,
+  APITypes.GetMessageQuery
+>;
+export const listMessages = /* GraphQL */ `query ListMessages(
+  $filter: ModelMessageFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listMessages(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      conversationId
+      senderId
+      senderType
+      senderName
+      body
+      createdAt
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListMessagesQueryVariables,
+  APITypes.ListMessagesQuery
 >;
 export const teachersByCognitoUserId = /* GraphQL */ `query TeachersByCognitoUserId(
   $cognitoUserId: String!
@@ -360,6 +737,500 @@ export const enrollmentsByClassId = /* GraphQL */ `query EnrollmentsByClassId(
   APITypes.EnrollmentsByClassIdQueryVariables,
   APITypes.EnrollmentsByClassIdQuery
 >;
+export const attendancesByStudentId = /* GraphQL */ `query AttendancesByStudentId(
+  $studentId: ID!
+  $sortDirection: ModelSortDirection
+  $filter: ModelAttendanceFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  attendancesByStudentId(
+    studentId: $studentId
+    sortDirection: $sortDirection
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      id
+      studentId
+      classId
+      date
+      status
+      createdAt
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.AttendancesByStudentIdQueryVariables,
+  APITypes.AttendancesByStudentIdQuery
+>;
+export const attendancesByClassId = /* GraphQL */ `query AttendancesByClassId(
+  $classId: ID!
+  $sortDirection: ModelSortDirection
+  $filter: ModelAttendanceFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  attendancesByClassId(
+    classId: $classId
+    sortDirection: $sortDirection
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      id
+      studentId
+      classId
+      date
+      status
+      createdAt
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.AttendancesByClassIdQueryVariables,
+  APITypes.AttendancesByClassIdQuery
+>;
+export const announcementsBySchoolId = /* GraphQL */ `query AnnouncementsBySchoolId(
+  $schoolId: ID!
+  $sortDirection: ModelSortDirection
+  $filter: ModelAnnouncementFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  announcementsBySchoolId(
+    schoolId: $schoolId
+    sortDirection: $sortDirection
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      id
+      title
+      body
+      createdAt
+      createdBy
+      schoolId
+      classId
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.AnnouncementsBySchoolIdQueryVariables,
+  APITypes.AnnouncementsBySchoolIdQuery
+>;
+export const announcementsByClassId = /* GraphQL */ `query AnnouncementsByClassId(
+  $classId: ID!
+  $sortDirection: ModelSortDirection
+  $filter: ModelAnnouncementFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  announcementsByClassId(
+    classId: $classId
+    sortDirection: $sortDirection
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      id
+      title
+      body
+      createdAt
+      createdBy
+      schoolId
+      classId
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.AnnouncementsByClassIdQueryVariables,
+  APITypes.AnnouncementsByClassIdQuery
+>;
+export const medicalRecordsByStudentId = /* GraphQL */ `query MedicalRecordsByStudentId(
+  $studentId: ID!
+  $sortDirection: ModelSortDirection
+  $filter: ModelMedicalRecordFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  medicalRecordsByStudentId(
+    studentId: $studentId
+    sortDirection: $sortDirection
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      id
+      studentId
+      allergies
+      medications
+      conditions
+      emergencyNotes
+      createdAt
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.MedicalRecordsByStudentIdQueryVariables,
+  APITypes.MedicalRecordsByStudentIdQuery
+>;
+export const incidentsByTeacherId = /* GraphQL */ `query IncidentsByTeacherId(
+  $teacherId: ID!
+  $sortDirection: ModelSortDirection
+  $filter: ModelIncidentFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  incidentsByTeacherId(
+    teacherId: $teacherId
+    sortDirection: $sortDirection
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      id
+      description
+      severity
+      date
+      teacherId
+      studentId
+      classId
+      schoolId
+      createdAt
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.IncidentsByTeacherIdQueryVariables,
+  APITypes.IncidentsByTeacherIdQuery
+>;
+export const incidentsByStudentId = /* GraphQL */ `query IncidentsByStudentId(
+  $studentId: ID!
+  $sortDirection: ModelSortDirection
+  $filter: ModelIncidentFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  incidentsByStudentId(
+    studentId: $studentId
+    sortDirection: $sortDirection
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      id
+      description
+      severity
+      date
+      teacherId
+      studentId
+      classId
+      schoolId
+      createdAt
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.IncidentsByStudentIdQueryVariables,
+  APITypes.IncidentsByStudentIdQuery
+>;
+export const incidentsByClassId = /* GraphQL */ `query IncidentsByClassId(
+  $classId: ID!
+  $sortDirection: ModelSortDirection
+  $filter: ModelIncidentFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  incidentsByClassId(
+    classId: $classId
+    sortDirection: $sortDirection
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      id
+      description
+      severity
+      date
+      teacherId
+      studentId
+      classId
+      schoolId
+      createdAt
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.IncidentsByClassIdQueryVariables,
+  APITypes.IncidentsByClassIdQuery
+>;
+export const incidentsBySchoolId = /* GraphQL */ `query IncidentsBySchoolId(
+  $schoolId: ID!
+  $sortDirection: ModelSortDirection
+  $filter: ModelIncidentFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  incidentsBySchoolId(
+    schoolId: $schoolId
+    sortDirection: $sortDirection
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      id
+      description
+      severity
+      date
+      teacherId
+      studentId
+      classId
+      schoolId
+      createdAt
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.IncidentsBySchoolIdQueryVariables,
+  APITypes.IncidentsBySchoolIdQuery
+>;
+export const conversationsByParentId = /* GraphQL */ `query ConversationsByParentId(
+  $parentId: ID!
+  $sortDirection: ModelSortDirection
+  $filter: ModelConversationFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  conversationsByParentId(
+    parentId: $parentId
+    sortDirection: $sortDirection
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      id
+      type
+      parentId
+      teacherId
+      studentId
+      classId
+      parentName
+      teacherName
+      studentName
+      className
+      lastMessageText
+      lastMessageAt
+      createdAt
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ConversationsByParentIdQueryVariables,
+  APITypes.ConversationsByParentIdQuery
+>;
+export const conversationsByTeacherId = /* GraphQL */ `query ConversationsByTeacherId(
+  $teacherId: ID!
+  $sortDirection: ModelSortDirection
+  $filter: ModelConversationFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  conversationsByTeacherId(
+    teacherId: $teacherId
+    sortDirection: $sortDirection
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      id
+      type
+      parentId
+      teacherId
+      studentId
+      classId
+      parentName
+      teacherName
+      studentName
+      className
+      lastMessageText
+      lastMessageAt
+      createdAt
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ConversationsByTeacherIdQueryVariables,
+  APITypes.ConversationsByTeacherIdQuery
+>;
+export const conversationsByStudentId = /* GraphQL */ `query ConversationsByStudentId(
+  $studentId: ID!
+  $sortDirection: ModelSortDirection
+  $filter: ModelConversationFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  conversationsByStudentId(
+    studentId: $studentId
+    sortDirection: $sortDirection
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      id
+      type
+      parentId
+      teacherId
+      studentId
+      classId
+      parentName
+      teacherName
+      studentName
+      className
+      lastMessageText
+      lastMessageAt
+      createdAt
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ConversationsByStudentIdQueryVariables,
+  APITypes.ConversationsByStudentIdQuery
+>;
+export const conversationsByClassId = /* GraphQL */ `query ConversationsByClassId(
+  $classId: ID!
+  $sortDirection: ModelSortDirection
+  $filter: ModelConversationFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  conversationsByClassId(
+    classId: $classId
+    sortDirection: $sortDirection
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      id
+      type
+      parentId
+      teacherId
+      studentId
+      classId
+      parentName
+      teacherName
+      studentName
+      className
+      lastMessageText
+      lastMessageAt
+      createdAt
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ConversationsByClassIdQueryVariables,
+  APITypes.ConversationsByClassIdQuery
+>;
+export const messagesByConversationIdAndCreatedAt = /* GraphQL */ `query MessagesByConversationIdAndCreatedAt(
+  $conversationId: ID!
+  $createdAt: ModelStringKeyConditionInput
+  $sortDirection: ModelSortDirection
+  $filter: ModelMessageFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  messagesByConversationIdAndCreatedAt(
+    conversationId: $conversationId
+    createdAt: $createdAt
+    sortDirection: $sortDirection
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      id
+      conversationId
+      senderId
+      senderType
+      senderName
+      body
+      createdAt
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.MessagesByConversationIdAndCreatedAtQueryVariables,
+  APITypes.MessagesByConversationIdAndCreatedAtQuery
+>;
 export const getSchool = /* GraphQL */ `query GetSchool($id: ID!) {
   getSchool(id: $id) {
     id
@@ -374,6 +1245,10 @@ export const getSchool = /* GraphQL */ `query GetSchool($id: ID!) {
       __typename
     }
     classes {
+      nextToken
+      __typename
+    }
+    incidents {
       nextToken
       __typename
     }
@@ -509,9 +1384,29 @@ export const getStudent = /* GraphQL */ `query GetStudent($id: ID!) {
       nextToken
       __typename
     }
+    attendances {
+      nextToken
+      __typename
+    }
+    incidents {
+      nextToken
+      __typename
+    }
+    medicalRecord {
+      id
+      studentId
+      allergies
+      medications
+      conditions
+      emergencyNotes
+      createdAt
+      updatedAt
+      __typename
+    }
     createdAt
     updatedAt
     schoolStudentsId
+    studentMedicalRecordId
     __typename
   }
 }
@@ -536,6 +1431,7 @@ export const listStudents = /* GraphQL */ `query ListStudents(
       createdAt
       updatedAt
       schoolStudentsId
+      studentMedicalRecordId
       __typename
     }
     nextToken
@@ -574,6 +1470,7 @@ export const getParentStudents = /* GraphQL */ `query GetParentStudents($id: ID!
       createdAt
       updatedAt
       schoolStudentsId
+      studentMedicalRecordId
       __typename
     }
     createdAt

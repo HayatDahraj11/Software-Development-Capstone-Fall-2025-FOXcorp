@@ -3,19 +3,12 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
+import { DataCard, createStudentAttendanceCard, createStudentClassUpdateCard } from "@/src/features/cards/logic/cardDataCreator";
 import Card from "@/src/features/cards/ui/Card";
 import Parent_ChildPicker from "@/src/features/child-selection/ui/Parent_ChildPicker";
 import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
+import { Teacher_parentSide } from "@/src/features/fetch-user-data/api/parent_data_fetcher";
 import { MaterialIcons } from "@expo/vector-icons";
-
-// type for cards that will be generated and displayed on screen
-type DataCard = {
-  studentId: string;
-  header: string;
-  preview: string;
-  route: string;
-  urgent: boolean;
-}
 
 export default function ParentLiveUpdatesScreen() {
   // context givent parent and student data
@@ -32,26 +25,18 @@ export default function ParentLiveUpdatesScreen() {
     // go through each student and generate relevant cards for them
     for(const stu of userStudents) {
       const firstEnrollment = userEnrollments.find(enrollment => enrollment.studentId === stu.id) // finding the first enrollment this student is enrolled in
-      const firstClassName = userClasses.find(theclass => theclass.id === firstEnrollment?.classId)?.name
+      const firstClass = userClasses.find(theclass => theclass.id === firstEnrollment?.classId)
+      // TODO: make this not a placeholder, actually call from aws
+      const tempTeach: Teacher_parentSide = { id: "hello!", name: "Mr. Hello!", schoolId: "Hello!!" }
 
-      const attendanceMessage: string = stu.attendanceRate === 100 ? `${stu.firstName} has had a perfect attendance today!` : `${stu.firstName} has missed classes today!`
+      if(firstEnrollment && firstClass) {
+        // calling external function to handle creating data that goes into the card
+        const classCard = createStudentClassUpdateCard(stu, firstClass, firstEnrollment, tempTeach)
+        cardset.push(classCard);
+      }
 
-      const tempClassCard: DataCard = {
-        studentId: stu.id,
-        header: `${stu.firstName} is in ${firstClassName} with [teacherName] until [classEndTime]`,
-        preview: `They have a ${firstEnrollment?.currentGrade} in the class.`,
-        route: " ", // this will route to the class... eventually
-        urgent: true,
-      }
-      const tempAttendanceCard: DataCard = {
-        studentId: stu.id,
-        header: attendanceMessage,
-        preview: "placeholder",
-        route: " ",
-        urgent: false,
-      }
-      cardset.push(tempClassCard);
-      cardset.push(tempAttendanceCard);
+      const attendanceCard = createStudentAttendanceCard(stu);
+      cardset.push(attendanceCard);
     }
     
     return cardset;
@@ -168,7 +153,7 @@ export default function ParentLiveUpdatesScreen() {
       // when childSelected is changed, this will parse through the card list and select ones with matching studentIds
       for(let i = 0; i<screenCards.length; i++) {
         const newFilteredData = screenCards.filter(item => 
-          item.studentId.match(childSelected.id)
+          item.itemId.match(childSelected.id)
         );
         setFilteredList(newFilteredData);
       }

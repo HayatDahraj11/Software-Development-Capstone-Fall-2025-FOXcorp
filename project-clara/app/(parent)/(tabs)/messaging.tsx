@@ -3,12 +3,12 @@
  * is part of. Tapping a row opens the conversation thread.
  */
 
-import { useRouter } from "expo-router";
+import { RelativePathString, useRouter } from "expo-router";
 
 import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
+import { Conversation } from "@/src/features/messaging/api/messageRepo";
 import { useConversations } from "@/src/features/messaging/logic/useConversations";
 import ConversationList from "@/src/features/messaging/ui/ConversationList";
-import { Conversation } from "@/src/features/messaging/api/messageRepo";
 
 export default function ParentMessagingScreen() {
   const { userParent } = useParentLoginContext();
@@ -21,7 +21,7 @@ export default function ParentMessagingScreen() {
     // pass conversationId + a display title as query params
     const title = convo.teacherName ?? "Conversation";
     router.push({
-      pathname: "/(parent)/conversation",
+      pathname: ("/(parent)/conversation" as RelativePathString),
       params: { conversationId: convo.id, conversationTitle: title },
     });
   };

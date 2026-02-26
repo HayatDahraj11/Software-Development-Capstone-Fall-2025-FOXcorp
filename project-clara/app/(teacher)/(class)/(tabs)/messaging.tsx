@@ -6,11 +6,11 @@
  * Right now it only has isDebug/updateIsDebug.
  */
 
-import { useRouter } from "expo-router";
+import { RelativePathString, useRouter } from "expo-router";
 
+import { Conversation } from "@/src/features/messaging/api/messageRepo";
 import { useConversations } from "@/src/features/messaging/logic/useConversations";
 import ConversationList from "@/src/features/messaging/ui/ConversationList";
-import { Conversation } from "@/src/features/messaging/api/messageRepo";
 
 // TODO: pull from TeacherLoginContext once it exposes teacher data
 const PLACEHOLDER_TEACHER_ID = "teacher-debug-001";
@@ -28,7 +28,7 @@ export default function TeacherMessagingScreen() {
         : convo.parentName ?? "Conversation";
 
     router.push({
-      pathname: "/(teacher)/conversation",
+      pathname: ("/(teacher)/conversation" as RelativePathString),
       params: { conversationId: convo.id, conversationTitle: title },
     });
   };

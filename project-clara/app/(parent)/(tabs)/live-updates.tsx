@@ -17,7 +17,7 @@ export default function ParentLiveUpdatesScreen() {
       userStudents,
       userClasses,
       userEnrollments,
-      getTeacherInfo,
+      userTeachers,
   } = useParentLoginContext();
 
   const [screenCards, setScreenCards] = useState<DataCard[]>([]);
@@ -30,7 +30,17 @@ export default function ParentLiveUpdatesScreen() {
       const firstEnrollment = userEnrollments.find(enrollment => enrollment.studentId === stu.id) // finding the first enrollment this student is enrolled in
       const firstClass = userClasses.find(theclass => theclass.id === firstEnrollment?.classId)
       // this will call aws if there is a firstClass
-      const tempTeach: Teacher_parentSide = firstClass ? await getTeacherInfo(firstClass.teacherId) : { id: "hello!", name: "Mr. Hello!", schoolId: "Hello!!" }
+      let tempTeach: Teacher_parentSide
+      if(firstClass) {
+        const temptemp = userTeachers.find(teach => teach.id === firstClass.teacherId);
+        if(temptemp) {
+          tempTeach = temptemp;
+        } else {
+          tempTeach = {id: "error", name: "error", schoolId: "error"};
+        }
+      } else {
+        tempTeach = {id: "error", name: "error", schoolId: "error"};
+      }
 
       if(firstEnrollment && firstClass) {
         // calling external function to handle creating data that goes into the card
@@ -43,7 +53,7 @@ export default function ParentLiveUpdatesScreen() {
     }
     
     setScreenCards(cardset);
-  }, [userClasses, userEnrollments, userStudents, getTeacherInfo])
+  }, [userClasses, userEnrollments, userStudents, userTeachers])
 
   useEffect(() => {
     firstLoad();

@@ -11,9 +11,9 @@ export interface ParentContextType {
     userStudents: Student[];
     userClasses: Class[];
     userEnrollments: Enrollment[];
+    userTeachers: Teacher_parentSide[];
     onSignIn: () => Promise<void>;
     onSignOut: () => Promise<void>;
-    getTeacherInfo: (teacherId: string) => Promise<Teacher_parentSide>;
     getClassesMappedByStudent: (studentId: string) => string[];
 }
 
@@ -22,6 +22,7 @@ export const ParentLoginContext = createContext<ParentContextType | null>(null);
 // provider for the context, made with help from gemini
 export const ParentLoginProvider = ({children}: {children: ReactNode}) => {
     const [isContextLoading, setIsContextLoading] = useState<boolean>(false);
+    const [isReadyForTeacherGrabber, setIsReadyForTeacherGrabber] = useState<boolean>(false);
     const [isReadyForStateWaiter, setIsReadyForStateWaiter] = useState<boolean>(false);
     const [isReadyForFinalize, setIsReadyForFinalize] = useState<boolean>(false);
 
@@ -32,7 +33,7 @@ export const ParentLoginProvider = ({children}: {children: ReactNode}) => {
         students,
         classes,
         enrollments,
-        teacher_parentSide,
+        teachers_parentSide,
         handleParentAndStudentData,
         handleClassDataforParent,
         handleTeacherDataforParent,
@@ -44,6 +45,7 @@ export const ParentLoginProvider = ({children}: {children: ReactNode}) => {
     const [userStudents, setUserStudents] = useState<Student[]>(debug_kids);
     const [userClasses, setUserClasses] = useState<Class[]>(debug_classes);
     const [userEnrollments, setUserEnrollments] = useState<Enrollment[]>(debug_enrollments);
+    const [userTeachers, setUserTeachers] = useState<Teacher_parentSide[]>(debug_teachers);
     
 
     // function runs when the user first signs in
@@ -72,7 +74,7 @@ export const ParentLoginProvider = ({children}: {children: ReactNode}) => {
                 if(result2) {
                     console.log("waiting for state change here.")
                     setIsDebug(false);
-                    setIsReadyForStateWaiter(true);
+                    setIsReadyForTeacherGrabber(true);
                 } else {
                     console.log("handleClassDataforParent failed")
                 }
@@ -81,8 +83,47 @@ export const ParentLoginProvider = ({children}: {children: ReactNode}) => {
             }
         }
 
-        setIsReadyForStateWaiter(true);
+        setIsReadyForTeacherGrabber(true);
     }
+
+    const theTeacherDataGrabber = useCallback(async() => {
+        if(!isReadyForTeacherGrabber) {return;}
+        function getuniqueteacherids(cla: Class[]): string[] {
+            let tempidarr: string[] = []
+            for(const i of cla) {
+                if(!tempidarr.includes(i.teacherId)) {
+                    tempidarr.push(i.teacherId);
+                }
+            }
+            return tempidarr;
+        }
+
+        if(!isDebug && classes !== undefined) {
+            const tempids: string[] = getuniqueteacherids(classes)
+            try {
+                const results = handleTeacherDataforParent(tempids);
+
+                if(!results) {
+                    throw new Error("handleTeacherDataforParent returned 'false'")
+                } else {
+                    console.log("Teacher data updating. waiting...")
+                }
+
+            } catch(e) {
+                const err = e as {name?: string, message?: string};
+                console.warn(`handleTeacherDataforParent failed somehow.\nError: ${err.message}`);   
+            }
+
+            
+            setIsReadyForStateWaiter(true);
+        } else if (isDebug) {
+            setIsReadyForStateWaiter(true);
+        }
+    }, [classes, isReadyForTeacherGrabber, isDebug, handleTeacherDataforParent])
+
+    useEffect(() => {
+        theTeacherDataGrabber();
+    }, [theTeacherDataGrabber])
 
     // this holds the next part of the onSignIn() process, setting local parent and student states to what was found via aws
     // this is a separate function that only fully runs once either "isDebug" has been updated to true,
@@ -97,16 +138,18 @@ export const ParentLoginProvider = ({children}: {children: ReactNode}) => {
             setUserStudents(debug_kids);  
             setUserClasses(debug_classes);
             setUserEnrollments(debug_enrollments);
+            setUserTeachers(debug_teachers);
             setIsReadyForFinalize(true);
-        } else if(parent !== undefined && students !== undefined && classes !== undefined && enrollments !== undefined) {
+        } else if(parent !== undefined && students !== undefined && classes !== undefined && enrollments !== undefined && teachers_parentSide !== undefined) {
             console.log("found aws parent and student info! returning")
             setUserParent(parent);
             setUserStudents(students);
             setUserClasses(classes);
             setUserEnrollments(enrollments);
+            setUserTeachers(teachers_parentSide);
             setIsReadyForFinalize(true);
         }
-    }, [parent, students, isDebug, isReadyForStateWaiter, classes, enrollments])
+    }, [parent, students, isDebug, isReadyForStateWaiter, classes, enrollments, teachers_parentSide])
 
     // this useeffect is here so we have to wait for each of the states in the function are updated
     // states are slow! we have to wait like this or data will be missed
@@ -119,7 +162,7 @@ export const ParentLoginProvider = ({children}: {children: ReactNode}) => {
     const waitForFinalUpdates = useCallback(async() => {
         if(!isReadyForFinalize) { return; }
         setIsContextLoading(false);
-    }, [userParent, userStudents, isReadyForFinalize])
+    }, [userParent, userStudents, userClasses, userEnrollments, userTeachers, isReadyForFinalize])
 
     // same as theStateWaiter(), waiting for each of the states above to update to truly run this part of the function
     useEffect(() => {
@@ -152,42 +195,18 @@ export const ParentLoginProvider = ({children}: {children: ReactNode}) => {
         })
 
         // cleaning up state vars to default
-        setIsContextLoading(false)
+        setIsContextLoading(false);
+        setIsReadyForTeacherGrabber(false);
         setIsReadyForFinalize(false);
         setIsReadyForStateWaiter(false);
         setIsDebug(true);
         setUserParent(debug_parent);
         setUserStudents(debug_kids);
+        setUserEnrollments(debug_enrollments);
+        setUserClasses(debug_classes);
+        setUserTeachers(debug_teachers);
 
         setIsContextLoading(false);
-    }
-
-    const getTeacherInfo = async(teacherId: string): Promise<Teacher_parentSide> => {
-        setIsContextLoading(true);
-
-        try {
-            if(isDebug) {
-                const temp = debug_teachers.find(teach => teach.id === teacherId);
-                if(temp) {
-                    return temp;
-                } else {
-                    return debug_teachers[0];
-                }
-            } else {
-                const result = await handleTeacherDataforParent(teacherId)
-                if(result) {
-                    return result;
-                } else {
-                    throw new Error("handleTeacherDataforParent fail!");
-                }
-            }
-        } catch(e) {
-            const err = e as {name?: string, message?: string};
-            console.warn(`Accessed Teacher info while not logged in, assuming debug login.\nError: ${err.message}`);
-            return debug_teachers[0];
-        } finally {
-            setIsContextLoading(false);
-        }
     }
 
     // takes in a student id, returns all the classids which that student is enrolled in
@@ -205,9 +224,9 @@ export const ParentLoginProvider = ({children}: {children: ReactNode}) => {
         userStudents,
         userClasses,
         userEnrollments,
+        userTeachers,
         onSignIn,
         onSignOut,
-        getTeacherInfo,
         getClassesMappedByStudent,
     }
 

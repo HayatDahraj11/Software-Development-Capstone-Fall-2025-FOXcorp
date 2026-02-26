@@ -8,10 +8,10 @@ interface UseUserDataReturn {
     students: Student[] | undefined;
     classes: Class[] | undefined;
     enrollments: Enrollment[] | undefined;
-    teacher_parentSide: Teacher_parentSide | undefined; // teacher information that the parent cares about, undefined for other login types
+    teachers_parentSide: Teacher_parentSide[] | undefined; // teacher information that the parent cares about, undefined for other login types
     handleParentAndStudentData: () => Promise<boolean>;
     handleClassDataforParent: () => Promise<boolean>;
-    handleTeacherDataforParent: (teacherid: string) => Promise<Teacher_parentSide | null>;
+    handleTeacherDataforParent: (teacherids: string[]) => Promise<boolean>;
 }
 
 export function useUserData(): UseUserDataReturn {
@@ -20,7 +20,7 @@ export function useUserData(): UseUserDataReturn {
     const [students, setStudents] = useState<Student[]>();
     const [classes, setClasses] = useState<Class[]>();
     const [enrollments, setEnrollments] = useState<Enrollment[]>();
-    const [teacher_parentSide, setTeacher_parentSide] = useState<Teacher_parentSide>();
+    const [teachers_parentSide, setTeachers_parentSide] = useState<Teacher_parentSide[]>();
 
     // returns true on success, false on failure
     const handleParentAndStudentData = useCallback(async (): Promise<boolean> => {
@@ -74,24 +74,33 @@ export function useUserData(): UseUserDataReturn {
         }
     }, [])
 
-    const handleTeacherDataforParent = useCallback(async (teacherid: string): Promise<Teacher_parentSide | null> => {
+    const handleTeacherDataforParent = useCallback(async (teacherids: string[]): Promise<boolean> => {
         setIsLoading(true);
 
         try{
-            const data = await fetchTeacherByID(teacherid);
-            if(!data.success) {
-                throw new Error(data.message);
-            } else if(data.teacher) {
-                //setTeacher_parentSide(data.teacher);
-                //console.log("Teacher data grabbed and save successfully!");
-                return { id: data.teacher.id, name: data.teacher.name, schoolId: data.teacher.schoolId };
-            } else {
-                throw new Error("Somehow, data came back as a success with no teacher data attached?")
+            // this one is structured a lil differently
+                // instead of grabbing all related stuff at once, it grabs each teacher one at a time
+                // this is just a reality of how i structured it. can be changed later, i guess.
+            let tempteacharr: Teacher_parentSide[] = []
+            for(const i of teacherids) {
+                const data = await fetchTeacherByID(i);
+                if(!data.success) {
+                    throw new Error(data.message);
+                } else if(data.teacher) {
+                    //setTeacher_parentSide(data.teacher);
+                    //console.log("Teacher data grabbed and save successfully!");
+                    tempteacharr.push(data.teacher);
+                } else {
+                    throw new Error("Somehow, data came back as a success with no teacher data attached?")
+                }
             }
+
+            setTeachers_parentSide(tempteacharr);
+            return true;
         } catch(e) {
             const err = e as {name?: string, message?: string};
             console.error("useUserData.ts, handleTeacherDataforParent: ", err.message);
-            return null;
+            return false;
 
         } finally {
             setIsLoading(false);
@@ -104,7 +113,7 @@ export function useUserData(): UseUserDataReturn {
         students,
         classes,
         enrollments,
-        teacher_parentSide,
+        teachers_parentSide,
         handleParentAndStudentData,
         handleClassDataforParent,
         handleTeacherDataforParent,

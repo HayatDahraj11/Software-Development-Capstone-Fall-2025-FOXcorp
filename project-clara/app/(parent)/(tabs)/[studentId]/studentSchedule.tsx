@@ -14,7 +14,7 @@ export default function StudentDocumentationScreen() {
         userStudents,
         userClasses,
         userEnrollments,
-        getTeacherInfo,
+        userTeachers,
         getClassesMappedByStudent,
     } = useParentLoginContext();
     const { studentId } = useLocalSearchParams();
@@ -30,15 +30,17 @@ export default function StudentDocumentationScreen() {
             for(const i of classIdsofStudent) {
                 const tempcla = userClasses.find(cla => cla.id === i);
                 if(tempcla) {
-                    const tempteach = await getTeacherInfo(tempcla.teacherId);
-                    const tempcard = createStudentClassListCard(tempcla, tempteach.name);
-                    cardset.push(tempcard);
+                    const tempteach = userTeachers.find(teach => teach.id === tempcla.teacherId) 
+                    if(tempteach) {
+                        const tempcard = createStudentClassListCard(tempcla, tempteach.name);
+                        cardset.push(tempcard);
+                    }
                 }
             }
         }
 
         setScreenCards(cardset);
-    }, [getClassesMappedByStudent, studentId, getTeacherInfo, userClasses, userStudents])
+    }, [getClassesMappedByStudent, studentId, userClasses, userStudents, userTeachers])
 
     useEffect(() => {
         firstLoad();

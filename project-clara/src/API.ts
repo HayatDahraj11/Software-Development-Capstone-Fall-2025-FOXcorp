@@ -11,6 +11,7 @@ export type CreateStudentInput = {
   attendanceRate?: number | null,
   currentStatus?: string | null,
   schoolStudentsId?: string | null,
+  studentMedicalRecordId?: string | null,
 };
 
 export type ModelStudentConditionInput = {
@@ -26,6 +27,7 @@ export type ModelStudentConditionInput = {
   createdAt?: ModelStringInput | null,
   updatedAt?: ModelStringInput | null,
   schoolStudentsId?: ModelIDInput | null,
+  studentMedicalRecordId?: ModelIDInput | null,
 };
 
 export type ModelStringInput = {
@@ -120,9 +122,13 @@ export type Student = {
   school?: School | null,
   parents?: ModelParentStudentsConnection | null,
   enrollments?: ModelEnrollmentConnection | null,
+  attendances?: ModelAttendanceConnection | null,
+  incidents?: ModelIncidentConnection | null,
+  medicalRecord?: MedicalRecord | null,
   createdAt: string,
   updatedAt: string,
   schoolStudentsId?: string | null,
+  studentMedicalRecordId?: string | null,
 };
 
 export type School = {
@@ -133,6 +139,7 @@ export type School = {
   students?: ModelStudentConnection | null,
   teachers?: ModelTeacherConnection | null,
   classes?: ModelClassConnection | null,
+  incidents?: ModelIncidentConnection | null,
   createdAt: string,
   updatedAt: string,
 };
@@ -157,6 +164,7 @@ export type Teacher = {
   schoolId: string,
   school?: School | null,
   classes?: ModelClassConnection | null,
+  incidents?: ModelIncidentConnection | null,
   createdAt: string,
   updatedAt: string,
 };
@@ -176,6 +184,8 @@ export type Class = {
   teacher?: Teacher | null,
   school?: School | null,
   enrollments?: ModelEnrollmentConnection | null,
+  attendances?: ModelAttendanceConnection | null,
+  incidents?: ModelIncidentConnection | null,
   createdAt: string,
   updatedAt: string,
 };
@@ -194,6 +204,56 @@ export type Enrollment = {
   currentGrade?: number | null,
   student?: Student | null,
   class?: Class | null,
+  createdAt: string,
+  updatedAt: string,
+};
+
+export type ModelAttendanceConnection = {
+  __typename: "ModelAttendanceConnection",
+  items:  Array<Attendance | null >,
+  nextToken?: string | null,
+};
+
+export type Attendance = {
+  __typename: "Attendance",
+  id: string,
+  studentId: string,
+  classId: string,
+  date: string,
+  status: AttendanceStatus,
+  student?: Student | null,
+  class?: Class | null,
+  createdAt: string,
+  updatedAt: string,
+};
+
+export enum AttendanceStatus {
+  PRESENT = "PRESENT",
+  ABSENT = "ABSENT",
+  LATE = "LATE",
+}
+
+
+export type ModelIncidentConnection = {
+  __typename: "ModelIncidentConnection",
+  items:  Array<Incident | null >,
+  nextToken?: string | null,
+};
+
+export type Incident = {
+  __typename: "Incident",
+  id: string,
+  description: string,
+  severity?: string | null,
+  date?: string | null,
+  teacherId: string,
+  studentId: string,
+  classId?: string | null,
+  schoolId: string,
+  teacher?: Teacher | null,
+  student?: Student | null,
+  class?: Class | null,
+  school?: School | null,
   createdAt: string,
   updatedAt: string,
 };
@@ -228,6 +288,19 @@ export type Parent = {
   createdAt: string,
   updatedAt: string,
   owner?: string | null,
+};
+
+export type MedicalRecord = {
+  __typename: "MedicalRecord",
+  id: string,
+  studentId: string,
+  allergies?: string | null,
+  medications?: string | null,
+  conditions?: string | null,
+  emergencyNotes?: string | null,
+  student?: Student | null,
+  createdAt: string,
+  updatedAt: string,
 };
 
 export type DeleteStudentInput = {
@@ -321,6 +394,318 @@ export type DeleteEnrollmentInput = {
   id: string,
 };
 
+export type CreateAttendanceInput = {
+  id?: string | null,
+  studentId: string,
+  classId: string,
+  date: string,
+  status: AttendanceStatus,
+};
+
+export type ModelAttendanceConditionInput = {
+  studentId?: ModelIDInput | null,
+  classId?: ModelIDInput | null,
+  date?: ModelStringInput | null,
+  status?: ModelAttendanceStatusInput | null,
+  and?: Array< ModelAttendanceConditionInput | null > | null,
+  or?: Array< ModelAttendanceConditionInput | null > | null,
+  not?: ModelAttendanceConditionInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type ModelAttendanceStatusInput = {
+  eq?: AttendanceStatus | null,
+  ne?: AttendanceStatus | null,
+};
+
+export type UpdateAttendanceInput = {
+  id: string,
+  studentId?: string | null,
+  classId?: string | null,
+  date?: string | null,
+  status?: AttendanceStatus | null,
+};
+
+export type DeleteAttendanceInput = {
+  id: string,
+};
+
+export type CreateAnnouncementInput = {
+  id?: string | null,
+  title: string,
+  body: string,
+  createdAt?: string | null,
+  createdBy: string,
+  schoolId?: string | null,
+  classId?: string | null,
+};
+
+export type ModelAnnouncementConditionInput = {
+  title?: ModelStringInput | null,
+  body?: ModelStringInput | null,
+  createdAt?: ModelStringInput | null,
+  createdBy?: ModelIDInput | null,
+  schoolId?: ModelIDInput | null,
+  classId?: ModelIDInput | null,
+  and?: Array< ModelAnnouncementConditionInput | null > | null,
+  or?: Array< ModelAnnouncementConditionInput | null > | null,
+  not?: ModelAnnouncementConditionInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type Announcement = {
+  __typename: "Announcement",
+  id: string,
+  title: string,
+  body: string,
+  createdAt: string,
+  createdBy: string,
+  schoolId?: string | null,
+  classId?: string | null,
+  updatedAt: string,
+};
+
+export type UpdateAnnouncementInput = {
+  id: string,
+  title?: string | null,
+  body?: string | null,
+  createdAt?: string | null,
+  createdBy?: string | null,
+  schoolId?: string | null,
+  classId?: string | null,
+};
+
+export type DeleteAnnouncementInput = {
+  id: string,
+};
+
+export type CreateMedicalRecordInput = {
+  id?: string | null,
+  studentId: string,
+  allergies?: string | null,
+  medications?: string | null,
+  conditions?: string | null,
+  emergencyNotes?: string | null,
+};
+
+export type ModelMedicalRecordConditionInput = {
+  studentId?: ModelIDInput | null,
+  allergies?: ModelStringInput | null,
+  medications?: ModelStringInput | null,
+  conditions?: ModelStringInput | null,
+  emergencyNotes?: ModelStringInput | null,
+  and?: Array< ModelMedicalRecordConditionInput | null > | null,
+  or?: Array< ModelMedicalRecordConditionInput | null > | null,
+  not?: ModelMedicalRecordConditionInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type UpdateMedicalRecordInput = {
+  id: string,
+  studentId?: string | null,
+  allergies?: string | null,
+  medications?: string | null,
+  conditions?: string | null,
+  emergencyNotes?: string | null,
+};
+
+export type DeleteMedicalRecordInput = {
+  id: string,
+};
+
+export type CreateIncidentInput = {
+  id?: string | null,
+  description: string,
+  severity?: string | null,
+  date?: string | null,
+  teacherId: string,
+  studentId: string,
+  classId?: string | null,
+  schoolId: string,
+};
+
+export type ModelIncidentConditionInput = {
+  description?: ModelStringInput | null,
+  severity?: ModelStringInput | null,
+  date?: ModelStringInput | null,
+  teacherId?: ModelIDInput | null,
+  studentId?: ModelIDInput | null,
+  classId?: ModelIDInput | null,
+  schoolId?: ModelIDInput | null,
+  and?: Array< ModelIncidentConditionInput | null > | null,
+  or?: Array< ModelIncidentConditionInput | null > | null,
+  not?: ModelIncidentConditionInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type UpdateIncidentInput = {
+  id: string,
+  description?: string | null,
+  severity?: string | null,
+  date?: string | null,
+  teacherId?: string | null,
+  studentId?: string | null,
+  classId?: string | null,
+  schoolId?: string | null,
+};
+
+export type DeleteIncidentInput = {
+  id: string,
+};
+
+export type CreateConversationInput = {
+  id?: string | null,
+  type: ConversationType,
+  parentId?: string | null,
+  teacherId: string,
+  studentId?: string | null,
+  classId?: string | null,
+  parentName?: string | null,
+  teacherName?: string | null,
+  studentName?: string | null,
+  className?: string | null,
+  lastMessageText?: string | null,
+  lastMessageAt?: string | null,
+};
+
+export enum ConversationType {
+  DIRECT = "DIRECT",
+  GROUP = "GROUP",
+}
+
+
+export type ModelConversationConditionInput = {
+  type?: ModelConversationTypeInput | null,
+  parentId?: ModelIDInput | null,
+  teacherId?: ModelIDInput | null,
+  studentId?: ModelIDInput | null,
+  classId?: ModelIDInput | null,
+  parentName?: ModelStringInput | null,
+  teacherName?: ModelStringInput | null,
+  studentName?: ModelStringInput | null,
+  className?: ModelStringInput | null,
+  lastMessageText?: ModelStringInput | null,
+  lastMessageAt?: ModelStringInput | null,
+  and?: Array< ModelConversationConditionInput | null > | null,
+  or?: Array< ModelConversationConditionInput | null > | null,
+  not?: ModelConversationConditionInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type ModelConversationTypeInput = {
+  eq?: ConversationType | null,
+  ne?: ConversationType | null,
+};
+
+export type Conversation = {
+  __typename: "Conversation",
+  id: string,
+  type: ConversationType,
+  parentId?: string | null,
+  teacherId: string,
+  studentId?: string | null,
+  classId?: string | null,
+  parentName?: string | null,
+  teacherName?: string | null,
+  studentName?: string | null,
+  className?: string | null,
+  lastMessageText?: string | null,
+  lastMessageAt?: string | null,
+  messages?: ModelMessageConnection | null,
+  createdAt: string,
+  updatedAt: string,
+};
+
+export type ModelMessageConnection = {
+  __typename: "ModelMessageConnection",
+  items:  Array<Message | null >,
+  nextToken?: string | null,
+};
+
+export type Message = {
+  __typename: "Message",
+  id: string,
+  conversationId: string,
+  senderId: string,
+  senderType: SenderType,
+  senderName: string,
+  body: string,
+  createdAt: string,
+  conversation?: Conversation | null,
+  updatedAt: string,
+};
+
+export enum SenderType {
+  PARENT = "PARENT",
+  TEACHER = "TEACHER",
+}
+
+
+export type UpdateConversationInput = {
+  id: string,
+  type?: ConversationType | null,
+  parentId?: string | null,
+  teacherId?: string | null,
+  studentId?: string | null,
+  classId?: string | null,
+  parentName?: string | null,
+  teacherName?: string | null,
+  studentName?: string | null,
+  className?: string | null,
+  lastMessageText?: string | null,
+  lastMessageAt?: string | null,
+};
+
+export type DeleteConversationInput = {
+  id: string,
+};
+
+export type CreateMessageInput = {
+  id?: string | null,
+  conversationId: string,
+  senderId: string,
+  senderType: SenderType,
+  senderName: string,
+  body: string,
+  createdAt?: string | null,
+};
+
+export type ModelMessageConditionInput = {
+  conversationId?: ModelIDInput | null,
+  senderId?: ModelIDInput | null,
+  senderType?: ModelSenderTypeInput | null,
+  senderName?: ModelStringInput | null,
+  body?: ModelStringInput | null,
+  createdAt?: ModelStringInput | null,
+  and?: Array< ModelMessageConditionInput | null > | null,
+  or?: Array< ModelMessageConditionInput | null > | null,
+  not?: ModelMessageConditionInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type ModelSenderTypeInput = {
+  eq?: SenderType | null,
+  ne?: SenderType | null,
+};
+
+export type UpdateMessageInput = {
+  id: string,
+  conversationId?: string | null,
+  senderId?: string | null,
+  senderType?: SenderType | null,
+  senderName?: string | null,
+  body?: string | null,
+  createdAt?: string | null,
+};
+
+export type DeleteMessageInput = {
+  id: string,
+};
+
 export type CreateSchoolInput = {
   id?: string | null,
   name: string,
@@ -399,6 +784,7 @@ export type UpdateStudentInput = {
   attendanceRate?: number | null,
   currentStatus?: string | null,
   schoolStudentsId?: string | null,
+  studentMedicalRecordId?: string | null,
 };
 
 export type CreateParentStudentsInput = {
@@ -464,11 +850,130 @@ export type ModelEnrollmentFilterInput = {
   not?: ModelEnrollmentFilterInput | null,
 };
 
+export type ModelAttendanceFilterInput = {
+  id?: ModelIDInput | null,
+  studentId?: ModelIDInput | null,
+  classId?: ModelIDInput | null,
+  date?: ModelStringInput | null,
+  status?: ModelAttendanceStatusInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  and?: Array< ModelAttendanceFilterInput | null > | null,
+  or?: Array< ModelAttendanceFilterInput | null > | null,
+  not?: ModelAttendanceFilterInput | null,
+};
+
+export type ModelAnnouncementFilterInput = {
+  id?: ModelIDInput | null,
+  title?: ModelStringInput | null,
+  body?: ModelStringInput | null,
+  createdAt?: ModelStringInput | null,
+  createdBy?: ModelIDInput | null,
+  schoolId?: ModelIDInput | null,
+  classId?: ModelIDInput | null,
+  updatedAt?: ModelStringInput | null,
+  and?: Array< ModelAnnouncementFilterInput | null > | null,
+  or?: Array< ModelAnnouncementFilterInput | null > | null,
+  not?: ModelAnnouncementFilterInput | null,
+};
+
+export type ModelAnnouncementConnection = {
+  __typename: "ModelAnnouncementConnection",
+  items:  Array<Announcement | null >,
+  nextToken?: string | null,
+};
+
+export type ModelMedicalRecordFilterInput = {
+  id?: ModelIDInput | null,
+  studentId?: ModelIDInput | null,
+  allergies?: ModelStringInput | null,
+  medications?: ModelStringInput | null,
+  conditions?: ModelStringInput | null,
+  emergencyNotes?: ModelStringInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  and?: Array< ModelMedicalRecordFilterInput | null > | null,
+  or?: Array< ModelMedicalRecordFilterInput | null > | null,
+  not?: ModelMedicalRecordFilterInput | null,
+};
+
+export type ModelMedicalRecordConnection = {
+  __typename: "ModelMedicalRecordConnection",
+  items:  Array<MedicalRecord | null >,
+  nextToken?: string | null,
+};
+
+export type ModelIncidentFilterInput = {
+  id?: ModelIDInput | null,
+  description?: ModelStringInput | null,
+  severity?: ModelStringInput | null,
+  date?: ModelStringInput | null,
+  teacherId?: ModelIDInput | null,
+  studentId?: ModelIDInput | null,
+  classId?: ModelIDInput | null,
+  schoolId?: ModelIDInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  and?: Array< ModelIncidentFilterInput | null > | null,
+  or?: Array< ModelIncidentFilterInput | null > | null,
+  not?: ModelIncidentFilterInput | null,
+};
+
+export type ModelConversationFilterInput = {
+  id?: ModelIDInput | null,
+  type?: ModelConversationTypeInput | null,
+  parentId?: ModelIDInput | null,
+  teacherId?: ModelIDInput | null,
+  studentId?: ModelIDInput | null,
+  classId?: ModelIDInput | null,
+  parentName?: ModelStringInput | null,
+  teacherName?: ModelStringInput | null,
+  studentName?: ModelStringInput | null,
+  className?: ModelStringInput | null,
+  lastMessageText?: ModelStringInput | null,
+  lastMessageAt?: ModelStringInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  and?: Array< ModelConversationFilterInput | null > | null,
+  or?: Array< ModelConversationFilterInput | null > | null,
+  not?: ModelConversationFilterInput | null,
+};
+
+export type ModelConversationConnection = {
+  __typename: "ModelConversationConnection",
+  items:  Array<Conversation | null >,
+  nextToken?: string | null,
+};
+
+export type ModelMessageFilterInput = {
+  id?: ModelIDInput | null,
+  conversationId?: ModelIDInput | null,
+  senderId?: ModelIDInput | null,
+  senderType?: ModelSenderTypeInput | null,
+  senderName?: ModelStringInput | null,
+  body?: ModelStringInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  and?: Array< ModelMessageFilterInput | null > | null,
+  or?: Array< ModelMessageFilterInput | null > | null,
+  not?: ModelMessageFilterInput | null,
+};
+
 export enum ModelSortDirection {
   ASC = "ASC",
   DESC = "DESC",
 }
 
+
+export type ModelStringKeyConditionInput = {
+  eq?: string | null,
+  le?: string | null,
+  lt?: string | null,
+  ge?: string | null,
+  gt?: string | null,
+  between?: Array< string | null > | null,
+  beginsWith?: string | null,
+};
 
 export type ModelSchoolFilterInput = {
   id?: ModelIDInput | null,
@@ -522,6 +1027,7 @@ export type ModelStudentFilterInput = {
   or?: Array< ModelStudentFilterInput | null > | null,
   not?: ModelStudentFilterInput | null,
   schoolStudentsId?: ModelIDInput | null,
+  studentMedicalRecordId?: ModelIDInput | null,
 };
 
 export type ModelParentStudentsFilterInput = {
@@ -611,6 +1117,91 @@ export type ModelSubscriptionFloatInput = {
   notIn?: Array< number | null > | null,
 };
 
+export type ModelSubscriptionAttendanceFilterInput = {
+  id?: ModelSubscriptionIDInput | null,
+  studentId?: ModelSubscriptionIDInput | null,
+  classId?: ModelSubscriptionIDInput | null,
+  date?: ModelSubscriptionStringInput | null,
+  status?: ModelSubscriptionStringInput | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+  and?: Array< ModelSubscriptionAttendanceFilterInput | null > | null,
+  or?: Array< ModelSubscriptionAttendanceFilterInput | null > | null,
+};
+
+export type ModelSubscriptionAnnouncementFilterInput = {
+  id?: ModelSubscriptionIDInput | null,
+  title?: ModelSubscriptionStringInput | null,
+  body?: ModelSubscriptionStringInput | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  createdBy?: ModelSubscriptionIDInput | null,
+  schoolId?: ModelSubscriptionIDInput | null,
+  classId?: ModelSubscriptionIDInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+  and?: Array< ModelSubscriptionAnnouncementFilterInput | null > | null,
+  or?: Array< ModelSubscriptionAnnouncementFilterInput | null > | null,
+};
+
+export type ModelSubscriptionMedicalRecordFilterInput = {
+  id?: ModelSubscriptionIDInput | null,
+  studentId?: ModelSubscriptionIDInput | null,
+  allergies?: ModelSubscriptionStringInput | null,
+  medications?: ModelSubscriptionStringInput | null,
+  conditions?: ModelSubscriptionStringInput | null,
+  emergencyNotes?: ModelSubscriptionStringInput | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+  and?: Array< ModelSubscriptionMedicalRecordFilterInput | null > | null,
+  or?: Array< ModelSubscriptionMedicalRecordFilterInput | null > | null,
+};
+
+export type ModelSubscriptionIncidentFilterInput = {
+  id?: ModelSubscriptionIDInput | null,
+  description?: ModelSubscriptionStringInput | null,
+  severity?: ModelSubscriptionStringInput | null,
+  date?: ModelSubscriptionStringInput | null,
+  teacherId?: ModelSubscriptionIDInput | null,
+  studentId?: ModelSubscriptionIDInput | null,
+  classId?: ModelSubscriptionIDInput | null,
+  schoolId?: ModelSubscriptionIDInput | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+  and?: Array< ModelSubscriptionIncidentFilterInput | null > | null,
+  or?: Array< ModelSubscriptionIncidentFilterInput | null > | null,
+};
+
+export type ModelSubscriptionConversationFilterInput = {
+  id?: ModelSubscriptionIDInput | null,
+  type?: ModelSubscriptionStringInput | null,
+  parentId?: ModelSubscriptionIDInput | null,
+  teacherId?: ModelSubscriptionIDInput | null,
+  studentId?: ModelSubscriptionIDInput | null,
+  classId?: ModelSubscriptionIDInput | null,
+  parentName?: ModelSubscriptionStringInput | null,
+  teacherName?: ModelSubscriptionStringInput | null,
+  studentName?: ModelSubscriptionStringInput | null,
+  className?: ModelSubscriptionStringInput | null,
+  lastMessageText?: ModelSubscriptionStringInput | null,
+  lastMessageAt?: ModelSubscriptionStringInput | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+  and?: Array< ModelSubscriptionConversationFilterInput | null > | null,
+  or?: Array< ModelSubscriptionConversationFilterInput | null > | null,
+};
+
+export type ModelSubscriptionMessageFilterInput = {
+  id?: ModelSubscriptionIDInput | null,
+  conversationId?: ModelSubscriptionIDInput | null,
+  senderId?: ModelSubscriptionIDInput | null,
+  senderType?: ModelSubscriptionStringInput | null,
+  senderName?: ModelSubscriptionStringInput | null,
+  body?: ModelSubscriptionStringInput | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+  and?: Array< ModelSubscriptionMessageFilterInput | null > | null,
+  or?: Array< ModelSubscriptionMessageFilterInput | null > | null,
+};
+
 export type ModelSubscriptionSchoolFilterInput = {
   id?: ModelSubscriptionIDInput | null,
   name?: ModelSubscriptionStringInput | null,
@@ -653,6 +1244,7 @@ export type ModelSubscriptionStudentFilterInput = {
   updatedAt?: ModelSubscriptionStringInput | null,
   and?: Array< ModelSubscriptionStudentFilterInput | null > | null,
   or?: Array< ModelSubscriptionStudentFilterInput | null > | null,
+  studentMedicalRecordId?: ModelSubscriptionIDInput | null,
 };
 
 export type ModelSubscriptionIntInput = {
@@ -709,9 +1301,29 @@ export type CreateStudentMutation = {
       __typename: "ModelEnrollmentConnection",
       nextToken?: string | null,
     } | null,
+    attendances?:  {
+      __typename: "ModelAttendanceConnection",
+      nextToken?: string | null,
+    } | null,
+    incidents?:  {
+      __typename: "ModelIncidentConnection",
+      nextToken?: string | null,
+    } | null,
+    medicalRecord?:  {
+      __typename: "MedicalRecord",
+      id: string,
+      studentId: string,
+      allergies?: string | null,
+      medications?: string | null,
+      conditions?: string | null,
+      emergencyNotes?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
     createdAt: string,
     updatedAt: string,
     schoolStudentsId?: string | null,
+    studentMedicalRecordId?: string | null,
   } | null,
 };
 
@@ -746,9 +1358,29 @@ export type DeleteStudentMutation = {
       __typename: "ModelEnrollmentConnection",
       nextToken?: string | null,
     } | null,
+    attendances?:  {
+      __typename: "ModelAttendanceConnection",
+      nextToken?: string | null,
+    } | null,
+    incidents?:  {
+      __typename: "ModelIncidentConnection",
+      nextToken?: string | null,
+    } | null,
+    medicalRecord?:  {
+      __typename: "MedicalRecord",
+      id: string,
+      studentId: string,
+      allergies?: string | null,
+      medications?: string | null,
+      conditions?: string | null,
+      emergencyNotes?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
     createdAt: string,
     updatedAt: string,
     schoolStudentsId?: string | null,
+    studentMedicalRecordId?: string | null,
   } | null,
 };
 
@@ -774,6 +1406,10 @@ export type CreateTeacherMutation = {
     } | null,
     classes?:  {
       __typename: "ModelClassConnection",
+      nextToken?: string | null,
+    } | null,
+    incidents?:  {
+      __typename: "ModelIncidentConnection",
       nextToken?: string | null,
     } | null,
     createdAt: string,
@@ -805,6 +1441,10 @@ export type UpdateTeacherMutation = {
       __typename: "ModelClassConnection",
       nextToken?: string | null,
     } | null,
+    incidents?:  {
+      __typename: "ModelIncidentConnection",
+      nextToken?: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -832,6 +1472,10 @@ export type DeleteTeacherMutation = {
     } | null,
     classes?:  {
       __typename: "ModelClassConnection",
+      nextToken?: string | null,
+    } | null,
+    incidents?:  {
+      __typename: "ModelIncidentConnection",
       nextToken?: string | null,
     } | null,
     createdAt: string,
@@ -872,6 +1516,14 @@ export type CreateClassMutation = {
       __typename: "ModelEnrollmentConnection",
       nextToken?: string | null,
     } | null,
+    attendances?:  {
+      __typename: "ModelAttendanceConnection",
+      nextToken?: string | null,
+    } | null,
+    incidents?:  {
+      __typename: "ModelIncidentConnection",
+      nextToken?: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -908,6 +1560,14 @@ export type UpdateClassMutation = {
     } | null,
     enrollments?:  {
       __typename: "ModelEnrollmentConnection",
+      nextToken?: string | null,
+    } | null,
+    attendances?:  {
+      __typename: "ModelAttendanceConnection",
+      nextToken?: string | null,
+    } | null,
+    incidents?:  {
+      __typename: "ModelIncidentConnection",
       nextToken?: string | null,
     } | null,
     createdAt: string,
@@ -948,6 +1608,14 @@ export type DeleteClassMutation = {
       __typename: "ModelEnrollmentConnection",
       nextToken?: string | null,
     } | null,
+    attendances?:  {
+      __typename: "ModelAttendanceConnection",
+      nextToken?: string | null,
+    } | null,
+    incidents?:  {
+      __typename: "ModelIncidentConnection",
+      nextToken?: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -977,6 +1645,7 @@ export type CreateEnrollmentMutation = {
       createdAt: string,
       updatedAt: string,
       schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
     } | null,
     class?:  {
       __typename: "Class",
@@ -1016,6 +1685,7 @@ export type UpdateEnrollmentMutation = {
       createdAt: string,
       updatedAt: string,
       schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
     } | null,
     class?:  {
       __typename: "Class",
@@ -1055,6 +1725,7 @@ export type DeleteEnrollmentMutation = {
       createdAt: string,
       updatedAt: string,
       schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
     } | null,
     class?:  {
       __typename: "Class",
@@ -1066,6 +1737,663 @@ export type DeleteEnrollmentMutation = {
       updatedAt: string,
     } | null,
     createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type CreateAttendanceMutationVariables = {
+  input: CreateAttendanceInput,
+  condition?: ModelAttendanceConditionInput | null,
+};
+
+export type CreateAttendanceMutation = {
+  createAttendance?:  {
+    __typename: "Attendance",
+    id: string,
+    studentId: string,
+    classId: string,
+    date: string,
+    status: AttendanceStatus,
+    student?:  {
+      __typename: "Student",
+      id: string,
+      firstName: string,
+      lastName: string,
+      dateOfBirth?: string | null,
+      gradeLevel?: number | null,
+      attendanceRate?: number | null,
+      currentStatus?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
+    } | null,
+    class?:  {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type UpdateAttendanceMutationVariables = {
+  input: UpdateAttendanceInput,
+  condition?: ModelAttendanceConditionInput | null,
+};
+
+export type UpdateAttendanceMutation = {
+  updateAttendance?:  {
+    __typename: "Attendance",
+    id: string,
+    studentId: string,
+    classId: string,
+    date: string,
+    status: AttendanceStatus,
+    student?:  {
+      __typename: "Student",
+      id: string,
+      firstName: string,
+      lastName: string,
+      dateOfBirth?: string | null,
+      gradeLevel?: number | null,
+      attendanceRate?: number | null,
+      currentStatus?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
+    } | null,
+    class?:  {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type DeleteAttendanceMutationVariables = {
+  input: DeleteAttendanceInput,
+  condition?: ModelAttendanceConditionInput | null,
+};
+
+export type DeleteAttendanceMutation = {
+  deleteAttendance?:  {
+    __typename: "Attendance",
+    id: string,
+    studentId: string,
+    classId: string,
+    date: string,
+    status: AttendanceStatus,
+    student?:  {
+      __typename: "Student",
+      id: string,
+      firstName: string,
+      lastName: string,
+      dateOfBirth?: string | null,
+      gradeLevel?: number | null,
+      attendanceRate?: number | null,
+      currentStatus?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
+    } | null,
+    class?:  {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type CreateAnnouncementMutationVariables = {
+  input: CreateAnnouncementInput,
+  condition?: ModelAnnouncementConditionInput | null,
+};
+
+export type CreateAnnouncementMutation = {
+  createAnnouncement?:  {
+    __typename: "Announcement",
+    id: string,
+    title: string,
+    body: string,
+    createdAt: string,
+    createdBy: string,
+    schoolId?: string | null,
+    classId?: string | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type UpdateAnnouncementMutationVariables = {
+  input: UpdateAnnouncementInput,
+  condition?: ModelAnnouncementConditionInput | null,
+};
+
+export type UpdateAnnouncementMutation = {
+  updateAnnouncement?:  {
+    __typename: "Announcement",
+    id: string,
+    title: string,
+    body: string,
+    createdAt: string,
+    createdBy: string,
+    schoolId?: string | null,
+    classId?: string | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type DeleteAnnouncementMutationVariables = {
+  input: DeleteAnnouncementInput,
+  condition?: ModelAnnouncementConditionInput | null,
+};
+
+export type DeleteAnnouncementMutation = {
+  deleteAnnouncement?:  {
+    __typename: "Announcement",
+    id: string,
+    title: string,
+    body: string,
+    createdAt: string,
+    createdBy: string,
+    schoolId?: string | null,
+    classId?: string | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type CreateMedicalRecordMutationVariables = {
+  input: CreateMedicalRecordInput,
+  condition?: ModelMedicalRecordConditionInput | null,
+};
+
+export type CreateMedicalRecordMutation = {
+  createMedicalRecord?:  {
+    __typename: "MedicalRecord",
+    id: string,
+    studentId: string,
+    allergies?: string | null,
+    medications?: string | null,
+    conditions?: string | null,
+    emergencyNotes?: string | null,
+    student?:  {
+      __typename: "Student",
+      id: string,
+      firstName: string,
+      lastName: string,
+      dateOfBirth?: string | null,
+      gradeLevel?: number | null,
+      attendanceRate?: number | null,
+      currentStatus?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type UpdateMedicalRecordMutationVariables = {
+  input: UpdateMedicalRecordInput,
+  condition?: ModelMedicalRecordConditionInput | null,
+};
+
+export type UpdateMedicalRecordMutation = {
+  updateMedicalRecord?:  {
+    __typename: "MedicalRecord",
+    id: string,
+    studentId: string,
+    allergies?: string | null,
+    medications?: string | null,
+    conditions?: string | null,
+    emergencyNotes?: string | null,
+    student?:  {
+      __typename: "Student",
+      id: string,
+      firstName: string,
+      lastName: string,
+      dateOfBirth?: string | null,
+      gradeLevel?: number | null,
+      attendanceRate?: number | null,
+      currentStatus?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type DeleteMedicalRecordMutationVariables = {
+  input: DeleteMedicalRecordInput,
+  condition?: ModelMedicalRecordConditionInput | null,
+};
+
+export type DeleteMedicalRecordMutation = {
+  deleteMedicalRecord?:  {
+    __typename: "MedicalRecord",
+    id: string,
+    studentId: string,
+    allergies?: string | null,
+    medications?: string | null,
+    conditions?: string | null,
+    emergencyNotes?: string | null,
+    student?:  {
+      __typename: "Student",
+      id: string,
+      firstName: string,
+      lastName: string,
+      dateOfBirth?: string | null,
+      gradeLevel?: number | null,
+      attendanceRate?: number | null,
+      currentStatus?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type CreateIncidentMutationVariables = {
+  input: CreateIncidentInput,
+  condition?: ModelIncidentConditionInput | null,
+};
+
+export type CreateIncidentMutation = {
+  createIncident?:  {
+    __typename: "Incident",
+    id: string,
+    description: string,
+    severity?: string | null,
+    date?: string | null,
+    teacherId: string,
+    studentId: string,
+    classId?: string | null,
+    schoolId: string,
+    teacher?:  {
+      __typename: "Teacher",
+      id: string,
+      name: string,
+      cognitoUserId?: string | null,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    student?:  {
+      __typename: "Student",
+      id: string,
+      firstName: string,
+      lastName: string,
+      dateOfBirth?: string | null,
+      gradeLevel?: number | null,
+      attendanceRate?: number | null,
+      currentStatus?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
+    } | null,
+    class?:  {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    school?:  {
+      __typename: "School",
+      id: string,
+      name: string,
+      address?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type UpdateIncidentMutationVariables = {
+  input: UpdateIncidentInput,
+  condition?: ModelIncidentConditionInput | null,
+};
+
+export type UpdateIncidentMutation = {
+  updateIncident?:  {
+    __typename: "Incident",
+    id: string,
+    description: string,
+    severity?: string | null,
+    date?: string | null,
+    teacherId: string,
+    studentId: string,
+    classId?: string | null,
+    schoolId: string,
+    teacher?:  {
+      __typename: "Teacher",
+      id: string,
+      name: string,
+      cognitoUserId?: string | null,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    student?:  {
+      __typename: "Student",
+      id: string,
+      firstName: string,
+      lastName: string,
+      dateOfBirth?: string | null,
+      gradeLevel?: number | null,
+      attendanceRate?: number | null,
+      currentStatus?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
+    } | null,
+    class?:  {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    school?:  {
+      __typename: "School",
+      id: string,
+      name: string,
+      address?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type DeleteIncidentMutationVariables = {
+  input: DeleteIncidentInput,
+  condition?: ModelIncidentConditionInput | null,
+};
+
+export type DeleteIncidentMutation = {
+  deleteIncident?:  {
+    __typename: "Incident",
+    id: string,
+    description: string,
+    severity?: string | null,
+    date?: string | null,
+    teacherId: string,
+    studentId: string,
+    classId?: string | null,
+    schoolId: string,
+    teacher?:  {
+      __typename: "Teacher",
+      id: string,
+      name: string,
+      cognitoUserId?: string | null,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    student?:  {
+      __typename: "Student",
+      id: string,
+      firstName: string,
+      lastName: string,
+      dateOfBirth?: string | null,
+      gradeLevel?: number | null,
+      attendanceRate?: number | null,
+      currentStatus?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
+    } | null,
+    class?:  {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    school?:  {
+      __typename: "School",
+      id: string,
+      name: string,
+      address?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type CreateConversationMutationVariables = {
+  input: CreateConversationInput,
+  condition?: ModelConversationConditionInput | null,
+};
+
+export type CreateConversationMutation = {
+  createConversation?:  {
+    __typename: "Conversation",
+    id: string,
+    type: ConversationType,
+    parentId?: string | null,
+    teacherId: string,
+    studentId?: string | null,
+    classId?: string | null,
+    parentName?: string | null,
+    teacherName?: string | null,
+    studentName?: string | null,
+    className?: string | null,
+    lastMessageText?: string | null,
+    lastMessageAt?: string | null,
+    messages?:  {
+      __typename: "ModelMessageConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type UpdateConversationMutationVariables = {
+  input: UpdateConversationInput,
+  condition?: ModelConversationConditionInput | null,
+};
+
+export type UpdateConversationMutation = {
+  updateConversation?:  {
+    __typename: "Conversation",
+    id: string,
+    type: ConversationType,
+    parentId?: string | null,
+    teacherId: string,
+    studentId?: string | null,
+    classId?: string | null,
+    parentName?: string | null,
+    teacherName?: string | null,
+    studentName?: string | null,
+    className?: string | null,
+    lastMessageText?: string | null,
+    lastMessageAt?: string | null,
+    messages?:  {
+      __typename: "ModelMessageConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type DeleteConversationMutationVariables = {
+  input: DeleteConversationInput,
+  condition?: ModelConversationConditionInput | null,
+};
+
+export type DeleteConversationMutation = {
+  deleteConversation?:  {
+    __typename: "Conversation",
+    id: string,
+    type: ConversationType,
+    parentId?: string | null,
+    teacherId: string,
+    studentId?: string | null,
+    classId?: string | null,
+    parentName?: string | null,
+    teacherName?: string | null,
+    studentName?: string | null,
+    className?: string | null,
+    lastMessageText?: string | null,
+    lastMessageAt?: string | null,
+    messages?:  {
+      __typename: "ModelMessageConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type CreateMessageMutationVariables = {
+  input: CreateMessageInput,
+  condition?: ModelMessageConditionInput | null,
+};
+
+export type CreateMessageMutation = {
+  createMessage?:  {
+    __typename: "Message",
+    id: string,
+    conversationId: string,
+    senderId: string,
+    senderType: SenderType,
+    senderName: string,
+    body: string,
+    createdAt: string,
+    conversation?:  {
+      __typename: "Conversation",
+      id: string,
+      type: ConversationType,
+      parentId?: string | null,
+      teacherId: string,
+      studentId?: string | null,
+      classId?: string | null,
+      parentName?: string | null,
+      teacherName?: string | null,
+      studentName?: string | null,
+      className?: string | null,
+      lastMessageText?: string | null,
+      lastMessageAt?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type UpdateMessageMutationVariables = {
+  input: UpdateMessageInput,
+  condition?: ModelMessageConditionInput | null,
+};
+
+export type UpdateMessageMutation = {
+  updateMessage?:  {
+    __typename: "Message",
+    id: string,
+    conversationId: string,
+    senderId: string,
+    senderType: SenderType,
+    senderName: string,
+    body: string,
+    createdAt: string,
+    conversation?:  {
+      __typename: "Conversation",
+      id: string,
+      type: ConversationType,
+      parentId?: string | null,
+      teacherId: string,
+      studentId?: string | null,
+      classId?: string | null,
+      parentName?: string | null,
+      teacherName?: string | null,
+      studentName?: string | null,
+      className?: string | null,
+      lastMessageText?: string | null,
+      lastMessageAt?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type DeleteMessageMutationVariables = {
+  input: DeleteMessageInput,
+  condition?: ModelMessageConditionInput | null,
+};
+
+export type DeleteMessageMutation = {
+  deleteMessage?:  {
+    __typename: "Message",
+    id: string,
+    conversationId: string,
+    senderId: string,
+    senderType: SenderType,
+    senderName: string,
+    body: string,
+    createdAt: string,
+    conversation?:  {
+      __typename: "Conversation",
+      id: string,
+      type: ConversationType,
+      parentId?: string | null,
+      teacherId: string,
+      studentId?: string | null,
+      classId?: string | null,
+      parentName?: string | null,
+      teacherName?: string | null,
+      studentName?: string | null,
+      className?: string | null,
+      lastMessageText?: string | null,
+      lastMessageAt?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
     updatedAt: string,
   } | null,
 };
@@ -1091,6 +2419,10 @@ export type CreateSchoolMutation = {
     } | null,
     classes?:  {
       __typename: "ModelClassConnection",
+      nextToken?: string | null,
+    } | null,
+    incidents?:  {
+      __typename: "ModelIncidentConnection",
       nextToken?: string | null,
     } | null,
     createdAt: string,
@@ -1121,6 +2453,10 @@ export type UpdateSchoolMutation = {
       __typename: "ModelClassConnection",
       nextToken?: string | null,
     } | null,
+    incidents?:  {
+      __typename: "ModelIncidentConnection",
+      nextToken?: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -1147,6 +2483,10 @@ export type DeleteSchoolMutation = {
     } | null,
     classes?:  {
       __typename: "ModelClassConnection",
+      nextToken?: string | null,
+    } | null,
+    incidents?:  {
+      __typename: "ModelIncidentConnection",
       nextToken?: string | null,
     } | null,
     createdAt: string,
@@ -1257,9 +2597,29 @@ export type UpdateStudentMutation = {
       __typename: "ModelEnrollmentConnection",
       nextToken?: string | null,
     } | null,
+    attendances?:  {
+      __typename: "ModelAttendanceConnection",
+      nextToken?: string | null,
+    } | null,
+    incidents?:  {
+      __typename: "ModelIncidentConnection",
+      nextToken?: string | null,
+    } | null,
+    medicalRecord?:  {
+      __typename: "MedicalRecord",
+      id: string,
+      studentId: string,
+      allergies?: string | null,
+      medications?: string | null,
+      conditions?: string | null,
+      emergencyNotes?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
     createdAt: string,
     updatedAt: string,
     schoolStudentsId?: string | null,
+    studentMedicalRecordId?: string | null,
   } | null,
 };
 
@@ -1298,6 +2658,7 @@ export type CreateParentStudentsMutation = {
       createdAt: string,
       updatedAt: string,
       schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
     },
     createdAt: string,
     updatedAt: string,
@@ -1340,6 +2701,7 @@ export type UpdateParentStudentsMutation = {
       createdAt: string,
       updatedAt: string,
       schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
     },
     createdAt: string,
     updatedAt: string,
@@ -1382,6 +2744,7 @@ export type DeleteParentStudentsMutation = {
       createdAt: string,
       updatedAt: string,
       schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
     },
     createdAt: string,
     updatedAt: string,
@@ -1410,6 +2773,10 @@ export type GetTeacherQuery = {
     } | null,
     classes?:  {
       __typename: "ModelClassConnection",
+      nextToken?: string | null,
+    } | null,
+    incidents?:  {
+      __typename: "ModelIncidentConnection",
       nextToken?: string | null,
     } | null,
     createdAt: string,
@@ -1471,6 +2838,14 @@ export type GetClassQuery = {
       __typename: "ModelEnrollmentConnection",
       nextToken?: string | null,
     } | null,
+    attendances?:  {
+      __typename: "ModelAttendanceConnection",
+      nextToken?: string | null,
+    } | null,
+    incidents?:  {
+      __typename: "ModelIncidentConnection",
+      nextToken?: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -1521,6 +2896,7 @@ export type GetEnrollmentQuery = {
       createdAt: string,
       updatedAt: string,
       schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
     } | null,
     class?:  {
       __typename: "Class",
@@ -1551,6 +2927,370 @@ export type ListEnrollmentsQuery = {
       studentId: string,
       classId: string,
       currentGrade?: number | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type GetAttendanceQueryVariables = {
+  id: string,
+};
+
+export type GetAttendanceQuery = {
+  getAttendance?:  {
+    __typename: "Attendance",
+    id: string,
+    studentId: string,
+    classId: string,
+    date: string,
+    status: AttendanceStatus,
+    student?:  {
+      __typename: "Student",
+      id: string,
+      firstName: string,
+      lastName: string,
+      dateOfBirth?: string | null,
+      gradeLevel?: number | null,
+      attendanceRate?: number | null,
+      currentStatus?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
+    } | null,
+    class?:  {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type ListAttendancesQueryVariables = {
+  filter?: ModelAttendanceFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListAttendancesQuery = {
+  listAttendances?:  {
+    __typename: "ModelAttendanceConnection",
+    items:  Array< {
+      __typename: "Attendance",
+      id: string,
+      studentId: string,
+      classId: string,
+      date: string,
+      status: AttendanceStatus,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type GetAnnouncementQueryVariables = {
+  id: string,
+};
+
+export type GetAnnouncementQuery = {
+  getAnnouncement?:  {
+    __typename: "Announcement",
+    id: string,
+    title: string,
+    body: string,
+    createdAt: string,
+    createdBy: string,
+    schoolId?: string | null,
+    classId?: string | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type ListAnnouncementsQueryVariables = {
+  filter?: ModelAnnouncementFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListAnnouncementsQuery = {
+  listAnnouncements?:  {
+    __typename: "ModelAnnouncementConnection",
+    items:  Array< {
+      __typename: "Announcement",
+      id: string,
+      title: string,
+      body: string,
+      createdAt: string,
+      createdBy: string,
+      schoolId?: string | null,
+      classId?: string | null,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type GetMedicalRecordQueryVariables = {
+  id: string,
+};
+
+export type GetMedicalRecordQuery = {
+  getMedicalRecord?:  {
+    __typename: "MedicalRecord",
+    id: string,
+    studentId: string,
+    allergies?: string | null,
+    medications?: string | null,
+    conditions?: string | null,
+    emergencyNotes?: string | null,
+    student?:  {
+      __typename: "Student",
+      id: string,
+      firstName: string,
+      lastName: string,
+      dateOfBirth?: string | null,
+      gradeLevel?: number | null,
+      attendanceRate?: number | null,
+      currentStatus?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type ListMedicalRecordsQueryVariables = {
+  filter?: ModelMedicalRecordFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListMedicalRecordsQuery = {
+  listMedicalRecords?:  {
+    __typename: "ModelMedicalRecordConnection",
+    items:  Array< {
+      __typename: "MedicalRecord",
+      id: string,
+      studentId: string,
+      allergies?: string | null,
+      medications?: string | null,
+      conditions?: string | null,
+      emergencyNotes?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type GetIncidentQueryVariables = {
+  id: string,
+};
+
+export type GetIncidentQuery = {
+  getIncident?:  {
+    __typename: "Incident",
+    id: string,
+    description: string,
+    severity?: string | null,
+    date?: string | null,
+    teacherId: string,
+    studentId: string,
+    classId?: string | null,
+    schoolId: string,
+    teacher?:  {
+      __typename: "Teacher",
+      id: string,
+      name: string,
+      cognitoUserId?: string | null,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    student?:  {
+      __typename: "Student",
+      id: string,
+      firstName: string,
+      lastName: string,
+      dateOfBirth?: string | null,
+      gradeLevel?: number | null,
+      attendanceRate?: number | null,
+      currentStatus?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
+    } | null,
+    class?:  {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    school?:  {
+      __typename: "School",
+      id: string,
+      name: string,
+      address?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type ListIncidentsQueryVariables = {
+  filter?: ModelIncidentFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListIncidentsQuery = {
+  listIncidents?:  {
+    __typename: "ModelIncidentConnection",
+    items:  Array< {
+      __typename: "Incident",
+      id: string,
+      description: string,
+      severity?: string | null,
+      date?: string | null,
+      teacherId: string,
+      studentId: string,
+      classId?: string | null,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type GetConversationQueryVariables = {
+  id: string,
+};
+
+export type GetConversationQuery = {
+  getConversation?:  {
+    __typename: "Conversation",
+    id: string,
+    type: ConversationType,
+    parentId?: string | null,
+    teacherId: string,
+    studentId?: string | null,
+    classId?: string | null,
+    parentName?: string | null,
+    teacherName?: string | null,
+    studentName?: string | null,
+    className?: string | null,
+    lastMessageText?: string | null,
+    lastMessageAt?: string | null,
+    messages?:  {
+      __typename: "ModelMessageConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type ListConversationsQueryVariables = {
+  filter?: ModelConversationFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListConversationsQuery = {
+  listConversations?:  {
+    __typename: "ModelConversationConnection",
+    items:  Array< {
+      __typename: "Conversation",
+      id: string,
+      type: ConversationType,
+      parentId?: string | null,
+      teacherId: string,
+      studentId?: string | null,
+      classId?: string | null,
+      parentName?: string | null,
+      teacherName?: string | null,
+      studentName?: string | null,
+      className?: string | null,
+      lastMessageText?: string | null,
+      lastMessageAt?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type GetMessageQueryVariables = {
+  id: string,
+};
+
+export type GetMessageQuery = {
+  getMessage?:  {
+    __typename: "Message",
+    id: string,
+    conversationId: string,
+    senderId: string,
+    senderType: SenderType,
+    senderName: string,
+    body: string,
+    createdAt: string,
+    conversation?:  {
+      __typename: "Conversation",
+      id: string,
+      type: ConversationType,
+      parentId?: string | null,
+      teacherId: string,
+      studentId?: string | null,
+      classId?: string | null,
+      parentName?: string | null,
+      teacherName?: string | null,
+      studentName?: string | null,
+      className?: string | null,
+      lastMessageText?: string | null,
+      lastMessageAt?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type ListMessagesQueryVariables = {
+  filter?: ModelMessageFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListMessagesQuery = {
+  listMessages?:  {
+    __typename: "ModelMessageConnection",
+    items:  Array< {
+      __typename: "Message",
+      id: string,
+      conversationId: string,
+      senderId: string,
+      senderType: SenderType,
+      senderName: string,
+      body: string,
       createdAt: string,
       updatedAt: string,
     } | null >,
@@ -1702,6 +3442,401 @@ export type EnrollmentsByClassIdQuery = {
   } | null,
 };
 
+export type AttendancesByStudentIdQueryVariables = {
+  studentId: string,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelAttendanceFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type AttendancesByStudentIdQuery = {
+  attendancesByStudentId?:  {
+    __typename: "ModelAttendanceConnection",
+    items:  Array< {
+      __typename: "Attendance",
+      id: string,
+      studentId: string,
+      classId: string,
+      date: string,
+      status: AttendanceStatus,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type AttendancesByClassIdQueryVariables = {
+  classId: string,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelAttendanceFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type AttendancesByClassIdQuery = {
+  attendancesByClassId?:  {
+    __typename: "ModelAttendanceConnection",
+    items:  Array< {
+      __typename: "Attendance",
+      id: string,
+      studentId: string,
+      classId: string,
+      date: string,
+      status: AttendanceStatus,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type AnnouncementsBySchoolIdQueryVariables = {
+  schoolId: string,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelAnnouncementFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type AnnouncementsBySchoolIdQuery = {
+  announcementsBySchoolId?:  {
+    __typename: "ModelAnnouncementConnection",
+    items:  Array< {
+      __typename: "Announcement",
+      id: string,
+      title: string,
+      body: string,
+      createdAt: string,
+      createdBy: string,
+      schoolId?: string | null,
+      classId?: string | null,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type AnnouncementsByClassIdQueryVariables = {
+  classId: string,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelAnnouncementFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type AnnouncementsByClassIdQuery = {
+  announcementsByClassId?:  {
+    __typename: "ModelAnnouncementConnection",
+    items:  Array< {
+      __typename: "Announcement",
+      id: string,
+      title: string,
+      body: string,
+      createdAt: string,
+      createdBy: string,
+      schoolId?: string | null,
+      classId?: string | null,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type MedicalRecordsByStudentIdQueryVariables = {
+  studentId: string,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelMedicalRecordFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type MedicalRecordsByStudentIdQuery = {
+  medicalRecordsByStudentId?:  {
+    __typename: "ModelMedicalRecordConnection",
+    items:  Array< {
+      __typename: "MedicalRecord",
+      id: string,
+      studentId: string,
+      allergies?: string | null,
+      medications?: string | null,
+      conditions?: string | null,
+      emergencyNotes?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type IncidentsByTeacherIdQueryVariables = {
+  teacherId: string,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelIncidentFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type IncidentsByTeacherIdQuery = {
+  incidentsByTeacherId?:  {
+    __typename: "ModelIncidentConnection",
+    items:  Array< {
+      __typename: "Incident",
+      id: string,
+      description: string,
+      severity?: string | null,
+      date?: string | null,
+      teacherId: string,
+      studentId: string,
+      classId?: string | null,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type IncidentsByStudentIdQueryVariables = {
+  studentId: string,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelIncidentFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type IncidentsByStudentIdQuery = {
+  incidentsByStudentId?:  {
+    __typename: "ModelIncidentConnection",
+    items:  Array< {
+      __typename: "Incident",
+      id: string,
+      description: string,
+      severity?: string | null,
+      date?: string | null,
+      teacherId: string,
+      studentId: string,
+      classId?: string | null,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type IncidentsByClassIdQueryVariables = {
+  classId: string,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelIncidentFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type IncidentsByClassIdQuery = {
+  incidentsByClassId?:  {
+    __typename: "ModelIncidentConnection",
+    items:  Array< {
+      __typename: "Incident",
+      id: string,
+      description: string,
+      severity?: string | null,
+      date?: string | null,
+      teacherId: string,
+      studentId: string,
+      classId?: string | null,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type IncidentsBySchoolIdQueryVariables = {
+  schoolId: string,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelIncidentFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type IncidentsBySchoolIdQuery = {
+  incidentsBySchoolId?:  {
+    __typename: "ModelIncidentConnection",
+    items:  Array< {
+      __typename: "Incident",
+      id: string,
+      description: string,
+      severity?: string | null,
+      date?: string | null,
+      teacherId: string,
+      studentId: string,
+      classId?: string | null,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type ConversationsByParentIdQueryVariables = {
+  parentId: string,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelConversationFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ConversationsByParentIdQuery = {
+  conversationsByParentId?:  {
+    __typename: "ModelConversationConnection",
+    items:  Array< {
+      __typename: "Conversation",
+      id: string,
+      type: ConversationType,
+      parentId?: string | null,
+      teacherId: string,
+      studentId?: string | null,
+      classId?: string | null,
+      parentName?: string | null,
+      teacherName?: string | null,
+      studentName?: string | null,
+      className?: string | null,
+      lastMessageText?: string | null,
+      lastMessageAt?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type ConversationsByTeacherIdQueryVariables = {
+  teacherId: string,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelConversationFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ConversationsByTeacherIdQuery = {
+  conversationsByTeacherId?:  {
+    __typename: "ModelConversationConnection",
+    items:  Array< {
+      __typename: "Conversation",
+      id: string,
+      type: ConversationType,
+      parentId?: string | null,
+      teacherId: string,
+      studentId?: string | null,
+      classId?: string | null,
+      parentName?: string | null,
+      teacherName?: string | null,
+      studentName?: string | null,
+      className?: string | null,
+      lastMessageText?: string | null,
+      lastMessageAt?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type ConversationsByStudentIdQueryVariables = {
+  studentId: string,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelConversationFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ConversationsByStudentIdQuery = {
+  conversationsByStudentId?:  {
+    __typename: "ModelConversationConnection",
+    items:  Array< {
+      __typename: "Conversation",
+      id: string,
+      type: ConversationType,
+      parentId?: string | null,
+      teacherId: string,
+      studentId?: string | null,
+      classId?: string | null,
+      parentName?: string | null,
+      teacherName?: string | null,
+      studentName?: string | null,
+      className?: string | null,
+      lastMessageText?: string | null,
+      lastMessageAt?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type ConversationsByClassIdQueryVariables = {
+  classId: string,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelConversationFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ConversationsByClassIdQuery = {
+  conversationsByClassId?:  {
+    __typename: "ModelConversationConnection",
+    items:  Array< {
+      __typename: "Conversation",
+      id: string,
+      type: ConversationType,
+      parentId?: string | null,
+      teacherId: string,
+      studentId?: string | null,
+      classId?: string | null,
+      parentName?: string | null,
+      teacherName?: string | null,
+      studentName?: string | null,
+      className?: string | null,
+      lastMessageText?: string | null,
+      lastMessageAt?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type MessagesByConversationIdAndCreatedAtQueryVariables = {
+  conversationId: string,
+  createdAt?: ModelStringKeyConditionInput | null,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelMessageFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type MessagesByConversationIdAndCreatedAtQuery = {
+  messagesByConversationIdAndCreatedAt?:  {
+    __typename: "ModelMessageConnection",
+    items:  Array< {
+      __typename: "Message",
+      id: string,
+      conversationId: string,
+      senderId: string,
+      senderType: SenderType,
+      senderName: string,
+      body: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
 export type GetSchoolQueryVariables = {
   id: string,
 };
@@ -1722,6 +3857,10 @@ export type GetSchoolQuery = {
     } | null,
     classes?:  {
       __typename: "ModelClassConnection",
+      nextToken?: string | null,
+    } | null,
+    incidents?:  {
+      __typename: "ModelIncidentConnection",
       nextToken?: string | null,
     } | null,
     createdAt: string,
@@ -1855,9 +3994,29 @@ export type GetStudentQuery = {
       __typename: "ModelEnrollmentConnection",
       nextToken?: string | null,
     } | null,
+    attendances?:  {
+      __typename: "ModelAttendanceConnection",
+      nextToken?: string | null,
+    } | null,
+    incidents?:  {
+      __typename: "ModelIncidentConnection",
+      nextToken?: string | null,
+    } | null,
+    medicalRecord?:  {
+      __typename: "MedicalRecord",
+      id: string,
+      studentId: string,
+      allergies?: string | null,
+      medications?: string | null,
+      conditions?: string | null,
+      emergencyNotes?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
     createdAt: string,
     updatedAt: string,
     schoolStudentsId?: string | null,
+    studentMedicalRecordId?: string | null,
   } | null,
 };
 
@@ -1882,6 +4041,7 @@ export type ListStudentsQuery = {
       createdAt: string,
       updatedAt: string,
       schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
     } | null >,
     nextToken?: string | null,
   } | null,
@@ -1921,6 +4081,7 @@ export type GetParentStudentsQuery = {
       createdAt: string,
       updatedAt: string,
       schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
     },
     createdAt: string,
     updatedAt: string,
@@ -2021,6 +4182,10 @@ export type OnCreateTeacherSubscription = {
       __typename: "ModelClassConnection",
       nextToken?: string | null,
     } | null,
+    incidents?:  {
+      __typename: "ModelIncidentConnection",
+      nextToken?: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -2049,6 +4214,10 @@ export type OnUpdateTeacherSubscription = {
       __typename: "ModelClassConnection",
       nextToken?: string | null,
     } | null,
+    incidents?:  {
+      __typename: "ModelIncidentConnection",
+      nextToken?: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -2075,6 +4244,10 @@ export type OnDeleteTeacherSubscription = {
     } | null,
     classes?:  {
       __typename: "ModelClassConnection",
+      nextToken?: string | null,
+    } | null,
+    incidents?:  {
+      __typename: "ModelIncidentConnection",
       nextToken?: string | null,
     } | null,
     createdAt: string,
@@ -2114,6 +4287,14 @@ export type OnCreateClassSubscription = {
       __typename: "ModelEnrollmentConnection",
       nextToken?: string | null,
     } | null,
+    attendances?:  {
+      __typename: "ModelAttendanceConnection",
+      nextToken?: string | null,
+    } | null,
+    incidents?:  {
+      __typename: "ModelIncidentConnection",
+      nextToken?: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -2149,6 +4330,14 @@ export type OnUpdateClassSubscription = {
     } | null,
     enrollments?:  {
       __typename: "ModelEnrollmentConnection",
+      nextToken?: string | null,
+    } | null,
+    attendances?:  {
+      __typename: "ModelAttendanceConnection",
+      nextToken?: string | null,
+    } | null,
+    incidents?:  {
+      __typename: "ModelIncidentConnection",
       nextToken?: string | null,
     } | null,
     createdAt: string,
@@ -2188,6 +4377,14 @@ export type OnDeleteClassSubscription = {
       __typename: "ModelEnrollmentConnection",
       nextToken?: string | null,
     } | null,
+    attendances?:  {
+      __typename: "ModelAttendanceConnection",
+      nextToken?: string | null,
+    } | null,
+    incidents?:  {
+      __typename: "ModelIncidentConnection",
+      nextToken?: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -2216,6 +4413,7 @@ export type OnCreateEnrollmentSubscription = {
       createdAt: string,
       updatedAt: string,
       schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
     } | null,
     class?:  {
       __typename: "Class",
@@ -2254,6 +4452,7 @@ export type OnUpdateEnrollmentSubscription = {
       createdAt: string,
       updatedAt: string,
       schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
     } | null,
     class?:  {
       __typename: "Class",
@@ -2292,6 +4491,7 @@ export type OnDeleteEnrollmentSubscription = {
       createdAt: string,
       updatedAt: string,
       schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
     } | null,
     class?:  {
       __typename: "Class",
@@ -2303,6 +4503,645 @@ export type OnDeleteEnrollmentSubscription = {
       updatedAt: string,
     } | null,
     createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnCreateAttendanceSubscriptionVariables = {
+  filter?: ModelSubscriptionAttendanceFilterInput | null,
+};
+
+export type OnCreateAttendanceSubscription = {
+  onCreateAttendance?:  {
+    __typename: "Attendance",
+    id: string,
+    studentId: string,
+    classId: string,
+    date: string,
+    status: AttendanceStatus,
+    student?:  {
+      __typename: "Student",
+      id: string,
+      firstName: string,
+      lastName: string,
+      dateOfBirth?: string | null,
+      gradeLevel?: number | null,
+      attendanceRate?: number | null,
+      currentStatus?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
+    } | null,
+    class?:  {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnUpdateAttendanceSubscriptionVariables = {
+  filter?: ModelSubscriptionAttendanceFilterInput | null,
+};
+
+export type OnUpdateAttendanceSubscription = {
+  onUpdateAttendance?:  {
+    __typename: "Attendance",
+    id: string,
+    studentId: string,
+    classId: string,
+    date: string,
+    status: AttendanceStatus,
+    student?:  {
+      __typename: "Student",
+      id: string,
+      firstName: string,
+      lastName: string,
+      dateOfBirth?: string | null,
+      gradeLevel?: number | null,
+      attendanceRate?: number | null,
+      currentStatus?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
+    } | null,
+    class?:  {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnDeleteAttendanceSubscriptionVariables = {
+  filter?: ModelSubscriptionAttendanceFilterInput | null,
+};
+
+export type OnDeleteAttendanceSubscription = {
+  onDeleteAttendance?:  {
+    __typename: "Attendance",
+    id: string,
+    studentId: string,
+    classId: string,
+    date: string,
+    status: AttendanceStatus,
+    student?:  {
+      __typename: "Student",
+      id: string,
+      firstName: string,
+      lastName: string,
+      dateOfBirth?: string | null,
+      gradeLevel?: number | null,
+      attendanceRate?: number | null,
+      currentStatus?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
+    } | null,
+    class?:  {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnCreateAnnouncementSubscriptionVariables = {
+  filter?: ModelSubscriptionAnnouncementFilterInput | null,
+};
+
+export type OnCreateAnnouncementSubscription = {
+  onCreateAnnouncement?:  {
+    __typename: "Announcement",
+    id: string,
+    title: string,
+    body: string,
+    createdAt: string,
+    createdBy: string,
+    schoolId?: string | null,
+    classId?: string | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnUpdateAnnouncementSubscriptionVariables = {
+  filter?: ModelSubscriptionAnnouncementFilterInput | null,
+};
+
+export type OnUpdateAnnouncementSubscription = {
+  onUpdateAnnouncement?:  {
+    __typename: "Announcement",
+    id: string,
+    title: string,
+    body: string,
+    createdAt: string,
+    createdBy: string,
+    schoolId?: string | null,
+    classId?: string | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnDeleteAnnouncementSubscriptionVariables = {
+  filter?: ModelSubscriptionAnnouncementFilterInput | null,
+};
+
+export type OnDeleteAnnouncementSubscription = {
+  onDeleteAnnouncement?:  {
+    __typename: "Announcement",
+    id: string,
+    title: string,
+    body: string,
+    createdAt: string,
+    createdBy: string,
+    schoolId?: string | null,
+    classId?: string | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnCreateMedicalRecordSubscriptionVariables = {
+  filter?: ModelSubscriptionMedicalRecordFilterInput | null,
+};
+
+export type OnCreateMedicalRecordSubscription = {
+  onCreateMedicalRecord?:  {
+    __typename: "MedicalRecord",
+    id: string,
+    studentId: string,
+    allergies?: string | null,
+    medications?: string | null,
+    conditions?: string | null,
+    emergencyNotes?: string | null,
+    student?:  {
+      __typename: "Student",
+      id: string,
+      firstName: string,
+      lastName: string,
+      dateOfBirth?: string | null,
+      gradeLevel?: number | null,
+      attendanceRate?: number | null,
+      currentStatus?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnUpdateMedicalRecordSubscriptionVariables = {
+  filter?: ModelSubscriptionMedicalRecordFilterInput | null,
+};
+
+export type OnUpdateMedicalRecordSubscription = {
+  onUpdateMedicalRecord?:  {
+    __typename: "MedicalRecord",
+    id: string,
+    studentId: string,
+    allergies?: string | null,
+    medications?: string | null,
+    conditions?: string | null,
+    emergencyNotes?: string | null,
+    student?:  {
+      __typename: "Student",
+      id: string,
+      firstName: string,
+      lastName: string,
+      dateOfBirth?: string | null,
+      gradeLevel?: number | null,
+      attendanceRate?: number | null,
+      currentStatus?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnDeleteMedicalRecordSubscriptionVariables = {
+  filter?: ModelSubscriptionMedicalRecordFilterInput | null,
+};
+
+export type OnDeleteMedicalRecordSubscription = {
+  onDeleteMedicalRecord?:  {
+    __typename: "MedicalRecord",
+    id: string,
+    studentId: string,
+    allergies?: string | null,
+    medications?: string | null,
+    conditions?: string | null,
+    emergencyNotes?: string | null,
+    student?:  {
+      __typename: "Student",
+      id: string,
+      firstName: string,
+      lastName: string,
+      dateOfBirth?: string | null,
+      gradeLevel?: number | null,
+      attendanceRate?: number | null,
+      currentStatus?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnCreateIncidentSubscriptionVariables = {
+  filter?: ModelSubscriptionIncidentFilterInput | null,
+};
+
+export type OnCreateIncidentSubscription = {
+  onCreateIncident?:  {
+    __typename: "Incident",
+    id: string,
+    description: string,
+    severity?: string | null,
+    date?: string | null,
+    teacherId: string,
+    studentId: string,
+    classId?: string | null,
+    schoolId: string,
+    teacher?:  {
+      __typename: "Teacher",
+      id: string,
+      name: string,
+      cognitoUserId?: string | null,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    student?:  {
+      __typename: "Student",
+      id: string,
+      firstName: string,
+      lastName: string,
+      dateOfBirth?: string | null,
+      gradeLevel?: number | null,
+      attendanceRate?: number | null,
+      currentStatus?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
+    } | null,
+    class?:  {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    school?:  {
+      __typename: "School",
+      id: string,
+      name: string,
+      address?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnUpdateIncidentSubscriptionVariables = {
+  filter?: ModelSubscriptionIncidentFilterInput | null,
+};
+
+export type OnUpdateIncidentSubscription = {
+  onUpdateIncident?:  {
+    __typename: "Incident",
+    id: string,
+    description: string,
+    severity?: string | null,
+    date?: string | null,
+    teacherId: string,
+    studentId: string,
+    classId?: string | null,
+    schoolId: string,
+    teacher?:  {
+      __typename: "Teacher",
+      id: string,
+      name: string,
+      cognitoUserId?: string | null,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    student?:  {
+      __typename: "Student",
+      id: string,
+      firstName: string,
+      lastName: string,
+      dateOfBirth?: string | null,
+      gradeLevel?: number | null,
+      attendanceRate?: number | null,
+      currentStatus?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
+    } | null,
+    class?:  {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    school?:  {
+      __typename: "School",
+      id: string,
+      name: string,
+      address?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnDeleteIncidentSubscriptionVariables = {
+  filter?: ModelSubscriptionIncidentFilterInput | null,
+};
+
+export type OnDeleteIncidentSubscription = {
+  onDeleteIncident?:  {
+    __typename: "Incident",
+    id: string,
+    description: string,
+    severity?: string | null,
+    date?: string | null,
+    teacherId: string,
+    studentId: string,
+    classId?: string | null,
+    schoolId: string,
+    teacher?:  {
+      __typename: "Teacher",
+      id: string,
+      name: string,
+      cognitoUserId?: string | null,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    student?:  {
+      __typename: "Student",
+      id: string,
+      firstName: string,
+      lastName: string,
+      dateOfBirth?: string | null,
+      gradeLevel?: number | null,
+      attendanceRate?: number | null,
+      currentStatus?: string | null,
+      createdAt: string,
+      updatedAt: string,
+      schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
+    } | null,
+    class?:  {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    school?:  {
+      __typename: "School",
+      id: string,
+      name: string,
+      address?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnCreateConversationSubscriptionVariables = {
+  filter?: ModelSubscriptionConversationFilterInput | null,
+};
+
+export type OnCreateConversationSubscription = {
+  onCreateConversation?:  {
+    __typename: "Conversation",
+    id: string,
+    type: ConversationType,
+    parentId?: string | null,
+    teacherId: string,
+    studentId?: string | null,
+    classId?: string | null,
+    parentName?: string | null,
+    teacherName?: string | null,
+    studentName?: string | null,
+    className?: string | null,
+    lastMessageText?: string | null,
+    lastMessageAt?: string | null,
+    messages?:  {
+      __typename: "ModelMessageConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnUpdateConversationSubscriptionVariables = {
+  filter?: ModelSubscriptionConversationFilterInput | null,
+};
+
+export type OnUpdateConversationSubscription = {
+  onUpdateConversation?:  {
+    __typename: "Conversation",
+    id: string,
+    type: ConversationType,
+    parentId?: string | null,
+    teacherId: string,
+    studentId?: string | null,
+    classId?: string | null,
+    parentName?: string | null,
+    teacherName?: string | null,
+    studentName?: string | null,
+    className?: string | null,
+    lastMessageText?: string | null,
+    lastMessageAt?: string | null,
+    messages?:  {
+      __typename: "ModelMessageConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnDeleteConversationSubscriptionVariables = {
+  filter?: ModelSubscriptionConversationFilterInput | null,
+};
+
+export type OnDeleteConversationSubscription = {
+  onDeleteConversation?:  {
+    __typename: "Conversation",
+    id: string,
+    type: ConversationType,
+    parentId?: string | null,
+    teacherId: string,
+    studentId?: string | null,
+    classId?: string | null,
+    parentName?: string | null,
+    teacherName?: string | null,
+    studentName?: string | null,
+    className?: string | null,
+    lastMessageText?: string | null,
+    lastMessageAt?: string | null,
+    messages?:  {
+      __typename: "ModelMessageConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnCreateMessageSubscriptionVariables = {
+  filter?: ModelSubscriptionMessageFilterInput | null,
+};
+
+export type OnCreateMessageSubscription = {
+  onCreateMessage?:  {
+    __typename: "Message",
+    id: string,
+    conversationId: string,
+    senderId: string,
+    senderType: SenderType,
+    senderName: string,
+    body: string,
+    createdAt: string,
+    conversation?:  {
+      __typename: "Conversation",
+      id: string,
+      type: ConversationType,
+      parentId?: string | null,
+      teacherId: string,
+      studentId?: string | null,
+      classId?: string | null,
+      parentName?: string | null,
+      teacherName?: string | null,
+      studentName?: string | null,
+      className?: string | null,
+      lastMessageText?: string | null,
+      lastMessageAt?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnUpdateMessageSubscriptionVariables = {
+  filter?: ModelSubscriptionMessageFilterInput | null,
+};
+
+export type OnUpdateMessageSubscription = {
+  onUpdateMessage?:  {
+    __typename: "Message",
+    id: string,
+    conversationId: string,
+    senderId: string,
+    senderType: SenderType,
+    senderName: string,
+    body: string,
+    createdAt: string,
+    conversation?:  {
+      __typename: "Conversation",
+      id: string,
+      type: ConversationType,
+      parentId?: string | null,
+      teacherId: string,
+      studentId?: string | null,
+      classId?: string | null,
+      parentName?: string | null,
+      teacherName?: string | null,
+      studentName?: string | null,
+      className?: string | null,
+      lastMessageText?: string | null,
+      lastMessageAt?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnDeleteMessageSubscriptionVariables = {
+  filter?: ModelSubscriptionMessageFilterInput | null,
+};
+
+export type OnDeleteMessageSubscription = {
+  onDeleteMessage?:  {
+    __typename: "Message",
+    id: string,
+    conversationId: string,
+    senderId: string,
+    senderType: SenderType,
+    senderName: string,
+    body: string,
+    createdAt: string,
+    conversation?:  {
+      __typename: "Conversation",
+      id: string,
+      type: ConversationType,
+      parentId?: string | null,
+      teacherId: string,
+      studentId?: string | null,
+      classId?: string | null,
+      parentName?: string | null,
+      teacherName?: string | null,
+      studentName?: string | null,
+      className?: string | null,
+      lastMessageText?: string | null,
+      lastMessageAt?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
     updatedAt: string,
   } | null,
 };
@@ -2327,6 +5166,10 @@ export type OnCreateSchoolSubscription = {
     } | null,
     classes?:  {
       __typename: "ModelClassConnection",
+      nextToken?: string | null,
+    } | null,
+    incidents?:  {
+      __typename: "ModelIncidentConnection",
       nextToken?: string | null,
     } | null,
     createdAt: string,
@@ -2356,6 +5199,10 @@ export type OnUpdateSchoolSubscription = {
       __typename: "ModelClassConnection",
       nextToken?: string | null,
     } | null,
+    incidents?:  {
+      __typename: "ModelIncidentConnection",
+      nextToken?: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -2381,6 +5228,10 @@ export type OnDeleteSchoolSubscription = {
     } | null,
     classes?:  {
       __typename: "ModelClassConnection",
+      nextToken?: string | null,
+    } | null,
+    incidents?:  {
+      __typename: "ModelIncidentConnection",
       nextToken?: string | null,
     } | null,
     createdAt: string,
@@ -2490,9 +5341,29 @@ export type OnCreateStudentSubscription = {
       __typename: "ModelEnrollmentConnection",
       nextToken?: string | null,
     } | null,
+    attendances?:  {
+      __typename: "ModelAttendanceConnection",
+      nextToken?: string | null,
+    } | null,
+    incidents?:  {
+      __typename: "ModelIncidentConnection",
+      nextToken?: string | null,
+    } | null,
+    medicalRecord?:  {
+      __typename: "MedicalRecord",
+      id: string,
+      studentId: string,
+      allergies?: string | null,
+      medications?: string | null,
+      conditions?: string | null,
+      emergencyNotes?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
     createdAt: string,
     updatedAt: string,
     schoolStudentsId?: string | null,
+    studentMedicalRecordId?: string | null,
   } | null,
 };
 
@@ -2526,9 +5397,29 @@ export type OnUpdateStudentSubscription = {
       __typename: "ModelEnrollmentConnection",
       nextToken?: string | null,
     } | null,
+    attendances?:  {
+      __typename: "ModelAttendanceConnection",
+      nextToken?: string | null,
+    } | null,
+    incidents?:  {
+      __typename: "ModelIncidentConnection",
+      nextToken?: string | null,
+    } | null,
+    medicalRecord?:  {
+      __typename: "MedicalRecord",
+      id: string,
+      studentId: string,
+      allergies?: string | null,
+      medications?: string | null,
+      conditions?: string | null,
+      emergencyNotes?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
     createdAt: string,
     updatedAt: string,
     schoolStudentsId?: string | null,
+    studentMedicalRecordId?: string | null,
   } | null,
 };
 
@@ -2562,9 +5453,29 @@ export type OnDeleteStudentSubscription = {
       __typename: "ModelEnrollmentConnection",
       nextToken?: string | null,
     } | null,
+    attendances?:  {
+      __typename: "ModelAttendanceConnection",
+      nextToken?: string | null,
+    } | null,
+    incidents?:  {
+      __typename: "ModelIncidentConnection",
+      nextToken?: string | null,
+    } | null,
+    medicalRecord?:  {
+      __typename: "MedicalRecord",
+      id: string,
+      studentId: string,
+      allergies?: string | null,
+      medications?: string | null,
+      conditions?: string | null,
+      emergencyNotes?: string | null,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
     createdAt: string,
     updatedAt: string,
     schoolStudentsId?: string | null,
+    studentMedicalRecordId?: string | null,
   } | null,
 };
 
@@ -2603,6 +5514,7 @@ export type OnCreateParentStudentsSubscription = {
       createdAt: string,
       updatedAt: string,
       schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
     },
     createdAt: string,
     updatedAt: string,
@@ -2645,6 +5557,7 @@ export type OnUpdateParentStudentsSubscription = {
       createdAt: string,
       updatedAt: string,
       schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
     },
     createdAt: string,
     updatedAt: string,
@@ -2687,6 +5600,7 @@ export type OnDeleteParentStudentsSubscription = {
       createdAt: string,
       updatedAt: string,
       schoolStudentsId?: string | null,
+      studentMedicalRecordId?: string | null,
     },
     createdAt: string,
     updatedAt: string,

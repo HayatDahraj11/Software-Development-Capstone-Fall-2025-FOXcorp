@@ -9,6 +9,10 @@ export default function ParentLayout() {
             <Stack>
                 <Stack.Screen name="index" options={{headerShown: false}}/>
                 <Stack.Screen name="(tabs)" options={{headerShown: false}}/>
+                <Stack.Screen
+                    name="conversation"
+                    options={{ title: "Conversation", headerBackTitle: "Messages" }}
+                />
             </Stack>
         </ParentLoginProvider>
         

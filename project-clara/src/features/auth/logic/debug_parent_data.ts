@@ -124,10 +124,12 @@ export const debug_enrollments: Enrollment[] = [
         classId: debug_class_ids[1],
         currentGrade: 98
     },
+    /*
     {
         id: "debug_enrollment_s1-c2",
         studentId: debug_student_ids[1],
         classId: debug_class_ids[2],
         currentGrade: 65
     },
+    */
 ]

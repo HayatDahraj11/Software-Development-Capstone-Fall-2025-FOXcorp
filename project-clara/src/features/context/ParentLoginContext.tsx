@@ -15,6 +15,8 @@ export interface ParentContextType {
     onSignIn: () => Promise<void>;
     onSignOut: () => Promise<void>;
     getClassesMappedByStudent: (studentId: string) => string[];
+    getStudentGradeInClass: (studentId: string, classId: string) => number;
+    getTeacherNamebyId: (teacherId: string) => string;
 }
 
 // parent-wide login context
@@ -216,6 +218,23 @@ export const ParentLoginProvider = ({children}: {children: ReactNode}) => {
         return classIdArray;
     }
 
+    // takes in studentid and classid, finds the enrollment that matches both of those, and returns the student's grade in that class
+    // -1 means something went wrong
+    const getStudentGradeInClass = (studentId: string, classId: string): number => {
+        // we first find all the enrollments matching the studentId because we can only narrow down
+        // enrollments by both a studentid and a class id. i.e., we need to solve for enrollments matching studentid
+        // before we can solve for enrollments matching classid
+        const studentEnrollments: Enrollment[] = userEnrollments.filter((enr) => {return enr.studentId === studentId});
+        const studentGradeInMatchingClassEnrollment: number = studentEnrollments.find(enr => enr.classId === classId)?.currentGrade ?? -1
+        return studentGradeInMatchingClassEnrollment
+    }
+
+    // takes in teacherId, return teacher's name
+    const getTeacherNamebyId = (teacherId: string): string => {
+        const teacherName: string = userTeachers.find(teach => teach.id === teacherId)?.name ?? "error"
+        return teacherName;
+    }
+
 
     const userData = {
         isContextLoading,
@@ -228,6 +247,8 @@ export const ParentLoginProvider = ({children}: {children: ReactNode}) => {
         onSignIn,
         onSignOut,
         getClassesMappedByStudent,
+        getStudentGradeInClass,
+        getTeacherNamebyId,
     }
 
     return (

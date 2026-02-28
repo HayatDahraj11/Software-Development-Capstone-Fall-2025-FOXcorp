@@ -9,19 +9,26 @@ import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { Colors } from "@/src/features/app-themes/constants/theme";
 import { useThemeColor } from "../../app-themes/logic/use-theme-color";
+import { Class, Enrollment, Teacher_parentSide } from "../../fetch-user-data/api/parent_data_fetcher";
 
 
 type Props = {
     isVisible: boolean;
     onCloseModal: () => void;
+    // pass up these primitives to avoid having to parse class/teacher/enrollment objects
+    // instead, only get the id's and let other parts of the app do the hardwork with those ids
     classId: string;
-    studentId: string;
+    className: string;
+    teacherId: string;
+    teacherName: string;
+    studentGrade: number;
     onClickProfilePic: (teacherId: string) => void; // teacher's pfp is clickable, routes to messages for teacher
 };
 
 const PlaceholderImage = require('@/assets/images/icon.png')
 
-export default function Parent_ViewClassModal({isVisible, onCloseModal, classId, studentId, onClickProfilePic}: Props) {
+export default function Parent_ViewClassModal({isVisible, onCloseModal, classId, className, teacherId, teacherName, studentGrade, onClickProfilePic}: Props) {
+    
     const styles = StyleSheet.create ({
         overlay: {
             flex: 1,
@@ -130,8 +137,8 @@ export default function Parent_ViewClassModal({isVisible, onCloseModal, classId,
                                 </Pressable>
                             </View>
                             <View style={styles.classContainer}>
-                                <Text style={styles.classText}>ClassName</Text>
-                                <Text style={styles.classText}>Grade: StudentGrade</Text>
+                                <Text style={styles.classText}>{className}</Text>
+                                <Text style={styles.classText}>Grade: {studentGrade}</Text>
                             </View>
                             <View style={styles.teacherContainer}>
                                 <View style={styles.teacherTextContainer}>
@@ -141,12 +148,12 @@ export default function Parent_ViewClassModal({isVisible, onCloseModal, classId,
                                     <View style={styles.teacherImageContainer}>
                                         <Image source={PlaceholderImage} style={styles.teacherImage}/>
                                     </View>
-                                    <Text style={styles.teacherNameText}>TeacherName</Text>
+                                    <Text style={styles.teacherNameText}>{teacherName}</Text>
                                 </View>
                             </View>
                             <View style={styles.notesContainer}>
                                 <Text style={styles.notesHeaderText}>Teacher Notes:</Text>
-                                <Text style={styles.notesText}>This teacher has left no notes about your student!</Text>
+                                <Text style={styles.notesText}>not yet defined</Text>
                             </View>
                         </View>
                     </View>

@@ -1,21 +1,23 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
 
-import Parent_ViewClassModal from "@/src/features/class-viewer/ui/Parent_ViewClassModal";
-import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
-import Card from "@/src/features/cards/ui/Card";
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import { createStudentClassListCard, DataCard } from "@/src/features/cards/logic/cardDataCreator";
+import Card from "@/src/features/cards/ui/Card";
+import Parent_ViewClassModal from "@/src/features/class-viewer/ui/Parent_ViewClassModal";
+import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
+import { Class } from "@/src/features/fetch-user-data/api/parent_data_fetcher";
 
 export default function StudentDocumentationScreen() {
     // context given student data
     const {
         userStudents,
         userClasses,
-        userEnrollments,
         userTeachers,
         getClassesMappedByStudent,
+        getStudentGradeInClass,
+        getTeacherNamebyId,
     } = useParentLoginContext();
     const { studentId } = useLocalSearchParams();
 
@@ -51,21 +53,21 @@ export default function StudentDocumentationScreen() {
     const router = useRouter();
 
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-    const [toTeacherId, setToTeacherId] = useState<string | undefined>(undefined);
-    const [selectedClassId, setSelectedClassId] = useState<string>("");
+    const [selectedClass, setSelectedClass] = useState<Class>(userClasses[0]);
 
     const RouteCard = (route: string): void => {
         // as messaging has not been set up yet, just set to messages tab
         router.push("/(parent)/(tabs)/messaging")
     };
 
-    const onTeacherClicked = (teacherId: string) => {
-        setToTeacherId(teacherId);
-        RouteCard(teacherId);
+    const onTeacherClicked = () => {
         setIsModalVisible(false);
+        RouteCard(selectedClass.teacherId);
     };
 
     const onClassClicked = (classId: string) => {
+        setSelectedClass(userClasses.find(cla => cla.id === classId) ?? userClasses[0]) // if somehow userClasses.find comes back undefined, just use first class
+        
         setIsModalVisible(true);
     };
 
@@ -101,8 +103,11 @@ export default function StudentDocumentationScreen() {
         <Parent_ViewClassModal 
             isVisible={isModalVisible}
             onCloseModal={() => setIsModalVisible(false)}
-            classId={selectedClassId}
-            studentId={studentId.toString()}
+            classId={selectedClass.id}
+            className={selectedClass.name}
+            teacherId={selectedClass.teacherId}
+            teacherName={getTeacherNamebyId(selectedClass.teacherId)}
+            studentGrade={getStudentGradeInClass((studentId as string), selectedClass.id)}
             onClickProfilePic={onTeacherClicked}
         />
     </View>

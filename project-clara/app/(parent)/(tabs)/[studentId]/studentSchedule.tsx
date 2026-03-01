@@ -1,58 +1,73 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FlatList, StyleSheet, View } from "react-native";
 
+import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
+import { createStudentClassListCard, DataCard } from "@/src/features/cards/logic/cardDataCreator";
+import Card from "@/src/features/cards/ui/Card";
 import Parent_ViewClassModal from "@/src/features/class-viewer/ui/Parent_ViewClassModal";
 import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
-import Card from "@/src/features/cards/ui/Card";
-import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
-
-// temp class list flatlist will use
-const FlatListTempData = [
-    {
-        className: "English",
-        teacherName: "Mrs. Dorthey",
-        classId: "10"
-    },
-    {
-        className: "Maths",
-        teacherName: "Mrs. Knowles",
-        classId: "11"
-    },
-    {
-        className: "Science",
-        teacherName: "Mr. Brock",
-        classId: "12"
-    },
-]
+import { Class } from "@/src/features/fetch-user-data/api/parent_data_fetcher";
 
 export default function StudentDocumentationScreen() {
     // context given student data
     const {
         userStudents,
+        userClasses,
+        userTeachers,
+        getClassesMappedByStudent,
+        getStudentGradeInClass,
+        getTeacherNamebyId,
     } = useParentLoginContext();
-    
     const { studentId } = useLocalSearchParams();
-    const student = userStudents.find(item => item.id === studentId); // grabbing the student we are passed in
+
+    const [screenCards, setScreenCards] = useState<DataCard[]>([]);
+
+    const firstLoad = useCallback(async() => {
+        let cardset: DataCard[] = []
+
+        const student = userStudents.find(item => item.id === studentId); // grabbing the student we are passed in
+        const classIdsofStudent = getClassesMappedByStudent((studentId as string)); // grabbing class ids student are enrolled in
+        if(student) {
+            for(const i of classIdsofStudent) {
+                const tempcla = userClasses.find(cla => cla.id === i);
+                if(tempcla) {
+                    const tempteach = userTeachers.find(teach => teach.id === tempcla.teacherId) 
+                    if(tempteach) {
+                        const tempcard = createStudentClassListCard(tempcla, tempteach.name);
+                        cardset.push(tempcard);
+                    }
+                }
+            }
+        }
+
+        setScreenCards(cardset);
+    }, [getClassesMappedByStudent, studentId, userClasses, userStudents, userTeachers])
+
+    useEffect(() => {
+        firstLoad();
+    }, [firstLoad])
+
+
 
     const router = useRouter();
 
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-    const [toTeacherId, setToTeacherId] = useState<string | undefined>(undefined);
-    const [selectedClassId, setSelectedClassId] = useState<string>("");
+    const [selectedClass, setSelectedClass] = useState<Class>(userClasses[0]);
 
     const RouteCard = (route: string): void => {
         // as messaging has not been set up yet, just set to messages tab
         router.push("/(parent)/(tabs)/messaging")
     };
 
-    const onTeacherClicked = (teacherId: string) => {
-        setToTeacherId(teacherId);
-        RouteCard(teacherId);
+    const onTeacherClicked = () => {
         setIsModalVisible(false);
+        RouteCard(selectedClass.teacherId);
     };
 
     const onClassClicked = (classId: string) => {
+        setSelectedClass(userClasses.find(cla => cla.id === classId) ?? userClasses[0]) // if somehow userClasses.find comes back undefined, just use first class
+        
         setIsModalVisible(true);
     };
 
@@ -68,17 +83,19 @@ export default function StudentDocumentationScreen() {
             },
     });
 
+
+
     return (
     <View style={styles.container}>
         <FlatList
-            data={FlatListTempData}
+            data={screenCards}
             contentContainerStyle={styles.listContainer}
             renderItem={({item, index}) => (
             <Card 
-                header={item.className}
-                preview={item.teacherName}
-                theme={"list"}
-                onPress={() => onClassClicked(item.classId)}
+                header={item.header}
+                preview={item.preview}
+                theme={item.theme}
+                onPress={() => onClassClicked(item.itemId)}
             />
             )}
         />
@@ -86,8 +103,11 @@ export default function StudentDocumentationScreen() {
         <Parent_ViewClassModal 
             isVisible={isModalVisible}
             onCloseModal={() => setIsModalVisible(false)}
-            classId={selectedClassId}
-            studentId={studentId.toString()}
+            classId={selectedClass.id}
+            className={selectedClass.name}
+            teacherId={selectedClass.teacherId}
+            teacherName={getTeacherNamebyId(selectedClass.teacherId)}
+            studentGrade={getStudentGradeInClass((studentId as string), selectedClass.id)}
             onClickProfilePic={onTeacherClicked}
         />
     </View>

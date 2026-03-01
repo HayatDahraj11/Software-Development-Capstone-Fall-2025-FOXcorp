@@ -9,19 +9,15 @@ import { useParentLoginContext } from "@/src/features/context/ParentLoginContext
 import { Student } from "@/src/features/fetch-user-data/api/parent_data_fetcher";
 import { MaterialIcons } from "@expo/vector-icons";
 
-// until we get classes to students link setup, this is the hardcoded data
-const HardcodedClasses = [
-  "English",
-  "French",
-  "Nintendo games",
-]
-
 export default function ParentGeneralInfoScreen() {
   const router = useRouter();
 
   const {
         userParent,
         userStudents,
+        userClasses,
+        userEnrollments,
+        getClassesMappedByStudent,
   } = useParentLoginContext();
 
   const RouteCard = (route: string): void => {
@@ -45,11 +41,12 @@ export default function ParentGeneralInfoScreen() {
       else { }
   };
 
-  const scheduleListCreation = (classes: string[]): string => {
+  const scheduleListCreation = (classIds: string[]): string => {
     let superstring = ``
-    for (let i = 0; i<classes.length; i++) {
-      superstring = superstring + (i+1) + `) ` + classes.at(i);
-      if(i<(classes.length-1)) {
+    for (let i = 0; i<classIds.length; i++) {
+      const tempName: string = userClasses.find(cla => cla.id === classIds[i])?.name ?? "error! undef"
+      superstring = superstring + (i+1) + `) ` + tempName;
+      if(i<(classIds.length-1)) {
         superstring = superstring + '\n'
       }
     }
@@ -75,7 +72,7 @@ export default function ParentGeneralInfoScreen() {
       }
       setChildSelected(foundKid);
     } else {
-      console.log("Somehow, a kid was selected that didn't exist. onChildSelected()")
+      console.warn("Somehow, a kid was selected that didn't exist. onChildSelected()")
     }
 
   };
@@ -123,7 +120,7 @@ export default function ParentGeneralInfoScreen() {
       <ScrollView>
         <Card
           header="Schedule"
-          preview={scheduleListCreation(HardcodedClasses)}
+          preview={scheduleListCreation(getClassesMappedByStudent(childSelected.id))}
           onPress={() => RouteCard("studentSchedule")}
         />
         <Card

@@ -1,7 +1,8 @@
+import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
 import { Href, useLocalSearchParams, useRouter } from "expo-router";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
 
+import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import Card from "@/src/features/cards/ui/Card";
 
 export default function StudentRecordsScreen() {
@@ -22,6 +23,19 @@ export default function StudentRecordsScreen() {
             else { }
     };
 
+    const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: (useThemeColor({}, "background")),
+    },
+    listContainer: {
+            paddingHorizontal: 20,
+            justifyContent: 'center',
+            marginTop: 10,
+            gap: 0,
+        },
+    });
+
     return (
         <View style={styles.container}>
             <ScrollView contentContainerStyle={styles.listContainer}>
@@ -32,15 +46,3 @@ export default function StudentRecordsScreen() {
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  listContainer: {
-        paddingHorizontal: 20,
-        justifyContent: 'center',
-        marginTop: 10,
-        gap: 0,
-    },
-});

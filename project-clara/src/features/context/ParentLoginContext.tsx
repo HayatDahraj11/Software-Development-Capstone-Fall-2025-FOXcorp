@@ -2,7 +2,7 @@ import { getCurrentUser, signOut } from "aws-amplify/auth";
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
 import { Parent, Student } from "src/features/fetch-user-data/api/parent_data_fetcher";
 import { debug_kids, debug_parent } from "../auth/logic/debug_parent_data";
-import { useUserData } from "../fetch-user-data/logic/useUserData";
+import { useUserData } from "../fetch-user-data/logic/useParentUserData";
 
 export interface ParentContextType {
     isContextLoading: boolean;

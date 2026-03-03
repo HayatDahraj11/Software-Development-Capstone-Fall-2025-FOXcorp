@@ -7,13 +7,11 @@ import { listTeachers, getTeacher, listStudents, listClasses} from '@/src/graphq
 
 const client = generateClient();
 
-export type Student = {
+export type Class = {
     id: string;
-    firstName: string;
-    lastName: string;
-    gradeLevel?: number | null;
-    currentStatus?: string | null;
-    attendanceRate?: number | null;
+    name: string;
+    teacherId: string;
+    schoolId: string;
 };
 
 export type Teacher = {
@@ -26,54 +24,56 @@ export type BackendQueryResult = {
     success: boolean; // true implies that teacher? and students? exist, false implies they don't
     message: string;
     teacher?: Teacher;
-    students?: Student[]; //Classes?? Enrollment?? CHANGE
+    classes?: Class[]; 
 }
 
 // pulls the client's teacher data and student(s) data
 // returns a bool denoting if the pull was successful
 // on success, also returns Teacher object and array of Student objects
-export async function fetchTeacherWithKids(): Promise<BackendQueryResult> {
+export async function fetchTeacherWithClass(): Promise<BackendQueryResult> {
     try {
         // get the teacher's information
         const result = await client.graphql({query: listTeachers});
         const teachers = result.data.listTeachers.items;
         const teacher = teachers[0];
-        const userId = teacher.id;
+        const teacherId = teacher.id;
 
         // get the students information
         // note: a client should only have access to their students, so this will only fetch the teacher's students
-        const studentResults = await client.graphql({query: listStudents});
-        const students = studentResults.data.listStudents.items;
-        const studentIds: string[] = students.map(item => item.id);
+        const classResult: any = await client.graphql({
+            query: listClasses,
+            variables: {
+                filter: { teacherId: { eq: teacherId } }
+            }
+        });
+
+        const classes = classResult.data.listClasses.items;
+
+        const classIds: string[] = classes.map((c: any) => c.id);
 
         // creating typed objects out of retrieved data to be passed up
         const teacherData: Teacher = {
-            userId: userId,
+            userId: teacherId,
             name: teacher.name,
-            classIds: studentIds
+            classIds: classIds
         };
-        let studentsData: Student[] = []
-        // this parses through students because a teacher can have more than one student!
-        // but this also works if teacher only has one student.
-        for(const stu of students) {
-            const temp: Student = {
-                id: stu.id,
-                firstName: stu.firstName,
-                lastName: stu.lastName,
-                gradeLevel: stu.gradeLevel,
-                currentStatus: stu.currentStatus,
-                attendanceRate: stu.attendanceRate,
-            };
-            studentsData.push(temp);
-        }
 
-        const returnMessage: string = "Teacher and Student data found with "+studentsData.length+" students."
-        return { success: true, message: returnMessage, teacher: teacherData, students: studentsData }
+        // 4️⃣ Build typed class array
+        const classesData: Class[] = classes.map((c: any) => ({
+            id: c.id,
+            name: c.name,
+            teacherId: c.teacherId,
+            schoolId: c.schoolId
+        }));
+
+
+        const returnMessage = `Teacher and Class data found with ${classesData.length} classes.`;
+        return { success: true, message: returnMessage, teacher: teacherData, classes: classesData }
 
         
     } catch(e) {
         const err = e as {name?: string, message?: string};
-        console.error("teacher_data_fetcher.ts, fetchTeacherWithKids(): ", err.message);
+        console.error("teacher_data_fetcher.ts, fetchTeacherWithClasses(): ", err.message);
         return { success: false, message: "See logs for error." };
     }
 }

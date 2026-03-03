@@ -1,38 +1,29 @@
 
-// hardcoded parent and children data, used for the debug accounts
+// hardcoded teacher and class data, used for the debug accounts
 // and any other testing without database integration
 
+import { Teacher, Class } from "src/features/fetch-user-data/api/teacher_data_fetcher";
+
 // two hardcoded children with information that lines up with the class diagrams
-/*export const debug_kids = {
-    firstChildInfoDictionary: {
-        studentId: "123",
-        firstName: "Darcey",
-        lastName: "Incredible",
-        dob: "temp",
-        classes: ["English", "Maths", "Mario"],
-        attendanceRate: 100,
+export const debug_classes: Class[] = [
+    {
+        id: "class-101",
+        name: "Math 101",
+        teacherId: "debug",
+        schoolId: "school-1",
     },
-    secondChildInfoDictionary: {
-        studentId: "124",
-        firstName: "Daan",
-        lastName: "Incredible",
-        dob: "temp",
-        classes: ["History", "Maths"],
-        attendanceRate: 89,
-    },
-}*/
+    {
+        id: "class-102",
+        name: "History 201",
+        teacherId: "debug",
+        schoolId: "school-1",
+    }
+];
 
 // the hardcoded user with information that lines up with the class diagrams
 //THIS WILL NOT BE THE DATA IN TEACHER
-export const debug_teacher = {
-    teacherUser: {
-        userId: "debug",
-        teacherId: "12",
-        canEditRecords: true,
-        //students:
-        //classes:
-        updateStudentInfo : function(studentId: string) {
-            console.log("updateStudentInfo called but this function is not made yet! sorry!")
-        }
-    }
+export const debug_teacher: Teacher = {
+    userId: "debug",
+    name: "Debug Teacher",
+    classIds: [debug_classes[0].id, debug_classes[1].id]
 }

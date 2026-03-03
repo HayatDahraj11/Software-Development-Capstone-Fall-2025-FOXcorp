@@ -1,14 +1,14 @@
 import { getCurrentUser, signOut } from "aws-amplify/auth";
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
-import { Teacher, Student } from "src/features/fetch-user-data/api/teacher_data_fetcher";
-import { debug_class, debug_teacher } from "../auth/logic/debug_teacher_data";
-import { useUserData } from "../fetch-user-data/logic/useUserData";
+import { Teacher, Class } from "src/features/fetch-user-data/api/teacher_data_fetcher";
+import { debug_classes, debug_teacher } from "../auth/logic/debug_teacher_data";
+import { useTeacherUserData } from "../fetch-user-data/logic/useTeacherUserData";
 
 export interface TeacherContextType {
     isContextLoading: boolean;
     isDebug: boolean;
     userTeacher: Teacher;
-    userStudents: Student[];
+    userClasses: Class[];
     onSignIn: () => Promise<void>;
     onSignOut: () => Promise<void>;
 }
@@ -21,18 +21,18 @@ export const TeacherLoginProvider = ({children}: {children: ReactNode}) => {
     const [isReadyForStateWaiter, setIsReadyForStateWaiter] = useState<boolean>(false);
     const [isReadyForFinalize, setIsReadyForFinalize] = useState<boolean>(false);
 
-    // grabbing interface from useUserData.ts
+    // grabbing interface from useTeacherUserData.ts
     const {
         isLoading,
         teacher,
-        students,
-        handleTeacherAndStudentData
-    } = useUserData();
+        classes,
+        handleTeacherAndClassData
+    } = useTeacherUserData();
 
     const [isDebug, setIsDebug] = useState<boolean>(true);
     // these are assumed to use debug info, and overwritted with real info later
     const [userTeacher, setUserTeacher] = useState<Teacher>(debug_teacher);
-    const [userStudents, setUserStudents] = useState<Student[]>(debug_kids);
+    const [userClasses, setUserClasses] = useState<Class[]>(debug_classes);
 
     // function runs when the user first signs in
     // this does not handle sign in operations with aws,
@@ -52,15 +52,15 @@ export const TeacherLoginProvider = ({children}: {children: ReactNode}) => {
             debugtemp = true; // isDebug is assumed true and states are too slow to use it mid function like this, so we're using a temp var
         }
 
-        // grabbing the student and teacher data using api
+        // grabbing the class and teacher data using api
         if(!debugtemp) {
-            const result = await handleTeacherAndStudentData();
+            const result = await handleTeacherAndClassData();
             if(result) {
                 console.log("waiting for state change here.")
                 setIsDebug(false);
                 setIsReadyForStateWaiter(true);
             } else {
-                console.log("handleTeacherAndStudentData failed")
+                console.log("handleTeacherAndClassData failed")
             }
         }
 
@@ -77,15 +77,15 @@ export const TeacherLoginProvider = ({children}: {children: ReactNode}) => {
         if(isDebug) {
             console.log("debug teachers and kids returning!")
             setUserTeacher(debug_teacher);
-            setUserStudents(debug_kids);  
+            setUserClasses(debug_classes);  
             setIsReadyForFinalize(true);
-        } else if(teacher !== undefined && students !== undefined) {
+        } else if(teacher !== undefined && classes !== undefined) {
             console.log("found aws teacher and student info! returning")
             setUserTeacher(teacher);
-            setUserStudents(students);
+            setUserClasses(classes);
             setIsReadyForFinalize(true);
         }
-    }, [teacher, students, isDebug, isReadyForStateWaiter])
+    }, [teacher, classes, isDebug, isReadyForStateWaiter])
 
     // this useeffect is here so we have to wait for each of the states in the function are updated
     // states are slow! we have to wait like this or data will be missed
@@ -98,7 +98,7 @@ export const TeacherLoginProvider = ({children}: {children: ReactNode}) => {
     const waitForFinalUpdates = useCallback(async() => {
         if(!isReadyForFinalize) { return; }
         setIsContextLoading(false);
-    }, [userTeacher, userStudents, isReadyForFinalize])
+    }, [userTeacher, userClasses, isReadyForFinalize])
 
     // same as theStateWaiter(), waiting for each of the states above to update to truly run this part of the function
     useEffect(() => {
@@ -136,7 +136,7 @@ export const TeacherLoginProvider = ({children}: {children: ReactNode}) => {
         setIsReadyForStateWaiter(false);
         setIsDebug(true);
         setUserTeacher(debug_teacher);
-        setUserStudents(debug_kids);
+        setUserClasses(debug_classes);
 
         setIsContextLoading(false);
     }
@@ -146,7 +146,7 @@ export const TeacherLoginProvider = ({children}: {children: ReactNode}) => {
         isContextLoading,
         isDebug,
         userTeacher,
-        userStudents,
+        userClasses,
         onSignIn,
         onSignOut,
     }

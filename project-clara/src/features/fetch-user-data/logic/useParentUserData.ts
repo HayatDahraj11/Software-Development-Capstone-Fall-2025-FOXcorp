@@ -1,9 +1,9 @@
 import { useCallback, useState } from "react";
 import { fetchParentWithKids, Parent, Student } from "../api/parent_data_fetcher";
-import { fetchParentWithKids, Teacher, Student } from "../api/parent_data_fetcher";
+import { fetchTeacherWithClass, Teacher, Class } from "../api/teacher_data_fetcher";
 
 
-interface UseUserDataReturn {
+interface UseParentUserDataReturn {
     isLoading: boolean; // true while functions are doing work and should not be interrupted
     parent: Parent | undefined;
     students: Student[] | undefined;
@@ -11,7 +11,7 @@ interface UseUserDataReturn {
     handleParentAndStudentData: () => Promise<boolean>;
 }
 
-export function useUserData(): UseUserDataReturn {
+export function useParentUserData(): UseParentUserDataReturn {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [parent, setParent] = useState<Parent>();
     const [students, setStudents] = useState<Student[]>();
@@ -37,7 +37,7 @@ export function useUserData(): UseUserDataReturn {
 
         } catch(e) {
             const err = e as {name?: string, message?: string};
-            console.error("useUserData.ts, handleParentAndStudentData: ", err.message);
+            console.error("useParentUserData.ts, handleParentAndStudentData: ", err.message);
             return false;
         } finally {
             setIsLoading(false);

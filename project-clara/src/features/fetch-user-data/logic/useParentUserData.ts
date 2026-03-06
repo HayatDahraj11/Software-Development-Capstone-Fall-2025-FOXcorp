@@ -1,5 +1,4 @@
 import { useCallback, useState } from "react";
-import { fetchTeacherWithClass, Teacher, Class } from "../api/teacher_data_fetcher";
 import { Class, Enrollment, fetchClassesForStudents, fetchParentWithKids, fetchTeacherByID, Parent, Student, Teacher_parentSide } from "../api/parent_data_fetcher";
 
 

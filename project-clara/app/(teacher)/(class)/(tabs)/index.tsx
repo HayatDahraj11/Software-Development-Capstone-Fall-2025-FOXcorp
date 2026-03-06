@@ -15,7 +15,7 @@ export default function Index() {
         isLoading,
         handleStoredSettings,
         matchAppToStoredSettings
-    } = useStoredSettings(debug_teacher.teacherUser.userId) // for now, hardwired to use debug parent. will change later
+    } = useStoredSettings(debug_teacher.userId) // for now, hardwired to use debug parent. will change later
 
     useEffect(() => {
         const initSettings = async () => {

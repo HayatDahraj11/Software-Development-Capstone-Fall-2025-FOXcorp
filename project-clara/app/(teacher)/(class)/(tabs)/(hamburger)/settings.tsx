@@ -14,7 +14,7 @@ export default function TeacherGeneralInfoScreen() {
     isLoading,
     updateStoredSettings,
     matchAppToStoredSettings,
-  } = useStoredSettings(debug_teacher.teacherUser.userId) // for now, hardwired to use debug teacher. will change later
+  } = useStoredSettings(debug_teacher.userId) // for now, hardwired to use debug teacher. will change later
 
   const [inProgressSettings, setInProgressSettings] = useState<LocalSettings>({
     app_theme: app_theme

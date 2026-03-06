@@ -1,11 +1,8 @@
 import { getCurrentUser, signOut } from "aws-amplify/auth";
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
-import { Parent, Student } from "src/features/fetch-user-data/api/parent_data_fetcher";
-import { debug_kids, debug_parent } from "../auth/logic/debug_parent_data";
-import { useUserData } from "../fetch-user-data/logic/useParentUserData";
+import { useParentUserData } from "../fetch-user-data/logic/useParentUserData";
 import { Class, Enrollment, Parent, Student, Teacher_parentSide } from "src/features/fetch-user-data/api/parent_data_fetcher";
 import { debug_classes, debug_enrollments, debug_kids, debug_parent, debug_teachers } from "../auth/logic/debug_parent_data";
-import { useUserData } from "../fetch-user-data/logic/useUserData";
 
 export interface ParentContextType {
     isContextLoading: boolean;
@@ -42,7 +39,7 @@ export const ParentLoginProvider = ({children}: {children: ReactNode}) => {
         handleParentAndStudentData,
         handleClassDataforParent,
         handleTeacherDataforParent,
-    } = useUserData();
+    } = useParentUserData();
 
     const [isDebug, setIsDebug] = useState<boolean>(true);
     // these are assumed to use debug info, and overwritted with real info later

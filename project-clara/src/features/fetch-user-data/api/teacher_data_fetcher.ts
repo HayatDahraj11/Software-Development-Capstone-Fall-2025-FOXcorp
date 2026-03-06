@@ -12,6 +12,23 @@ export type Class = {
     name: string;
     teacherId: string;
     schoolId: string;
+    enrollments?: Enrollment[];
+};
+
+export type Student = {
+    id: string;
+    firstName: string;
+    lastName: string;
+    gradeLevel?: number | null;
+    currentStatus?: string | null;
+    attendanceRate?: number | null;
+};
+
+export type Enrollment = {
+    id: string;
+    studentId: string;
+    classId: string;
+    student?: Student;
 };
 
 export type Teacher = {
@@ -51,19 +68,30 @@ export async function fetchTeacherWithClass(): Promise<BackendQueryResult> {
 
         const classIds: string[] = classes.map((c: any) => c.id);
 
-        // creating typed objects out of retrieved data to be passed up
+        //creating typed objects out of retrieved data to be passed up
         const teacherData: Teacher = {
             userId: teacherId,
             name: teacher.name,
             classIds: classIds
         };
 
-        // 4️⃣ Build typed class array
         const classesData: Class[] = classes.map((c: any) => ({
             id: c.id,
             name: c.name,
             teacherId: c.teacherId,
-            schoolId: c.schoolId
+            schoolId: c.schoolId,
+            enrollments: c.enrollments?.items?.map((e: any) => ({
+                id: e.id,
+                studentId: e.studentId,
+                classId: e.classId,
+                student: e.student
+                    ? {
+                        id: e.student.id,
+                        firstName: e.student.firstName,
+                        lastName: e.student.lastName
+                    }
+                    : undefined
+            })) ?? []
         }));
 
 

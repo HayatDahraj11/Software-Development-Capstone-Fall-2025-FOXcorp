@@ -3,7 +3,7 @@ import { signOut } from "aws-amplify/auth";
 import { useRouter } from "expo-router";
 import { Alert, ScrollView, StyleSheet, View } from "react-native";
 
-import { useTeacherLoginContext } from "@/context/TeacherLoginContext";
+import { useTeacherLoginContext } from "@/src/features/context/TeacherLoginContext";
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import Card from "@/src/features/cards/ui/Card";
 
@@ -45,15 +45,15 @@ export default function TeacherHamburgerScreen() {
       // if card has a route, use it. if not, ignore it
       if(route === "account_settings") { 
         router.push({ 
-          pathname: '/(teacher)/(class)/(tabs)/(hamburger)/account_settings',
+          pathname: './(hamburger)/account_settings',
         });
       } else if(route === "notification_settings") {
         router.push({ 
-          pathname: '/(teacher)/(class)/(tabs)/(hamburger)/notification_settings',
+          pathname: './(hamburger)/notification_settings',
         });
       } else if(route === "settings") {
         router.push({ 
-          pathname: '/(teacher)/(class)/(tabs)/(hamburger)/settings',
+          pathname: './(hamburger)/settings',
         });
       } else if(route === "logout") {
         console.log("Logout pushed, but no function to handle yet! Oops!")

@@ -1,11 +1,13 @@
 import { Href, useRouter } from "expo-router";
-import { useEffect, useState, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
+import { DataCard, createStudentAttendanceCard, createStudentClassUpdateCard } from "@/src/features/cards/logic/cardDataCreator";
 import Card from "@/src/features/cards/ui/Card";
 import Parent_ChildPicker from "@/src/features/child-selection/ui/Parent_ChildPicker";
 import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
+import { Teacher_parentSide } from "@/src/features/fetch-user-data/api/parent_data_fetcher";
 import { MaterialIcons } from "@expo/vector-icons";
 
 export default function ParentLiveUpdatesScreen() {
@@ -13,54 +15,51 @@ export default function ParentLiveUpdatesScreen() {
   const {
       userParent,
       userStudents,
+      userClasses,
+      userEnrollments,
+      userTeachers,
   } = useParentLoginContext();
 
-  // list used for making cards with the flat view. this will be done dynamically later
-  const CardFlatListData = useMemo(() => {
-    return [
-      {
-        id: 1,
-        child: userStudents[0],
-        header: `${userStudents[0].firstName} is in ${"--placeholder name--"} with [teacherName] until [classEndTime]!`,
-        preview: `They have a test this friday!`,
-        route: ' ',
-        urgent: true,
-      },
-      {
-        id: 2,
-        child: userStudents[0],
-        header: `${userStudents[0].firstName} is in ${"--placeholder name--"} with [teacherName] until [classEndTime]!`,
-        preview: 'They have a 100%',
-        route: ' ',
-        urgent: true,
-      },
-      {
-        id: 3,
-        child: userStudents[0],
-        header: `${userStudents[0].firstName} has had perfect attendance today. 0 tardies!`,
-        preview: ``,
-        route: ' ',
-      },
-      {
-        id: 4,
-        child: userStudents[0],
-        header: `[teacherName] sent out an Announcement from ${"--placeholder name--"}!`,
-        preview: `Dear parents, your child has a book report due next Tuesday.`,
-        route: ' ',
-        urgent: true
-      },
-      {
-        id: 5,
-        child: userStudents[0],
-        header: `${userStudents[0].firstName} has a test in ${"--placeholder name--"} on Friday, 11/21!`,
-        preview: ``,
-        route: ' ',
-        urgent: true
+  const [screenCards, setScreenCards] = useState<DataCard[]>([]);
+
+  const firstLoad = useCallback(async () => {
+    let cardset: DataCard[] = []
+
+    // go through each student and generate relevant cards for them
+    for(const stu of userStudents) {
+      const firstEnrollment = userEnrollments.find(enrollment => enrollment.studentId === stu.id) // finding the first enrollment this student is enrolled in
+      const firstClass = userClasses.find(theclass => theclass.id === firstEnrollment?.classId)
+      // this will call aws if there is a firstClass
+      let tempTeach: Teacher_parentSide
+      if(firstClass) {
+        const temptemp = userTeachers.find(teach => teach.id === firstClass.teacherId);
+        if(temptemp) {
+          tempTeach = temptemp;
+        } else {
+          tempTeach = {id: "error", name: "error", schoolId: "error"};
+        }
+      } else {
+        tempTeach = {id: "error", name: "error", schoolId: "error"};
       }
-    ]
-  }, [userStudents]) 
 
+      if(firstEnrollment && firstClass) {
+        // calling external function to handle creating data that goes into the card
+        const classCard = createStudentClassUpdateCard(stu, firstClass, firstEnrollment, tempTeach)
+        cardset.push(classCard);
+      }
 
+      const attendanceCard = createStudentAttendanceCard(stu);
+      cardset.push(attendanceCard);
+    }
+    
+    setScreenCards(cardset);
+  }, [userClasses, userEnrollments, userStudents, userTeachers])
+
+  useEffect(() => {
+    firstLoad();
+  }, [])
+
+  
   const router = useRouter();
 
   const RouteCard = (route: string): void => {
@@ -108,25 +107,25 @@ export default function ParentLiveUpdatesScreen() {
 
   // states for filtering the flatlist by kid
   // made with help from gemini
-  const [filteredList, setFilteredList] = useState(CardFlatListData);
-  const [fullList, setFullList] = useState(CardFlatListData)
+  const [filteredList, setFilteredList] = useState(screenCards);
+  const [fullList, setFullList] = useState(screenCards)
 
   useEffect(() => {
     // if "Display All" is selected
     if(childSelected.id === '0') {
-      setFilteredList(CardFlatListData); // then display all the cards available
+      setFilteredList(screenCards); // then display all the cards available
     }
     else {
       // when childSelected is changed, this will parse through the card list and select ones with matching studentIds
-      for(let i = 0; i<CardFlatListData.length; i++) {
-        const newFilteredData = CardFlatListData.filter(item => 
-          item.child.id.match(childSelected.id)
+      for(let i = 0; i<screenCards.length; i++) {
+        const newFilteredData = screenCards.filter(item => 
+          item.itemId.match(childSelected.id)
         );
         setFilteredList(newFilteredData);
       }
     }
     
-  }, [childSelected, fullList, CardFlatListData])
+  }, [childSelected, fullList, screenCards])
 
   const styles = StyleSheet.create({
     container: {

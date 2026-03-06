@@ -8,6 +8,7 @@ type School @model @auth(rules: [
   students: [Student] @hasMany
   teachers: [Teacher] @hasMany(indexName: "bySchool", fields: ["id"])
   classes: [Class] @hasMany(indexName: "bySchool", fields: ["id"])
+  incidents: [Incident] @hasMany(indexName: "bySchool", fields: ["id"])
 }
 
 type Parent @model @auth(rules: [
@@ -39,6 +40,7 @@ type Student @model @auth(rules: [
   school: School @belongsTo
   parents: [Parent] @manyToMany(relationName: "ParentStudents")
   enrollments: [Enrollment] @hasMany(indexName: "byStudent", fields: ["id"])
+  attendances: [Attendance] @hasMany(indexName: "byStudent", fields: ["id"])
   incidents: [Incident] @hasMany(indexName: "byStudent", fields: ["id"])
   medicalRecord: MedicalRecord @hasOne
 }
@@ -50,6 +52,7 @@ type Teacher @model @auth(rules: [{ allow: public }]) {
   schoolId: ID! @index(name: "bySchool")
   school: School @belongsTo(fields: ["schoolId"])
   classes: [Class] @hasMany(indexName: "byTeacher", fields: ["id"])
+  incidents: [Incident] @hasMany(indexName: "byTeacher", fields: ["id"])
 }
 
 type Class @model @auth(rules: [{ allow: public }]) {
@@ -60,6 +63,8 @@ type Class @model @auth(rules: [{ allow: public }]) {
   teacher: Teacher @belongsTo(fields: ["teacherId"])
   school: School @belongsTo(fields: ["schoolId"])
   enrollments: [Enrollment] @hasMany(indexName: "byClass", fields: ["id"])
+  attendances: [Attendance] @hasMany(indexName: "byClass", fields: ["id"])
+  incidents: [Incident] @hasMany(indexName: "byClass", fields: ["id"])
 }
 
 type Enrollment @model @auth(rules: [{ allow: public }]) {
@@ -124,4 +129,41 @@ type Incident @model @auth(rules: [{ allow: public }]) {
   student: Student @belongsTo(fields: ["studentId"])
   class: Class @belongsTo(fields: ["classId"])
   school: School @belongsTo(fields: ["schoolId"])
+}
+
+# ── Messaging ────────────────────────────────────────────────────────
+# DIRECT = 1:1 parent↔teacher thread about a specific student
+# GROUP  = teacher broadcast to all parents in a class
+enum ConversationType { DIRECT  GROUP }
+enum SenderType       { PARENT  TEACHER }
+
+# Each conversation stores denormalized names so the inbox list
+# can render without extra lookups (avoids N+1 on every load).
+type Conversation @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+  type: ConversationType!
+  parentId:  ID @index(name: "byParent")
+  teacherId: ID! @index(name: "byTeacher")
+  studentId: ID @index(name: "byStudent")
+  classId:   ID @index(name: "byClass")
+  parentName:  String
+  teacherName: String
+  studentName: String
+  className:   String
+  lastMessageText: String
+  lastMessageAt:   AWSDateTime
+  messages: [Message] @hasMany(indexName: "byConversation", fields: ["id"])
+}
+
+# Messages are sorted by createdAt within their conversation via the
+# composite sort key on the byConversation GSI.
+type Message @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+  conversationId: ID! @index(name: "byConversation", sortKeyFields: ["createdAt"])
+  senderId:   ID!
+  senderType: SenderType!
+  senderName: String!
+  body:       String!
+  createdAt:  AWSDateTime!
+  conversation: Conversation @belongsTo(fields: ["conversationId"])
 }

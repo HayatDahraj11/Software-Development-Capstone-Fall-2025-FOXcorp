@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
 
 import Card from "@/src/features/cards/ui/Card";
+import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 
 export default function StudentDocumentationScreen() {
     // context given parent and student data
@@ -22,6 +23,19 @@ export default function StudentDocumentationScreen() {
             }
             else { }
     };
+    
+
+    const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: useThemeColor({}, "background"),
+    },
+    listContainer: {
+            paddingHorizontal: 20,
+            justifyContent: 'center',
+            marginTop: 10,
+        },
+    });
 
     return (
         <View style={styles.container}>
@@ -35,14 +49,3 @@ export default function StudentDocumentationScreen() {
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  listContainer: {
-        paddingHorizontal: 20,
-        justifyContent: 'center',
-        marginTop: 10,
-    },
-});

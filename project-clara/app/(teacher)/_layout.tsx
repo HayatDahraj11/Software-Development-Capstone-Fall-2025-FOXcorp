@@ -16,6 +16,15 @@ export default function TeacherLayout() {
                 title: "Modal",
             }}/>
 
+            <Stack.Screen
+                name="conversation"
+                options={{
+                    headerShown: true,
+                    title: "Conversation",
+                    headerBackTitle: "Messages",
+                }}
+            />
+
         </Stack>
         </TeacherLoginProvider>
     )

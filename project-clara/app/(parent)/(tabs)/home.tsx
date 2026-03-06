@@ -3,7 +3,9 @@ import { Href, useRouter } from "expo-router";
 import { FlatList, StyleSheet, View } from "react-native";
 
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
+import { testMessaging } from "@/test-messaging";
 import Card from "@/src/features/cards/ui/Card";
+
 
 export default function ParentHomeScreen() {
     const {expoPushToken, notification} = usePushNotifications();
@@ -72,7 +74,13 @@ export default function ParentHomeScreen() {
                 header="Send Notification"
                 preview="Sends notification that will route you somewhere else!"
                 onPress={() => LocalNotificationSender()}>
+            </Card>
 
+            {/* TODO: REMOVE THIS CARD after testing messaging */}
+            <Card
+                header="Test Messaging Backend"
+                preview="Creates a test conversation, sends messages, and logs results to console"
+                onPress={() => testMessaging()}>
             </Card>
         </View>
     );

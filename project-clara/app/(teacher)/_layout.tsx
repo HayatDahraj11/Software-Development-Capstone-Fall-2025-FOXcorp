@@ -1,5 +1,5 @@
 import { Stack } from "expo-router";
-import { TeacherLoginProvider } from "context/TeacherLoginContext";
+import { TeacherLoginProvider } from "@/src/features/context/TeacherLoginContext";
 
 export default function TeacherLayout() {
     return (
@@ -7,6 +7,9 @@ export default function TeacherLayout() {
         // login context for teacher views
         // see context/TeacherLoginContext.js
         <TeacherLoginProvider>
+
+        
+
         <Stack screenOptions={{ headerShown: false, }}>
 
             <Stack.Screen name="modal" options={{

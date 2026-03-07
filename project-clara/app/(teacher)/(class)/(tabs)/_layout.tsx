@@ -1,12 +1,29 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
+import { useTeacherLoginContext } from "@/src/features/context/TeacherLoginContext";
 
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
+import { useLocalSearchParams } from "expo-router";
 
 export default function ParentTabLayout() {
     {/* tabs are shown in the bottom bar
         tab pages are located within the same folder as this _layout file
         index is always the default first page loaded */}
+    
+
+    const {
+        userTeacher,
+        userClasses,
+    } = useTeacherLoginContext();
+
+
+    const { classId } = useLocalSearchParams();
+
+    const selectedClass = userClasses?.find(
+    c => String(c.id) === String(classId)
+    );
+
+    const className = selectedClass?.name ?? "Class";
 
     return (
         <Tabs
@@ -46,7 +63,7 @@ export default function ParentTabLayout() {
             <Tabs.Screen
                 name="class"
                 options={{
-                    title: "Class Home",
+                    title: className,
                     tabBarLabel: "Home",
                     tabBarIcon: ({color, focused}) => (
                         <Ionicons name = {focused ? 'home' : 'home-outline'} color = {color} size={24} />

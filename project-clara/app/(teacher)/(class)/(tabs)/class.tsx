@@ -2,9 +2,17 @@ import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useTeacherLoginContext } from "@/src/features/context/TeacherLoginContext";
+import { useLocalSearchParams } from "expo-router";
 
 export default function ClassHome() {
 const router = useRouter();
+const { classId } = useLocalSearchParams();
+
+const {
+  userTeacher,
+  userClasses,
+} = useTeacherLoginContext();
 
 const boxBorderColor = useThemeColor({}, "boxBorder");
 
@@ -45,23 +53,23 @@ const styles = StyleSheet.create({
           justifyContent: "center",
         },
       ]}>
-      <Pressable style={[styles.grid, ]} onPress={() => router.push("/messaging")}> 
+      <Pressable style={[styles.grid, ]} onPress={() => router.push({pathname: "/messaging",params: { classId }})}> 
         <Text style={[styles.gridText]}>Messaging</Text>
         <Ionicons name="chatbubble-ellipses-outline" size={32} color={boxBorderColor} />
       </Pressable>
-      <Pressable  style={[styles.grid, ]} onPress={() => router.push("/announcements")}>
+      <Pressable  style={[styles.grid, ]} onPress={() => router.push({pathname: "/announcements",params: { classId }})}>
         <Text style={[styles.gridText]}>Announcements</Text>
         <Ionicons name="megaphone-outline" size={32} color={boxBorderColor} />
       </Pressable>
-      <Pressable  style={[styles.grid, ]} onPress={() => router.push("/attendance-list")}>
+      <Pressable  style={[styles.grid, ]} onPress={() => router.push({pathname: "/attendance-list",params: { classId }})}>
         <Text style={[styles.gridText]}>Roster</Text>
         <Ionicons name="map-outline" size={32} color={boxBorderColor} />
       </Pressable>
-      <Pressable  style={[styles.grid, ]} onPress={() => router.push("/attendance-map")}>
+      <Pressable  style={[styles.grid, ]} onPress={() => router.push({pathname: "/attendance-map",params: { classId }})}>
         <Text style={[styles.gridText]}>Map</Text>
         <Ionicons name="map-outline" size={32} color={boxBorderColor} />
       </Pressable>
-      <Pressable  style={[styles.grid, ]} onPress={() => router.push("/grades")}>
+      <Pressable  style={[styles.grid, ]} onPress={() => router.push({pathname: "/grades",params: { classId }})}>
         <Text style={[styles.gridText]}>Grades</Text>
         <Ionicons name="ellipsis-horizontal-outline" size={32} color={boxBorderColor} />
       </Pressable>

@@ -3,9 +3,15 @@ import { FlatList, StyleSheet, View } from "react-native";
 
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import Card from "@/src/features/cards/ui/Card";
+import { useTeacherLoginContext } from "@/src/features/context/TeacherLoginContext";
 
 export default function Index() {
     const router = useRouter();
+
+    const {
+            userTeacher,
+            userClasses,
+      } = useTeacherLoginContext();
 
     const styles = StyleSheet.create({
     container: {
@@ -19,74 +25,12 @@ export default function Index() {
 });
 
     // list used for making cards with the flat view. this will be done dynamically later
-    const CardFlatListData = [
-        {
-            id: 1,
-            header: 'Clickable Test Card',
-            preview: 'Hello! Click me! I send you to the class screen',
-            route: '/class',
-        },
-        {
-            id: 2,
-            header: 'Clickable Test Card',
-            preview: 'Click',
-            route: '/class',
-        },
-        {
-            id: 3,
-            header: 'Test Card',
-            preview: 'I am not clickable!',
-            route: ' ',
-        },
-        {
-            id: 4,
-            header: 'Test Card',
-            preview: 'I am not clickable!',
-            route: ' ',
-        },
-        {
-            id: 5,
-            header: 'Test Card',
-            preview: 'I am not clickable!',
-            route: ' ',
-        },
-        {
-            id: 6,
-            header: 'Test Card',
-            preview: 'I am not clickable!',
-            route: ' ',
-        },
-        {
-            id: 7,
-            header: 'Test Card',
-            preview: 'I am not clickable!',
-            route: ' ',
-        },
-        {
-            id: 8,
-            header: 'Test Card',
-            preview: 'I am not clickable!',
-            route: ' ',
-        },
-        {
-            id: 9,
-            header: 'Test Card',
-            preview: 'I am not clickable!',
-            route: ' ',
-        },
-        {
-            id: 10,
-            header: 'Test Card',
-            preview: 'I am not clickable!',
-            route: ' ',
-        },
-        {
-            id: 11,
-            header: 'Test Card',
-            preview: 'I am not clickable!',
-            route: ' ',
-        },
-    ];
+    const CardFlatListData = userClasses.map((cls) => ({
+        id: cls.id,
+        header: cls.name,
+        preview: `Tap to view class`,
+        route: `/class?classId=${cls.id}`,
+    }));
 
     const RouteCard = (route: string): void => {
         // if card has a route, use it. if not, ignore it

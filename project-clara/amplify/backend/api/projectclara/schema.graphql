@@ -82,6 +82,8 @@ type Attendance @model @auth(rules: [{ allow: public }]) {
   date: AWSDate!
   status: AttendanceStatus!
   student: Student @belongsTo(fields: ["studentId"])
+  checkInTime: AWSDateTime        # Optional: when student checked in
+  updatedAt: AWSDateTime          # Optional: last update timestamp
   class: Class @belongsTo(fields: ["classId"])
 }
 

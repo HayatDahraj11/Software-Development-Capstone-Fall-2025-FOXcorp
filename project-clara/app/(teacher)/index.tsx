@@ -1,5 +1,6 @@
 import { Href, useRouter } from "expo-router";
-import { FlatList, StyleSheet, View } from "react-native";
+import { useCallback, useEffect, useState } from "react";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import Card from "@/src/features/cards/ui/Card";
@@ -7,11 +8,39 @@ import { useTeacherLoginContext } from "@/src/features/context/TeacherLoginConte
 
 export default function Index() {
     const router = useRouter();
+    const [isAllDone, setIsAllDone] = useState(false);
+    const [isContextDone, setIsContextDone] = useState(false);
 
     const {
+            isContextLoading,
+            isDebug,
             userTeacher,
             userClasses,
+            onSignIn,
       } = useTeacherLoginContext();
+
+    useEffect(() => {
+        const startup = async () => {
+            await onSignIn();
+            setIsContextDone(true);
+        };
+        startup();
+    }, []);
+
+    const finalize = useCallback(() => {
+        if (!isContextLoading && isContextDone) {
+            console.log(`Teacher onSignIn() done:
+                debug?: ${isDebug}
+                userId: ${userTeacher.userId}
+                name: ${userTeacher.name}
+                classes: ${userClasses.length}`);
+            setIsAllDone(true);
+        }
+    }, [isContextDone, isContextLoading]);
+
+    useEffect(() => {
+        finalize();
+    }, [finalize]);
 
     const styles = StyleSheet.create({
     container: {
@@ -23,6 +52,10 @@ export default function Index() {
         backgroundColor: useThemeColor({}, "background")
     },
 });
+
+    if (!isAllDone) {
+        return <Text style={{ color: "white" }}>Loading teacher data...</Text>;
+    }
 
     // list used for making cards with the flat view. this will be done dynamically later
     const CardFlatListData = userClasses.map((cls) => ({

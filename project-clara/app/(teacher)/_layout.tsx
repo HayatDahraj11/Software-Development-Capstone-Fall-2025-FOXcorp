@@ -28,6 +28,11 @@ export default function TeacherLayout() {
                 }}
             />
 
+            <Stack.Screen name="index" options={{
+                headerShown: true,
+                title: "Choose a Class",
+            }}/>
+
         </Stack>
         </TeacherLoginProvider>
     )

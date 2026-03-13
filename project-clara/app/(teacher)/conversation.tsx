@@ -1,9 +1,6 @@
 /**
  * Teacher conversation thread — displays the message history and
  * lets the teacher send messages.
- *
- * TODO: Replace PLACEHOLDER constants with real teacher data once
- * TeacherLoginContext exposes teacher.id and teacher.name.
  */
 
 import { useLocalSearchParams } from "expo-router";
@@ -19,15 +16,13 @@ import {
 } from "react-native";
 
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
+import { useTeacherLoginContext } from "@/src/features/context/TeacherLoginContext";
 import { useMessages } from "@/src/features/messaging/logic/useMessages";
 import MessageBubble from "@/src/features/messaging/ui/MessageBubble";
 import MessageInput from "@/src/features/messaging/ui/MessageInput";
 
-// TODO: pull from TeacherLoginContext once it exposes teacher data
-const PLACEHOLDER_TEACHER_ID = "teacher-debug-001";
-const PLACEHOLDER_TEACHER_NAME = "Teacher (debug)";
-
 export default function TeacherConversationScreen() {
+  const { userTeacher } = useTeacherLoginContext();
   const { conversationId } = useLocalSearchParams<{
     conversationId: string;
     conversationTitle?: string;
@@ -35,9 +30,9 @@ export default function TeacherConversationScreen() {
 
   const { messages, isLoading, isSending, error, sendMessage } = useMessages({
     conversationId: conversationId ?? "",
-    senderId: PLACEHOLDER_TEACHER_ID,
+    senderId: userTeacher.userId,
     senderType: "TEACHER",
-    senderName: PLACEHOLDER_TEACHER_NAME,
+    senderName: userTeacher.name,
   });
 
   const flatListRef = useRef<FlatList>(null);
@@ -102,7 +97,7 @@ export default function TeacherConversationScreen() {
         renderItem={({ item }) => (
           <MessageBubble
             message={item}
-            currentUserId={PLACEHOLDER_TEACHER_ID}
+            currentUserId={userTeacher.userId}
           />
         )}
         contentContainerStyle={{ paddingVertical: 12 }}

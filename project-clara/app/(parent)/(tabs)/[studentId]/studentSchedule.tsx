@@ -1,16 +1,11 @@
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
-import { FlatList, StyleSheet, View } from "react-native";
+import { useLocalSearchParams } from "expo-router";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
-import { createStudentClassListCard, DataCard } from "@/src/features/cards/logic/cardDataCreator";
-import Card from "@/src/features/cards/ui/Card";
-import Parent_ViewClassModal from "@/src/features/class-viewer/ui/Parent_ViewClassModal";
 import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
-import { Class } from "@/src/features/fetch-user-data/api/parent_data_fetcher";
 
-export default function StudentDocumentationScreen() {
-    // context given student data
+export default function StudentScheduleScreen() {
     const {
         userStudents,
         userClasses,
@@ -19,98 +14,85 @@ export default function StudentDocumentationScreen() {
         getStudentGradeInClass,
         getTeacherNamebyId,
     } = useParentLoginContext();
-    const { studentId } = useLocalSearchParams();
+    const { studentId } = useLocalSearchParams<{ studentId: string }>();
 
-    const [screenCards, setScreenCards] = useState<DataCard[]>([]);
+    const bg = useThemeColor({}, "background");
+    const cardBg = useThemeColor({}, "cardBackground");
+    const textColor = useThemeColor({}, "text");
+    const subtextColor = useThemeColor({}, "placeholderText");
+    const tint = useThemeColor({}, "tint");
 
-    const firstLoad = useCallback(async() => {
-        let cardset: DataCard[] = []
+    const student = userStudents.find((s) => s.id === studentId);
+    const classIds = getClassesMappedByStudent(studentId);
 
-        const student = userStudents.find(item => item.id === studentId); // grabbing the student we are passed in
-        const classIdsofStudent = getClassesMappedByStudent((studentId as string)); // grabbing class ids student are enrolled in
-        if(student) {
-            for(const i of classIdsofStudent) {
-                const tempcla = userClasses.find(cla => cla.id === i);
-                if(tempcla) {
-                    const tempteach = userTeachers.find(teach => teach.id === tempcla.teacherId) 
-                    if(tempteach) {
-                        const tempcard = createStudentClassListCard(tempcla, tempteach.name);
-                        cardset.push(tempcard);
-                    }
-                }
-            }
-        }
-
-        setScreenCards(cardset);
-    }, [getClassesMappedByStudent, studentId, userClasses, userStudents, userTeachers])
-
-    useEffect(() => {
-        firstLoad();
-    }, [firstLoad])
-
-
-
-    const router = useRouter();
-
-    const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-    const [selectedClass, setSelectedClass] = useState<Class>(userClasses[0]);
-
-    const RouteCard = (route: string): void => {
-        // as messaging has not been set up yet, just set to messages tab
-        router.push("/(parent)/(tabs)/messaging")
-    };
-
-    const onTeacherClicked = () => {
-        setIsModalVisible(false);
-        RouteCard(selectedClass.teacherId);
-    };
-
-    const onClassClicked = (classId: string) => {
-        setSelectedClass(userClasses.find(cla => cla.id === classId) ?? userClasses[0]) // if somehow userClasses.find comes back undefined, just use first class
-        
-        setIsModalVisible(true);
-    };
-
-    const styles = StyleSheet.create({
-        container: {
-            flex: 1,
-            backgroundColor: useThemeColor({},"background")
-        },
-        listContainer: {
-                paddingHorizontal: 20,
-                justifyContent: 'center',
-                marginTop: 10,
-            },
-    });
-
-
+    const scheduleRows = classIds
+        .map((classId) => {
+            const cls = userClasses.find((c) => c.id === classId);
+            if (!cls) return null;
+            const teacherName = getTeacherNamebyId(cls.teacherId);
+            const grade = getStudentGradeInClass(studentId, classId);
+            return { classId, className: cls.name, teacherName, grade };
+        })
+        .filter(Boolean) as { classId: string; className: string; teacherName: string; grade: number }[];
 
     return (
-    <View style={styles.container}>
-        <FlatList
-            data={screenCards}
-            contentContainerStyle={styles.listContainer}
-            renderItem={({item, index}) => (
-            <Card 
-                header={item.header}
-                preview={item.preview}
-                theme={item.theme}
-                onPress={() => onClassClicked(item.itemId)}
-            />
-            )}
-        />
+        <View style={[styles.container, { backgroundColor: bg }]}>
+            <ScrollView contentContainerStyle={styles.content}>
+                <Text style={[styles.sectionLabel, { color: subtextColor }]}>
+                    {student ? `${student.firstName}'s CLASSES` : "CLASS SCHEDULE"}
+                </Text>
 
-        <Parent_ViewClassModal 
-            isVisible={isModalVisible}
-            onCloseModal={() => setIsModalVisible(false)}
-            classId={selectedClass.id}
-            className={selectedClass.name}
-            teacherId={selectedClass.teacherId}
-            teacherName={getTeacherNamebyId(selectedClass.teacherId)}
-            studentGrade={getStudentGradeInClass((studentId as string), selectedClass.id)}
-            onClickProfilePic={onTeacherClicked}
-        />
-    </View>
+                {scheduleRows.length === 0 ? (
+                    <View style={styles.empty}>
+                        <Text style={{ color: subtextColor, fontSize: 16 }}>No classes found</Text>
+                    </View>
+                ) : (
+                    scheduleRows.map((row, index) => {
+                        const gradeDisplay = row.grade != null ? Math.round(row.grade) : null;
+                        return (
+                            <View key={row.classId} style={[styles.card, { backgroundColor: cardBg }]}>
+                                <View style={styles.cardRow}>
+                                    <View style={[styles.iconBox, { backgroundColor: tint + "20" }]}>
+                                        <Ionicons name="book" size={22} color={tint} />
+                                    </View>
+                                    <View style={styles.cardContent}>
+                                        <Text style={[styles.className, { color: textColor }]}>{row.className}</Text>
+                                        <Text style={[styles.teacherName, { color: subtextColor }]}>{row.teacherName}</Text>
+                                    </View>
+                                    {gradeDisplay != null && (
+                                        <View style={[
+                                            styles.badge,
+                                            { backgroundColor: gradeDisplay >= 90 ? "#22c55e20" : gradeDisplay >= 70 ? "#f59e0b20" : "#ef444420" },
+                                        ]}>
+                                            <Text style={[
+                                                styles.badgeText,
+                                                { color: gradeDisplay >= 90 ? "#16a34a" : gradeDisplay >= 70 ? "#d97706" : "#dc2626" },
+                                            ]}>
+                                                {gradeDisplay}%
+                                            </Text>
+                                        </View>
+                                    )}
+                                </View>
+                            </View>
+                        );
+                    })
+                )}
+            </ScrollView>
+        </View>
     );
 }
 
+const styles = StyleSheet.create({
+    container: { flex: 1 },
+    content: { padding: 20, paddingBottom: 40 },
+    sectionLabel: { fontSize: 12, fontWeight: "700", letterSpacing: 1, marginBottom: 10, marginLeft: 4 },
+    empty: { alignItems: "center", paddingTop: 40 },
+    card: { borderRadius: 14, padding: 16, marginBottom: 10, shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4, elevation: 2 },
+    cardRow: { flexDirection: "row", alignItems: "center", gap: 14 },
+    iconBox: { width: 44, height: 44, borderRadius: 12, alignItems: "center", justifyContent: "center" },
+    cardContent: { flex: 1 },
+    className: { fontSize: 16, fontWeight: "600" },
+    teacherName: { fontSize: 13, marginTop: 2 },
+    badge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
+    badgeText: { fontSize: 13, fontWeight: "700" },
+});

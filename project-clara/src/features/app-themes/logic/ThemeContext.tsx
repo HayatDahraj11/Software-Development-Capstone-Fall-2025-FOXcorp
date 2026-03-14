@@ -1,5 +1,5 @@
+import { useColorScheme as useSystemColorScheme } from 'nativewind';
 import React, { createContext, useCallback, useContext, useState } from 'react';
-import { useColorScheme as useSystemColorScheme } from 'react-native';
 
 type ThemeMode = 'light' | 'dark';
 
@@ -11,7 +11,8 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function AppThemeProvider({ children }: { children: React.ReactNode }) {
-  const systemTheme = useSystemColorScheme();
+  const {colorScheme} = useSystemColorScheme();
+  const systemTheme = colorScheme
   const [theme, setThemeState] = useState<ThemeMode>(
     systemTheme === 'dark' ? 'dark' : 'light'
   );

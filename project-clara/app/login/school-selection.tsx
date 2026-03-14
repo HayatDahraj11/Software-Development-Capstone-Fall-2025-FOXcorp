@@ -1,5 +1,6 @@
 import { useThemeColor } from "@/app-example/hooks/use-theme-color";
 import SchoolPicker from "@/src/features/school-selection/ui/SchoolPicker";
+import { Button } from "@/src/rnreusables/ui/button";
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -146,14 +147,14 @@ export default function SchoolSelection() {
             </View>
 
             <View style={styles.formContainer}>
-                <Pressable style={styles.selectionInput} onPress={() => setIsModalVisible(true)}>
+                <Button onPress={() => setIsModalVisible(true)}>
                     {school ? (
                         <Text style={styles.selectionInputText}>{school}</Text>
                     ) : (
                         <Text style={styles.placeholderText}>Select your school...</Text>
                     )}
                     <Feather name="chevron-down" size={20} color={useThemeColor({},"placeholderText")} />
-                </Pressable>
+                </Button>
 
                 {school && (
                     <TouchableOpacity onPress={() => setIsModalVisible(true)}>

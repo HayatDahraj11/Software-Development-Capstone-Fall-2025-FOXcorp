@@ -1,7 +1,7 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
+import { ThemeProvider } from "@react-navigation/native";
+import { PortalHost } from "@rn-primitives/portal";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { PortalHost } from "@rn-primitives/portal";
 import "react-native-reanimated";
 
 // --- Amplify Imports Start ---
@@ -9,9 +9,11 @@ import { Amplify } from "aws-amplify";
 import awsconfig from "../src/aws-exports"; // relative import to the typed config
 // --- Amplify Imports End ---
 
-import "global.css"
+import "@/global.css";
 import { AppThemeProvider } from "@/src/features/app-themes/logic/ThemeContext";
-import { useColorScheme } from "@/src/features/app-themes/logic/use-color-scheme";
+//import { useColorScheme } from "@/src/features/app-themes/logic/use-color-scheme";
+import { NAV_THEME } from "@/lib/theme";
+import { useColorScheme } from "nativewind";
 
 // --- Configure Amplify Start ---
 // Configure Amplify once at startup
@@ -25,10 +27,10 @@ try {
 // --- Configure Amplify End ---
 
 function RootLayoutInner() {
-  const colorScheme = useColorScheme();
+  const {colorScheme} = useColorScheme();
 
   return (
-    <ThemeProvider value={colorScheme === "light" ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={NAV_THEME[colorScheme ?? 'light']}>
       <Stack>
         {}
         <Stack.Screen name="index" options={{ headerShown: false }} />

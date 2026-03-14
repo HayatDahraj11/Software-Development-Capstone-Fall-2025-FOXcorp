@@ -1,6 +1,7 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { PortalHost } from "@rn-primitives/portal";
 import "react-native-reanimated";
 
 // --- Amplify Imports Start ---
@@ -8,6 +9,7 @@ import { Amplify } from "aws-amplify";
 import awsconfig from "../src/aws-exports"; // relative import to the typed config
 // --- Amplify Imports End ---
 
+import "global.css"
 import { AppThemeProvider } from "@/src/features/app-themes/logic/ThemeContext";
 import { useColorScheme } from "@/src/features/app-themes/logic/use-color-scheme";
 
@@ -35,6 +37,7 @@ function RootLayoutInner() {
         <Stack.Screen name="(teacher)" options={{ headerShown: false }} />
       </Stack>
       <StatusBar style={colorScheme === "light" ? "dark" : "light"} />
+      <PortalHost />
     </ThemeProvider>
   );
 }

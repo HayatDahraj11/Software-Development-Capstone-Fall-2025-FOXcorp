@@ -13,6 +13,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts"
-, "src/features/context/ParentLoginContext.tsx"  ]
+    "expo-env.d.ts",
+    "src/features/context/ParentLoginContext.tsx",
+    "nativewind-env.d.ts"
+  ]
 }

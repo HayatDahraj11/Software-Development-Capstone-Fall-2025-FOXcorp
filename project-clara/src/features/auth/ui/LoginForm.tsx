@@ -1,15 +1,15 @@
+import { Button } from "@/src/rnreusables/ui/button";
 import { Feather } from "@expo/vector-icons";
 import Checkbox from "expo-checkbox";
 import {
     ActivityIndicator,
     KeyboardAvoidingView,
     Platform,
-    Pressable,
     StyleSheet,
     Text,
     TextInput,
     TouchableOpacity,
-    View,
+    View
 } from "react-native";
 
 import { useThemeColor } from "@/app-example/hooks/use-theme-color";
@@ -209,12 +209,9 @@ export default function LoginForm({ schoolName }: Props) {
 
                 {errors.form && <Text style={styles.formErrorText}>{errors.form}</Text>}
 
-                <Pressable
-                    style={({ pressed }) => [
-                        styles.pressable,
-                        isLoading && styles.pressableDisabled,
-                        pressed && { opacity: 0.8 },
-                    ]}
+                <Button
+                    variant={"default"}
+                    style={styles.pressable}
                     onPress={handleLogin}
                     disabled={isLoading}
                 >
@@ -223,7 +220,7 @@ export default function LoginForm({ schoolName }: Props) {
                     ) : (
                         <Text style={styles.pressableLabel}>Login</Text>
                     )}
-                </Pressable>
+                </Button>
             </View>
         </KeyboardAvoidingView>
     );

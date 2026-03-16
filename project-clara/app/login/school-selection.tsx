@@ -7,11 +7,10 @@ import { useEffect, useState } from "react";
 import {
     KeyboardAvoidingView,
     Platform,
-    Pressable,
     StyleSheet,
     Text,
     TouchableOpacity,
-    View,
+    View
 } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
@@ -147,7 +146,7 @@ export default function SchoolSelection() {
             </View>
 
             <View style={styles.formContainer}>
-                <Button onPress={() => setIsModalVisible(true)}>
+                <Button variant="outline" style={styles.selectionInput} onPress={() => setIsModalVisible(true)}>
                     {school ? (
                         <Text style={styles.selectionInputText}>{school}</Text>
                     ) : (
@@ -163,13 +162,10 @@ export default function SchoolSelection() {
                 )}
 
                 <Animated.View style={[styles.continueButtonContainer, animatedContinueButtonStyle]}>
-                    <Pressable
-                        style={({ pressed }) => [styles.pressable, pressed && { opacity: 0.8 }]}
-                        onPress={sendToLogin}
-                    >
+                    <Button variant={"default"} style={styles.pressable} onPress={sendToLogin}>
                         <Text style={styles.pressableLabel}>Continue to Login</Text>
                         <Feather name="arrow-right" size={20} color={useThemeColor({},"fullBright")} style={{ marginLeft: 8 }} />
-                    </Pressable>
+                    </Button>
                 </Animated.View>
 
                 <SchoolPicker

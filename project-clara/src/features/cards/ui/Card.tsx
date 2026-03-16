@@ -104,6 +104,19 @@ export default function Card({header, preview, onPress, theme, urgent, pressable
                                             <Text style={[styles.header, {color: textcolor}]}>{header}</Text>
                                             <Text style={[styles.preview, {color: textcolor}]}>{preview}</Text>
                                         </View>
+                                        {badge.type === 0 ? ( // badge type "TextBadge"
+                                            <View style={[badgeStyle.badge, {backgroundColor: badge.backgroundColor}]}>
+                                                <Text style={[badgeStyle.badgeText, {color: badge.contentColor}]}>
+                                                    {badge.content}
+                                                </Text>
+                                            </View>
+                                        ) : ( // badge type "NumberBadge"
+                                            <View style={[badgeStyle.countBadge, {backgroundColor: badge.backgroundColor}]}>
+                                                <Text style={[badgeStyle.badgeText, {color: badge.contentColor}]}>
+                                                    {badge.content}
+                                                </Text>
+                                            </View>
+                                        )}
                                         {pressable && (<Ionicons name="chevron-forward" size={18} color={chevroncolor} />)}
                                     </View>
                                 )

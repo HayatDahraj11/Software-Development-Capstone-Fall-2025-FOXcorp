@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useTeacherLoginContext } from "@/src/features/context/TeacherLoginContext";
 import { useLocalSearchParams } from "expo-router";
+import { usePushNotifications } from "@/src/features/notifications/logic/usePushNotifications";
 
 export default function ClassHome() {
 const router = useRouter();
@@ -13,6 +14,8 @@ const {
   userTeacher,
   userClasses,
 } = useTeacherLoginContext();
+
+usePushNotifications(userTeacher.userId, "TEACHER");
 
 const boxBorderColor = useThemeColor({}, "boxBorder");
 

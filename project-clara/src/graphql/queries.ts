@@ -97,6 +97,10 @@ export const getClass = /* GraphQL */ `query GetClass($id: ID!) {
       nextToken
       __typename
     }
+    schedules {
+      nextToken
+      __typename
+    }
     createdAt
     updatedAt
     __typename
@@ -125,6 +129,55 @@ export const listClasses = /* GraphQL */ `query ListClasses(
 ` as GeneratedQuery<
   APITypes.ListClassesQueryVariables,
   APITypes.ListClassesQuery
+>;
+export const getSchedule = /* GraphQL */ `query GetSchedule($id: ID!) {
+  getSchedule(id: $id) {
+    id
+    classId
+    class {
+      id
+      name
+      teacherId
+      schoolId
+      createdAt
+      updatedAt
+      __typename
+    }
+    dayOfWeek
+    startTime
+    endTime
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetScheduleQueryVariables,
+  APITypes.GetScheduleQuery
+>;
+export const listSchedules = /* GraphQL */ `query ListSchedules(
+  $filter: ModelScheduleFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listSchedules(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      classId
+      dayOfWeek
+      startTime
+      endTime
+      createdAt
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListSchedulesQueryVariables,
+  APITypes.ListSchedulesQuery
 >;
 export const getEnrollment = /* GraphQL */ `query GetEnrollment($id: ID!) {
   getEnrollment(id: $id) {
@@ -208,6 +261,8 @@ export const getAttendance = /* GraphQL */ `query GetAttendance($id: ID!) {
       studentMedicalRecordId
       __typename
     }
+    checkInTime
+    updatedAt
     class {
       id
       name
@@ -218,7 +273,6 @@ export const getAttendance = /* GraphQL */ `query GetAttendance($id: ID!) {
       __typename
     }
     createdAt
-    updatedAt
     __typename
   }
 }
@@ -238,8 +292,9 @@ export const listAttendances = /* GraphQL */ `query ListAttendances(
       classId
       date
       status
-      createdAt
+      checkInTime
       updatedAt
+      createdAt
       __typename
     }
     nextToken
@@ -551,6 +606,46 @@ export const listMessages = /* GraphQL */ `query ListMessages(
   APITypes.ListMessagesQueryVariables,
   APITypes.ListMessagesQuery
 >;
+export const getPushToken = /* GraphQL */ `query GetPushToken($id: ID!) {
+  getPushToken(id: $id) {
+    id
+    userId
+    userType
+    token
+    platform
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.GetPushTokenQueryVariables,
+  APITypes.GetPushTokenQuery
+>;
+export const listPushTokens = /* GraphQL */ `query ListPushTokens(
+  $filter: ModelPushTokenFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  listPushTokens(filter: $filter, limit: $limit, nextToken: $nextToken) {
+    items {
+      id
+      userId
+      userType
+      token
+      platform
+      createdAt
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.ListPushTokensQueryVariables,
+  APITypes.ListPushTokensQuery
+>;
 export const teachersByCognitoUserId = /* GraphQL */ `query TeachersByCognitoUserId(
   $cognitoUserId: String!
   $sortDirection: ModelSortDirection
@@ -675,6 +770,38 @@ export const classesBySchoolId = /* GraphQL */ `query ClassesBySchoolId(
   APITypes.ClassesBySchoolIdQueryVariables,
   APITypes.ClassesBySchoolIdQuery
 >;
+export const schedulesByClassId = /* GraphQL */ `query SchedulesByClassId(
+  $classId: ID!
+  $sortDirection: ModelSortDirection
+  $filter: ModelScheduleFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  schedulesByClassId(
+    classId: $classId
+    sortDirection: $sortDirection
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      id
+      classId
+      dayOfWeek
+      startTime
+      endTime
+      createdAt
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.SchedulesByClassIdQueryVariables,
+  APITypes.SchedulesByClassIdQuery
+>;
 export const enrollmentsByStudentId = /* GraphQL */ `query EnrollmentsByStudentId(
   $studentId: ID!
   $sortDirection: ModelSortDirection
@@ -757,8 +884,9 @@ export const attendancesByStudentId = /* GraphQL */ `query AttendancesByStudentI
       classId
       date
       status
-      createdAt
+      checkInTime
       updatedAt
+      createdAt
       __typename
     }
     nextToken
@@ -789,8 +917,9 @@ export const attendancesByClassId = /* GraphQL */ `query AttendancesByClassId(
       classId
       date
       status
-      createdAt
+      checkInTime
       updatedAt
+      createdAt
       __typename
     }
     nextToken
@@ -1230,6 +1359,38 @@ export const messagesByConversationIdAndCreatedAt = /* GraphQL */ `query Message
 ` as GeneratedQuery<
   APITypes.MessagesByConversationIdAndCreatedAtQueryVariables,
   APITypes.MessagesByConversationIdAndCreatedAtQuery
+>;
+export const pushTokensByUserId = /* GraphQL */ `query PushTokensByUserId(
+  $userId: ID!
+  $sortDirection: ModelSortDirection
+  $filter: ModelPushTokenFilterInput
+  $limit: Int
+  $nextToken: String
+) {
+  pushTokensByUserId(
+    userId: $userId
+    sortDirection: $sortDirection
+    filter: $filter
+    limit: $limit
+    nextToken: $nextToken
+  ) {
+    items {
+      id
+      userId
+      userType
+      token
+      platform
+      createdAt
+      updatedAt
+      __typename
+    }
+    nextToken
+    __typename
+  }
+}
+` as GeneratedQuery<
+  APITypes.PushTokensByUserIdQueryVariables,
+  APITypes.PushTokensByUserIdQuery
 >;
 export const getSchool = /* GraphQL */ `query GetSchool($id: ID!) {
   getSchool(id: $id) {

@@ -136,6 +136,10 @@ export const onCreateClass = /* GraphQL */ `subscription OnCreateClass($filter: 
       nextToken
       __typename
     }
+    schedules {
+      nextToken
+      __typename
+    }
     createdAt
     updatedAt
     __typename
@@ -177,6 +181,10 @@ export const onUpdateClass = /* GraphQL */ `subscription OnUpdateClass($filter: 
       __typename
     }
     incidents {
+      nextToken
+      __typename
+    }
+    schedules {
       nextToken
       __typename
     }
@@ -224,6 +232,10 @@ export const onDeleteClass = /* GraphQL */ `subscription OnDeleteClass($filter: 
       nextToken
       __typename
     }
+    schedules {
+      nextToken
+      __typename
+    }
     createdAt
     updatedAt
     __typename
@@ -232,6 +244,81 @@ export const onDeleteClass = /* GraphQL */ `subscription OnDeleteClass($filter: 
 ` as GeneratedSubscription<
   APITypes.OnDeleteClassSubscriptionVariables,
   APITypes.OnDeleteClassSubscription
+>;
+export const onCreateSchedule = /* GraphQL */ `subscription OnCreateSchedule($filter: ModelSubscriptionScheduleFilterInput) {
+  onCreateSchedule(filter: $filter) {
+    id
+    classId
+    class {
+      id
+      name
+      teacherId
+      schoolId
+      createdAt
+      updatedAt
+      __typename
+    }
+    dayOfWeek
+    startTime
+    endTime
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreateScheduleSubscriptionVariables,
+  APITypes.OnCreateScheduleSubscription
+>;
+export const onUpdateSchedule = /* GraphQL */ `subscription OnUpdateSchedule($filter: ModelSubscriptionScheduleFilterInput) {
+  onUpdateSchedule(filter: $filter) {
+    id
+    classId
+    class {
+      id
+      name
+      teacherId
+      schoolId
+      createdAt
+      updatedAt
+      __typename
+    }
+    dayOfWeek
+    startTime
+    endTime
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdateScheduleSubscriptionVariables,
+  APITypes.OnUpdateScheduleSubscription
+>;
+export const onDeleteSchedule = /* GraphQL */ `subscription OnDeleteSchedule($filter: ModelSubscriptionScheduleFilterInput) {
+  onDeleteSchedule(filter: $filter) {
+    id
+    classId
+    class {
+      id
+      name
+      teacherId
+      schoolId
+      createdAt
+      updatedAt
+      __typename
+    }
+    dayOfWeek
+    startTime
+    endTime
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeleteScheduleSubscriptionVariables,
+  APITypes.OnDeleteScheduleSubscription
 >;
 export const onCreateEnrollment = /* GraphQL */ `subscription OnCreateEnrollment(
   $filter: ModelSubscriptionEnrollmentFilterInput
@@ -376,6 +463,8 @@ export const onCreateAttendance = /* GraphQL */ `subscription OnCreateAttendance
       studentMedicalRecordId
       __typename
     }
+    checkInTime
+    updatedAt
     class {
       id
       name
@@ -386,7 +475,6 @@ export const onCreateAttendance = /* GraphQL */ `subscription OnCreateAttendance
       __typename
     }
     createdAt
-    updatedAt
     __typename
   }
 }
@@ -417,6 +505,8 @@ export const onUpdateAttendance = /* GraphQL */ `subscription OnUpdateAttendance
       studentMedicalRecordId
       __typename
     }
+    checkInTime
+    updatedAt
     class {
       id
       name
@@ -427,7 +517,6 @@ export const onUpdateAttendance = /* GraphQL */ `subscription OnUpdateAttendance
       __typename
     }
     createdAt
-    updatedAt
     __typename
   }
 }
@@ -458,6 +547,8 @@ export const onDeleteAttendance = /* GraphQL */ `subscription OnDeleteAttendance
       studentMedicalRecordId
       __typename
     }
+    checkInTime
+    updatedAt
     class {
       id
       name
@@ -468,7 +559,6 @@ export const onDeleteAttendance = /* GraphQL */ `subscription OnDeleteAttendance
       __typename
     }
     createdAt
-    updatedAt
     __typename
   }
 }
@@ -997,6 +1087,54 @@ export const onDeleteMessage = /* GraphQL */ `subscription OnDeleteMessage($filt
 ` as GeneratedSubscription<
   APITypes.OnDeleteMessageSubscriptionVariables,
   APITypes.OnDeleteMessageSubscription
+>;
+export const onCreatePushToken = /* GraphQL */ `subscription OnCreatePushToken($filter: ModelSubscriptionPushTokenFilterInput) {
+  onCreatePushToken(filter: $filter) {
+    id
+    userId
+    userType
+    token
+    platform
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnCreatePushTokenSubscriptionVariables,
+  APITypes.OnCreatePushTokenSubscription
+>;
+export const onUpdatePushToken = /* GraphQL */ `subscription OnUpdatePushToken($filter: ModelSubscriptionPushTokenFilterInput) {
+  onUpdatePushToken(filter: $filter) {
+    id
+    userId
+    userType
+    token
+    platform
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnUpdatePushTokenSubscriptionVariables,
+  APITypes.OnUpdatePushTokenSubscription
+>;
+export const onDeletePushToken = /* GraphQL */ `subscription OnDeletePushToken($filter: ModelSubscriptionPushTokenFilterInput) {
+  onDeletePushToken(filter: $filter) {
+    id
+    userId
+    userType
+    token
+    platform
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedSubscription<
+  APITypes.OnDeletePushTokenSubscriptionVariables,
+  APITypes.OnDeletePushTokenSubscription
 >;
 export const onCreateSchool = /* GraphQL */ `subscription OnCreateSchool($filter: ModelSubscriptionSchoolFilterInput) {
   onCreateSchool(filter: $filter) {

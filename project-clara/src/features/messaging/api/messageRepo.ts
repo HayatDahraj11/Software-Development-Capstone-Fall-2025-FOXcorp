@@ -11,6 +11,7 @@ import {
   conversationsByParentId,
   conversationsByTeacherId,
   messagesByConversationIdAndCreatedAt,
+  getConversation,
 } from "@/src/graphql/queries";
 
 import {
@@ -20,6 +21,8 @@ import {
 } from "@/src/graphql/mutations";
 
 import { onCreateMessage } from "@/src/graphql/subscriptions";
+
+import { sendPushToUser } from "@/src/features/notifications/api/sendPushToUser";
 
 // ── Types ───────────────────────────────────────────────────────────
 
@@ -275,6 +278,47 @@ export async function sendMessage(params: {
       .catch((err: any) =>
         console.warn("conversation preview update failed:", err)
       );
+
+    // send push notification to the other person (fire-and-forget)
+    (async () => {
+      try {
+        const convoResult: any = await client.graphql({
+          query: getConversation,
+          variables: { id: params.conversationId },
+        });
+        const convo = convoResult.data?.getConversation;
+        if (!convo) return;
+
+        // figure out who the recipient is
+        const recipientId =
+          params.senderType === "PARENT" ? convo.teacherId : convo.parentId;
+        if (!recipientId) return;
+
+        const senderDisplayName = params.senderName;
+        const context =
+          convo.type === "GROUP"
+            ? convo.className ?? "Class"
+            : convo.studentName
+            ? `Re: ${convo.studentName}`
+            : "";
+
+        sendPushToUser({
+          recipientUserId: recipientId,
+          title: `${senderDisplayName}${context ? ` - ${context}` : ""}`,
+          body: params.body,
+          data: {
+            route:
+              params.senderType === "PARENT"
+                ? "/(teacher)/conversation"
+                : "/(parent)/conversation",
+            conversationId: params.conversationId,
+            conversationTitle: senderDisplayName,
+          },
+        });
+      } catch (err) {
+        console.warn("push notification after send failed:", err);
+      }
+    })();
 
     return { data: result.data.createMessage, error: null };
   } catch (err) {

@@ -188,8 +188,37 @@ Keep building on what we have. Jacob extracts the existing components into reusa
 
 ---
 
-## My Take
+## What We Are Actually Doing (Update - March 17, 2026)
 
-Honestly all three options are valid and it depends on what the team wants to prioritize. If we have the time and want the app to look really polished with minimal effort going forward then Reusables is worth it but the migration cost is real. If we want to keep shipping features without risking stability then staying with what we have and just cleaning it up is the safer play.
+After talking with Jacob it turns out the situation is way less scary than what I outlined above. A full migration is not happening and it doesnt need to. What Jacob is actually doing on his fork is dropping Reusables components into existing screens alongside our current StyleSheet code and it just works.
 
-Whatever we decide I just wanted to make sure everyone has the full picture of what this actually involves before we commit to a direction. Its not just "install a library and go", theres real infrastructure work underneath it.
+The key thing I didnt account for in the original analysis is that NativeWind components accept regular `style` props the same way any React Native component does. So you can do this:
+
+```tsx
+// Reusables component styled with our existing StyleSheet approach
+<Button style={[styles.myButton, { backgroundColor: tint }]}>
+  <Text style={styles.buttonText}>Send</Text>
+</Button>
+```
+
+The NativeWind styles baked into the Reusables components are just defaults. Anything we pass through `style` overrides or merges with them. This means we dont have to rewrite any of our existing styling, we dont have to convert style props to className, and we dont have to touch useThemeColor. We just use the Reusables components as better looking building blocks inside our existing screens.
+
+### What Jacob Has Done So Far
+- Set up all the NativeWind dependencies on his fork (not a branch, specifically to isolate risk)
+- Got the build working with Expo and Amplify without issues
+- Integrated the simpler Reusables components into a few screens already
+- Confirmed that our existing StyleSheet styles apply to the Reusables components without conflict
+- Extracted common styles from the home screen into a shared file so they can be referenced from one place instead of being copied onto every page
+- Started enhancing the Card component (will document with a diagram later)
+
+### Why This Works
+NativeWind is designed to coexist with StyleSheet. The Reusables components are just React Native components under the hood with some default NativeWind styling. When you apply a `style` prop on top of them it works exactly the same as any other RN component. No migration needed, no two-system confusion, no rewriting 42 files.
+
+### The Approach Going Forward
+- Keep all existing screens and their StyleSheet/useThemeColor styling as is
+- Drop in Reusables components where they improve the look and feel
+- Style them using our existing patterns (StyleSheet + useThemeColor)
+- Common styles get extracted into shared files for reuse across screens
+- Jacob will PR the fork back to main once the component integration is solid
+
+This is the best of both worlds. We get the polished shadcn-style components without any of the migration risk I was worried about.

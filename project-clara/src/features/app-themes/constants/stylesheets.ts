@@ -112,3 +112,26 @@ export const badgeStyle = StyleSheet.create({
         fontWeight: "700",
     },
 })
+
+// dropdown/select styles
+export const dropdownStyle = StyleSheet.create({
+    dropdownContainer: {
+        flex: 1/10,
+        alignContent: 'flex-start',
+        justifyContent: 'center',
+        flexDirection: 'row',
+    },
+    dropdownButton: {
+        //flexDirection: 'column',
+        //width: '20%',
+        //height: '80%',
+        //alignItems: 'center',
+        //justifyContent: 'center',
+        //borderRadius: 10,
+        //marginHorizontal: 20,
+    },
+    dropdownLabel: {
+        fontSize: 14,
+        fontWeight: '600',
+    },
+})

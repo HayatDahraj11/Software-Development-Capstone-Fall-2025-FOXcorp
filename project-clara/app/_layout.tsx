@@ -31,6 +31,7 @@ function RootLayoutInner() {
 
   return (
     <ThemeProvider value={NAV_THEME[colorScheme ?? 'light']}>
+      <StatusBar style={colorScheme === "light" ? "dark" : "light"} />
       <Stack>
         {}
         <Stack.Screen name="index" options={{ headerShown: false }} />
@@ -38,7 +39,6 @@ function RootLayoutInner() {
         <Stack.Screen name="(parent)" options={{ headerShown: false }} />
         <Stack.Screen name="(teacher)" options={{ headerShown: false }} />
       </Stack>
-      <StatusBar style={colorScheme === "light" ? "light" : "dark"} />
       <PortalHost />
     </ThemeProvider>
   );

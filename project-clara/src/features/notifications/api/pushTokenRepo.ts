@@ -1,6 +1,7 @@
 import { generateClient } from "aws-amplify/api";
 import { pushTokensByUserId } from "@/src/graphql/queries";
 import { createPushToken, deletePushToken } from "@/src/graphql/mutations";
+import { SenderType } from "@/src/API";
 import { Platform } from "react-native";
 
 const client = generateClient();
@@ -12,7 +13,7 @@ export interface RepoResult<T> {
 
 export async function registerPushToken(
   userId: string,
-  userType: "PARENT" | "TEACHER",
+  userType: SenderType,
   token: string
 ): Promise<RepoResult<string>> {
   try {

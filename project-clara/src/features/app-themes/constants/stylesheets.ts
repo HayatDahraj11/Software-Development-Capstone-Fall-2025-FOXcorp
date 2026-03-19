@@ -96,6 +96,10 @@ export const quickActionStyle = StyleSheet.create({
         fontWeight: "600",
         marginTop: 6,
     },
+    quickActionSublabel: {
+        fontSize: 12,
+        fontWeight: '600',
+    }
 })
 
 // small popup indicators, like a number representing unread messages

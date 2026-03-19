@@ -32,7 +32,8 @@ export default function Card({header, preview, onPress, theme, urgent, pressable
     const urgentcolor = useThemeColor({}, "urgent");
     const listbordertransluscentcolor = useThemeColor({}, "listBorderTranslucent");
     const listtextcolor = useThemeColor({}, "listText");
-    const chevroncolor = useThemeColor({}, "placeholderText")
+    const chevroncolor = useThemeColor({}, "placeholderText");
+    const subtextcolor = useThemeColor({}, "placeholderText");
 
     // a card which displays as a short, one-line item in a list
     // does not need a preview, will display it only if urgent
@@ -80,7 +81,7 @@ export default function Card({header, preview, onPress, theme, urgent, pressable
                                         </View>
                                         <View style={styles.cardContent}>
                                             <Text style={[styles.header, {color: textcolor}]}>{header}</Text>
-                                            <Text style={[styles.preview, {color: textcolor}]}>{preview}</Text>
+                                            <Text style={[styles.preview, {color: subtextcolor}]}>{preview}</Text>
                                         </View>
                                         {badge.type === 0 ? ( // badge type "TextBadge"
                                             <View style={[badgeStyle.badge, {backgroundColor: badge.backgroundColor}]}>
@@ -102,7 +103,7 @@ export default function Card({header, preview, onPress, theme, urgent, pressable
                                     <View style={styles.cardRow}>
                                         <View style={styles.cardContent}>
                                             <Text style={[styles.header, {color: textcolor}]}>{header}</Text>
-                                            <Text style={[styles.preview, {color: textcolor}]}>{preview}</Text>
+                                            <Text style={[styles.preview, {color: subtextcolor}]}>{preview}</Text>
                                         </View>
                                         {badge.type === 0 ? ( // badge type "TextBadge"
                                             <View style={[badgeStyle.badge, {backgroundColor: badge.backgroundColor}]}>
@@ -132,7 +133,7 @@ export default function Card({header, preview, onPress, theme, urgent, pressable
                                             </View>
                                             <View style={styles.cardContent}>
                                                 <Text style={[styles.header, {color: textcolor}]}>{header}</Text>
-                                                <Text style={[styles.preview, {color: textcolor}]}>{preview}</Text>
+                                                <Text style={[styles.preview, {color: subtextcolor}]}>{preview}</Text>
                                             </View>
                                             {pressable && (<Ionicons name="chevron-forward" size={18} color={chevroncolor} />)}
                                         </View>
@@ -144,7 +145,7 @@ export default function Card({header, preview, onPress, theme, urgent, pressable
                                         <View style={styles.cardRow}>
                                             <View style={styles.cardContent}>
                                                 <Text style={[styles.header, {color: textcolor}]}>{header}</Text>
-                                                <Text style={[styles.preview, {color: textcolor}]}>{preview}</Text>
+                                                <Text style={[styles.preview, {color: subtextcolor}]}>{preview}</Text>
                                             </View>
                                             {pressable && (<Ionicons name="chevron-forward" size={18} color={chevroncolor} />)}
                                         </View>
@@ -170,7 +171,7 @@ export default function Card({header, preview, onPress, theme, urgent, pressable
                                 <View style={styles.cardRow}>
                                     <View style={styles.cardContent}>
                                         <Text style={[styles.header, {color: textcolor}]}>{header}</Text>
-                                        <Text style={[styles.preview, {color: textcolor}]}>{preview}</Text>
+                                        <Text style={[styles.preview, {color: subtextcolor}]}>{preview}</Text>
                                     </View>
                                     {pressable && (<Ionicons name="chevron-forward" size={18} color={chevroncolor} />)}
                                 </View>

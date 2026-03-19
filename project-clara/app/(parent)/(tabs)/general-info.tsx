@@ -1,8 +1,8 @@
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Platform, ScrollView, Text, View } from "react-native";
+import { Platform, Pressable, ScrollView, Text, View } from "react-native";
 
-import { containerStyle, dropdownStyle } from "@/src/features/app-themes/constants/stylesheets";
+import { containerStyle, dropdownStyle, quickActionStyle } from "@/src/features/app-themes/constants/stylesheets";
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import Card from "@/src/features/cards/ui/Card";
 import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/src/rnreusables/ui/select';
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import type { TriggerRef } from '@rn-primitives/select';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -159,7 +160,7 @@ export default function ParentGeneralInfoScreen() {
             <Text style={[containerStyle.sectionLabel, {color: subtextcolor}]}>
               {childSelected ? `${childSelected.firstName}'s CLASSES` : "CLASS SCHEDULE"}
             </Text>
-            {/* 
+            
             {childClasses?.length === 0 ? (
               <View style={containerStyle.empty}>
                 <Text style={{color: subtextcolor, fontSize: 16}}>No classes found</Text>
@@ -168,21 +169,47 @@ export default function ParentGeneralInfoScreen() {
               childClasses?.map((row, index) => {
                 const gradeDisplay = row.grade != null ? Math.round(row.grade) : null;
                 return (
-                  
+                  <Card 
+                    key={row.classId}
+                    header={row.className}
+                    preview={row.teacherName}
+                    onPress={()=>{}}
+                    urgent={true}
+                    pressable={true}
+                    icon={{name: "book", size: 22, color: tintcolor, backgroundColor: (tintcolor+20)}}
+                    badge={
+                      gradeDisplay !== null ? (
+                        {type: 0, content: `${gradeDisplay}%`, contentColor: gradeDisplay >= 90 ? "#16a34a" : gradeDisplay >= 70 ? "#d97706" : "#dc2626", backgroundColor: gradeDisplay >= 90 ? "#22c55e20" : gradeDisplay >= 70 ? "#f59e0b20" : "#ef444420"}
+                      ) : (undefined)
+                    }
+                  />
                 )
               })
-            )}*/}
+            )}
           </View>
-          <Card
-            header="Records"
-            preview={`Your child has ${childSelected.attendanceRate}% attendance and is up to date with all medical records`} // bug, this says undefined?
-            onPress={() => RouteCard("studentRecords")}
-          />
-          <Card
-            header="Documentation"
-            preview={"Emergency contacts, behavioral records, teacher notes, and other related details found here"}
-            onPress={() => RouteCard("studentDocumentation")}
-          />
+          <View>
+            <Text style={[containerStyle.sectionLabel, {color: subtextcolor}]}>
+              {childSelected ? `${childSelected.firstName}'s RECORDS` : "STUDENT RECORDS"}              
+            </Text>
+            <View style={quickActionStyle.quickActionsContainer}>
+              <Pressable
+                style={[quickActionStyle.quickActionBtn, {backgroundColor: cardbgcolor}]}
+                onPress={() => RouteCard("studentRecords")}
+              >
+                <MaterialIcons name="class" size={22} color={tintcolor} />
+                <Text style={[quickActionStyle.quickActionLabel, {color: textcolor}]}>Class Records</Text>
+                <Text style={[quickActionStyle.quickActionSublabel, {color: subtextcolor}]}>Grades, Attendance, etc.</Text>
+              </Pressable>
+              <Pressable
+                style={[quickActionStyle.quickActionBtn, {backgroundColor: cardbgcolor}]}
+                onPress={() => RouteCard("studentDocumentation")}
+              >
+                <Ionicons name="document-text-outline" size={22} color={tintcolor} />
+                <Text style={[quickActionStyle.quickActionLabel, {color: textcolor}]}>Documentation</Text>
+                <Text style={[quickActionStyle.quickActionSublabel, {color: subtextcolor}]}>Medical, Notes, etc.</Text>
+              </Pressable>
+            </View>
+          </View>
         </View> 
       </ScrollView>
     </View>

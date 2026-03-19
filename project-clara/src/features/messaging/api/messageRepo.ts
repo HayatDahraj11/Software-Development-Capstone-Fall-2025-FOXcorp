@@ -279,9 +279,11 @@ export async function sendMessage(params: {
         console.warn("conversation preview update failed:", err)
       );
 
-    // send push notification to the other person (fire-and-forget)
+    // send a push notification to the other person so they know they got a message
+    // this is fire-and-forget so if it fails the message still goes through fine
     (async () => {
       try {
+        // we need the conversation details to figure out who to notify
         const convoResult: any = await client.graphql({
           query: getConversation,
           variables: { id: params.conversationId },
@@ -289,11 +291,12 @@ export async function sendMessage(params: {
         const convo = convoResult.data?.getConversation;
         if (!convo) return;
 
-        // figure out who the recipient is
+        // if a parent sent it, notify the teacher and vice versa
         const recipientId =
           params.senderType === "PARENT" ? convo.teacherId : convo.parentId;
         if (!recipientId) return;
 
+        // build a nice title like "Mrs. Smith - Math Class" or "Jane Doe - Re: Tommy"
         const senderDisplayName = params.senderName;
         const context =
           convo.type === "GROUP"
@@ -302,6 +305,7 @@ export async function sendMessage(params: {
             ? `Re: ${convo.studentName}`
             : "";
 
+        // the route tells the app where to navigate when they tap the notification
         sendPushToUser({
           recipientUserId: recipientId,
           title: `${senderDisplayName}${context ? ` - ${context}` : ""}`,
@@ -316,6 +320,7 @@ export async function sendMessage(params: {
           },
         });
       } catch (err) {
+        // dont let a push failure break the message send
         console.warn("push notification after send failed:", err);
       }
     })();

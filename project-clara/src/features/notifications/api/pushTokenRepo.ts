@@ -1,3 +1,6 @@
+// manages expo push tokens in dynamodb
+// each user can have multiple tokens (one per device they log in on)
+// tokens are stored in the PushToken table with a byUser index for fast lookups
 import { generateClient } from "aws-amplify/api";
 import { pushTokensByUserId } from "@/src/graphql/queries";
 import { createPushToken, deletePushToken } from "@/src/graphql/mutations";
@@ -11,6 +14,8 @@ export interface RepoResult<T> {
   error: string | null;
 }
 
+// saves a push token to the backend
+// checks if the token already exists first so we dont get duplicates
 export async function registerPushToken(
   userId: string,
   userType: SenderType,
@@ -47,6 +52,8 @@ export async function registerPushToken(
   }
 }
 
+// removes all push tokens for a user (for when they log out)
+// skips already deleted ones
 export async function unregisterPushTokens(
   userId: string
 ): Promise<RepoResult<boolean>> {
@@ -70,6 +77,8 @@ export async function unregisterPushTokens(
   }
 }
 
+// gets all active push tokens for a user so we can send them notifications
+// filters out soft deleted ones
 export async function fetchPushTokensForUser(
   userId: string
 ): Promise<RepoResult<string[]>> {

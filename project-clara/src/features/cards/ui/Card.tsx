@@ -54,7 +54,7 @@ export default function Card({header, preview, onPress, theme, urgent, pressable
                             </Text>
                         )
                     ) : (
-                        <Text style={styles.listText}>{header}</Text>
+                        <Text style={[styles.listText, {color: listtextcolor}]}>{header}</Text>
                     )}
                 </Pressable>
             </View>

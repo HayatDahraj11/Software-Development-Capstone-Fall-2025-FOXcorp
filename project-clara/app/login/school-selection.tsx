@@ -1,6 +1,14 @@
 import { useThemeColor } from "@/app-example/hooks/use-theme-color";
 import SchoolPicker from "@/src/features/school-selection/ui/SchoolPicker";
+import SchoolPickerComponent from "@/src/features/school-selection/ui/SchoolPickerComponent";
 import { Button } from "@/src/rnreusables/ui/button";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger
+} from '@/src/rnreusables/ui/dialog';
 import { Feather } from '@expo/vector-icons';
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
@@ -15,16 +23,21 @@ import {
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 
 export default function SchoolSelection() {
+    // colors
+    const modalbgcolor = useThemeColor({}, "modalBackground");
+    const textcolor = useThemeColor({}, "text");
+
     const router = useRouter();
     const [school, setSchool] = useState<string | undefined>(undefined);
     const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+    const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
 
     // Animation value for the continue button
     const continueButtonOpacity = useSharedValue(0);
 
     const onSchoolSelected = (selectedSchool: string) => {
         setSchool(selectedSchool);
-        setIsModalVisible(false);
+        setIsDialogOpen(false);
     };
 
     const sendToLogin = () => {
@@ -131,6 +144,11 @@ export default function SchoolSelection() {
             fontSize: 18,
             fontWeight: '600',
         },
+        dialogueContainer: {
+            minHeight: '30%',
+            minWidth: '80%',
+            width: '80%',
+        },
     });
 
     return (
@@ -146,6 +164,7 @@ export default function SchoolSelection() {
             </View>
 
             <View style={styles.formContainer}>
+                {/* 
                 <Button variant="outline" style={styles.selectionInput} onPress={() => setIsModalVisible(true)}>
                     {school ? (
                         <Text style={styles.selectionInputText}>{school}</Text>
@@ -153,7 +172,38 @@ export default function SchoolSelection() {
                         <Text style={styles.placeholderText}>Select your school...</Text>
                     )}
                     <Feather name="chevron-down" size={20} color={useThemeColor({},"placeholderText")} />
-                </Button>
+                </Button>*/}
+                <Dialog 
+                    open={isDialogOpen}
+                    onOpenChange={() => {
+                        if(isDialogOpen) {
+                            setIsDialogOpen(false);
+                        } else {setIsDialogOpen(true)}
+                    }}
+                >
+                    <DialogTrigger asChild>
+                        <Button variant="outline" style={styles.selectionInput} onPress={() => setIsDialogOpen(true)}>
+                            {school ? (
+                                <Text style={styles.selectionInputText}>{school}</Text>
+                            ) : (
+                                <Text style={styles.placeholderText}>Select your school...</Text>
+                            )}
+                            <Feather name="chevron-down" size={20} color={useThemeColor({},"placeholderText")} />
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent 
+                        style={[styles.dialogueContainer, {backgroundColor: modalbgcolor}]}
+                    >
+                        <DialogHeader>
+                            <DialogTitle style={{color: textcolor}}>Select a School</DialogTitle>
+                        </DialogHeader>
+                        <SchoolPickerComponent 
+                            onSelect={(school)=>{
+                                onSchoolSelected(school);
+                            }}
+                        />
+                    </DialogContent>
+                </Dialog>
 
                 {school && (
                     <TouchableOpacity onPress={() => setIsModalVisible(true)}>

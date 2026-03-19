@@ -2,12 +2,17 @@ import { useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Platform, Pressable, ScrollView, Text, View } from "react-native";
 
-import { containerStyle, dropdownStyle, quickActionStyle } from "@/src/features/app-themes/constants/stylesheets";
+import { containerStyle, dialogStyle, dropdownStyle, quickActionStyle } from "@/src/features/app-themes/constants/stylesheets";
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import Card from "@/src/features/cards/ui/Card";
 import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
 import { Student } from "@/src/features/fetch-user-data/api/parent_data_fetcher";
 
+import Parent_ViewClassComponent from "@/src/features/class-viewer/ui/Parent_ViewClassComponent";
+import {
+  Dialog,
+  DialogContent
+} from '@/src/rnreusables/ui/dialog';
 import {
   Option,
   Select,
@@ -33,6 +38,7 @@ export default function ParentGeneralInfoScreen() {
   const tintcolor = useThemeColor({}, 'tint');
   const listtextcolor = useThemeColor({}, "listText");
   const subtextcolor = useThemeColor({}, "placeholderText");
+  const modalbgcolor = useThemeColor({}, "modalBackground")
 
   const {
         userParent,
@@ -65,22 +71,12 @@ export default function ParentGeneralInfoScreen() {
       else { }
   };
 
-  const scheduleListCreation = (classIds: string[]): string => {
-    let superstring = ``
-    for (let i = 0; i<classIds.length; i++) {
-      const tempName: string = userClasses.find(cla => cla.id === classIds[i])?.name ?? "error! undef"
-      superstring = superstring + (i+1) + `) ` + tempName;
-      if(i<(classIds.length-1)) {
-        superstring = superstring + '\n'
-      }
-    }
-    return superstring;
-  }
-
   // this holds which child of the parent's is currently being displayed
   const [childSelected, setChildSelected] = useState<Student>(userStudents[0]);
   const [childIdSelected, setChildIdSelected] = useState<Option>({value: userStudents[0].id, label: userStudents[0].firstName})
-  const [childClasses, setChildClasses] = useState<{classId: string; className: string; teacherName: string; grade: number}[]>()
+  const [childClasses, setChildClasses] = useState<{classId: string; className: string; teacherId: string; teacherName: string; grade: number}[]>()
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [classOpened, setClassOpened] = useState<{classId: string; className: string; teacherId: string; teacherName: string; grade: number}>();
 
   // stuff for select button
   const ref = useRef<TriggerRef>(null);
@@ -95,6 +91,7 @@ export default function ParentGeneralInfoScreen() {
     ref.current?.open();
   }
 
+  // grabbing child selected data aswell as their classes
   const onChildSelected = useCallback((id: string) => {
     let foundKid = userStudents.find(item => item.id === id);
     if(foundKid) {
@@ -118,7 +115,7 @@ export default function ParentGeneralInfoScreen() {
               const grade = getStudentGradeInClass(id, classId);
               return { classId, className: cls.name, teacherName, grade };
           })
-          .filter(Boolean) as { classId: string; className: string; teacherName: string; grade: number }[];
+          .filter(Boolean) as { classId: string; className: string; teacherId: string; teacherName: string; grade: number }[];
     
       setChildClasses(scheduleRows);
       
@@ -127,11 +124,21 @@ export default function ParentGeneralInfoScreen() {
     }
 
   }, [getClassesMappedByStudent, getStudentGradeInClass, getTeacherNamebyId, userClasses, userStudents]);
-  useEffect(() => {
+  useEffect(() => { // this will update child selected when a new child is selected...
     if(childIdSelected) {
       onChildSelected(childIdSelected?.value);
     }
   }, [childIdSelected, onChildSelected])
+
+  // when one of the classes is tapped, open the dialogue with info about it
+  const onClassClicked = (classArrayIndex: number) => {
+    if(childClasses) {
+      setClassOpened(childClasses[classArrayIndex]);
+      setIsDialogOpen(true);
+    } else {
+      console.warn("Tried to open a class that wasn't found.")
+    }
+  }
 
   // when linking to the doc pages, access the [studentId] folder using param: {studentId: childSelected.studentId}
   // you can also pass the student object as a param, { student = childSelected }
@@ -173,7 +180,7 @@ export default function ParentGeneralInfoScreen() {
                     key={row.classId}
                     header={row.className}
                     preview={row.teacherName}
-                    onPress={()=>{}}
+                    onPress={()=>{onClassClicked(index)}}
                     urgent={true}
                     pressable={true}
                     icon={{name: "book", size: 22, color: tintcolor, backgroundColor: (tintcolor+20)}}
@@ -209,6 +216,28 @@ export default function ParentGeneralInfoScreen() {
                 <Text style={[quickActionStyle.quickActionSublabel, {color: subtextcolor}]}>Medical, Notes, etc.</Text>
               </Pressable>
             </View>
+
+            <Dialog 
+                  open={isDialogOpen}
+                  onOpenChange={() => {
+                      if(isDialogOpen) {
+                          setIsDialogOpen(false);
+                      } else {setIsDialogOpen(true)}
+                  }}
+              >
+                  <DialogContent 
+                      style={[dialogStyle.dialogueContainer, {backgroundColor: modalbgcolor}]}
+                  >
+                      <Parent_ViewClassComponent 
+                        classId={classOpened ? classOpened.classId : "broken"}
+                        className={classOpened ? classOpened.className : "broken"}
+                        teacherId={classOpened ? classOpened.teacherId : "broken"}
+                        teacherName={classOpened ? classOpened.teacherName : "broken"}
+                        studentGrade={classOpened ? classOpened.grade : -1}
+                        onClickProfilePic={() => {console.log("not built yet"); setIsDialogOpen(false);}}
+                      />
+                  </DialogContent>
+              </Dialog>
           </View>
         </View> 
       </ScrollView>

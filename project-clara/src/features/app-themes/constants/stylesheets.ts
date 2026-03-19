@@ -153,3 +153,12 @@ export const dropdownStyle = StyleSheet.create({
         fontWeight: '600',
     },
 })
+
+// dialog component styles
+export const dialogStyle = StyleSheet.create({
+    dialogueContainer: {
+        minHeight: '30%',
+        minWidth: '80%',
+        width: '80%',
+    },
+})

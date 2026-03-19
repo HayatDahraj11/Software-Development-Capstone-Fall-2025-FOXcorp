@@ -9,6 +9,13 @@ export const containerStyle = StyleSheet.create({
     container: {
         flex: 1,
     },
+    headerContainer: {
+      flex: 1/12,
+      alignContent: 'center',
+      justifyContent: 'flex-start',
+      flexDirection: 'column',
+      paddingBottom: 8,
+    },
     scrollContent: {
         paddingHorizontal: 20,
         paddingTop: 16,
@@ -116,19 +123,22 @@ export const badgeStyle = StyleSheet.create({
 // dropdown/select styles
 export const dropdownStyle = StyleSheet.create({
     dropdownContainer: {
-        flex: 1/10,
         alignContent: 'flex-start',
         justifyContent: 'center',
         flexDirection: 'row',
+        minWidth: '25%',
+        width: '25%',
     },
     dropdownButton: {
-        //flexDirection: 'column',
-        //width: '20%',
-        //height: '80%',
-        //alignItems: 'center',
-        //justifyContent: 'center',
-        //borderRadius: 10,
-        //marginHorizontal: 20,
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        borderRadius: 20,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+        elevation: 2,
     },
     dropdownLabel: {
         fontSize: 14,

@@ -1,7 +1,8 @@
+import { cn } from '@/lib/utils';
+import { useThemeColor } from '@/src/features/app-themes/logic/use-theme-color';
 import { Icon } from '@/src/rnreusables/ui/icon';
 import { NativeOnlyAnimatedView } from '@/src/rnreusables/ui/native-only-animated-view';
 import { TextClassContext } from '@/src/rnreusables/ui/text';
-import { cn } from '@/lib/utils';
 import * as SelectPrimitive from '@rn-primitives/select';
 import { Check, ChevronDown, ChevronDownIcon, ChevronUpIcon } from 'lucide-react-native';
 import * as React from 'react';
@@ -149,6 +150,8 @@ function SelectItem({
   children,
   ...props
 }: SelectPrimitive.ItemProps & React.RefAttributes<SelectPrimitive.ItemRef>) {
+  
+  const textcolor = useThemeColor({}, "text")
   return (
     <SelectPrimitive.Item
       className={cn(
@@ -165,7 +168,7 @@ function SelectItem({
           <Icon as={Check} className="text-muted-foreground size-4 shrink-0" />
         </SelectPrimitive.ItemIndicator>
       </View>
-      <SelectPrimitive.ItemText className="text-foreground group-active:text-accent-foreground select-none text-sm" />
+      <SelectPrimitive.ItemText className="text-foreground group-active:text-accent-foreground select-none text-sm" style={{color: textcolor}} />
     </SelectPrimitive.Item>
   );
 }
@@ -239,5 +242,6 @@ export {
   SelectSeparator,
   SelectTrigger,
   SelectValue,
-  type Option,
+  type Option
 };
+

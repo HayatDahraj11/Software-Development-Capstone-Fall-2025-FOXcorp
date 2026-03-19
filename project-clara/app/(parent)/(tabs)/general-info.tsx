@@ -1,7 +1,8 @@
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Platform, ScrollView, StyleSheet, View } from "react-native";
+import { Platform, ScrollView, View } from "react-native";
 
+import { containerStyle, dropdownStyle } from "@/src/features/app-themes/constants/stylesheets";
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import Card from "@/src/features/cards/ui/Card";
 import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
@@ -28,6 +29,8 @@ export default function ParentGeneralInfoScreen() {
   const cardbgcolor = useThemeColor({}, "cardBackground");
   const tabiconcolor = useThemeColor({}, "tabIconDefault");
   const textcolor = useThemeColor({}, "text")
+  const tintcolor = useThemeColor({}, 'tint')
+  const listtextcolor = useThemeColor({}, "listText")
 
   const {
         userParent,
@@ -113,78 +116,45 @@ export default function ParentGeneralInfoScreen() {
     }
   }, [childIdSelected, onChildSelected])
 
-
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: useThemeColor({}, "background"),
-    },
-    headerContainer: {
-      flex: 1/10,
-      alignContent: 'flex-start',
-      justifyContent: 'center',
-      flexDirection: 'column',
-    },
-    dropdownContainer: {
-      flexDirection: 'row',
-      width: '20%',
-      height: '80%',
-      backgroundColor: useThemeColor({}, "cardBackground"),
-      alignItems: 'center',
-      justifyContent: 'center',
-      borderRadius: 10,
-      marginHorizontal: 20,
-      shadowColor: useThemeColor({}, "tabIconDefault"),
-    },
-    dropdownLabel: {
-      color: useThemeColor({}, "text"),
-      fontSize: 14,
-      fontWeight: '600',
-    },
-  });
-
   // when linking to the doc pages, access the [studentId] folder using param: {studentId: childSelected.studentId}
   // you can also pass the student object as a param, { student = childSelected }
   return (
-    <View style={[styles.container, {backgroundColor: bgcolor}]}>
-      <View style={styles.headerContainer}>
-        {/* 
-        <Pressable style={styles.dropdownContainer} onPress={() => setIsModalVisible(true)}>
-          <MaterialIcons name={"keyboard-arrow-down"} size={22} color={useThemeColor({}, "icon")}/>
-          <Text style={styles.dropdownLabel}>{childSelected.firstName}</Text>
-        </Pressable> */}
-        <Select value={childIdSelected} onValueChange={setChildIdSelected}>
-          <SelectTrigger ref={ref} style={{backgroundColor: cardbgcolor}} onTouchStart={Platform.select({web: onTouchStart})}>
-            <SelectValue style={[styles.dropdownLabel, {color: textcolor}]} placeholder={childSelected.firstName} />
-          </SelectTrigger>
-          <SelectContent insets={contentInsets} >
-            <SelectGroup>
-              <SelectLabel>Select a Student</SelectLabel>
-              {userStudents.map((stu) => (
-                <SelectItem key={stu.id} label={stu.firstName} value={stu.id}>
-                  {stu.firstName}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-      </View>
-      <ScrollView>
-        <Card
-          header="Schedule"
-          preview={scheduleListCreation(getClassesMappedByStudent(childSelected.id))}
-          onPress={() => RouteCard("studentSchedule")}
-        />
-        <Card
-          header="Records"
-          preview={`Your child has ${childSelected.attendanceRate}% attendance and is up to date with all medical records`} // bug, this says undefined?
-          onPress={() => RouteCard("studentRecords")}
-        />
-        <Card
-          header="Documentation"
-          preview={"Emergency contacts, behavioral records, teacher notes, and other related details found here"}
-          onPress={() => RouteCard("studentDocumentation")}
-        />
+    <View style={[containerStyle.container, {backgroundColor: bgcolor}]}>
+      <ScrollView contentContainerStyle={containerStyle.scrollContent} showsVerticalScrollIndicator={false}>
+        <View style={containerStyle.headerContainer}>
+          <Select value={childIdSelected} style={[dropdownStyle.dropdownContainer]} onValueChange={setChildIdSelected}>
+            <SelectTrigger ref={ref} style={[dropdownStyle.dropdownButton, {backgroundColor: cardbgcolor}]} onTouchStart={Platform.select({web: onTouchStart})}>
+              <SelectValue style={[dropdownStyle.dropdownLabel, {color: textcolor}]} placeholder={childSelected.firstName} />
+            </SelectTrigger>
+            <SelectContent insets={contentInsets} style={{backgroundColor: cardbgcolor}} >
+              <SelectGroup>
+                <SelectLabel style={{color: tintcolor}}>Select a Student</SelectLabel>
+                {userStudents.map((stu) => (
+                  <SelectItem key={stu.id} label={stu.firstName} value={stu.id}>
+                    {stu.firstName}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </View>
+        <View>
+          <Card
+            header="Schedule"
+            preview={scheduleListCreation(getClassesMappedByStudent(childSelected.id))}
+            onPress={() => RouteCard("studentSchedule")}
+          />
+          <Card
+            header="Records"
+            preview={`Your child has ${childSelected.attendanceRate}% attendance and is up to date with all medical records`} // bug, this says undefined?
+            onPress={() => RouteCard("studentRecords")}
+          />
+          <Card
+            header="Documentation"
+            preview={"Emergency contacts, behavioral records, teacher notes, and other related details found here"}
+            onPress={() => RouteCard("studentDocumentation")}
+          />
+        </View> 
       </ScrollView>
     </View>
   );

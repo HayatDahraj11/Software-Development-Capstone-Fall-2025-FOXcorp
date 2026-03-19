@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Platform, ScrollView, View } from "react-native";
+import { Platform, ScrollView, Text, View } from "react-native";
 
 import { containerStyle, dropdownStyle } from "@/src/features/app-themes/constants/stylesheets";
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
@@ -28,9 +28,10 @@ export default function ParentGeneralInfoScreen() {
   const bgcolor = useThemeColor({}, "background");
   const cardbgcolor = useThemeColor({}, "cardBackground");
   const tabiconcolor = useThemeColor({}, "tabIconDefault");
-  const textcolor = useThemeColor({}, "text")
-  const tintcolor = useThemeColor({}, 'tint')
-  const listtextcolor = useThemeColor({}, "listText")
+  const textcolor = useThemeColor({}, "text");
+  const tintcolor = useThemeColor({}, 'tint');
+  const listtextcolor = useThemeColor({}, "listText");
+  const subtextcolor = useThemeColor({}, "placeholderText");
 
   const {
         userParent,
@@ -38,6 +39,8 @@ export default function ParentGeneralInfoScreen() {
         userClasses,
         userEnrollments,
         getClassesMappedByStudent,
+        getTeacherNamebyId,
+        getStudentGradeInClass,
   } = useParentLoginContext();
 
   const RouteCard = (route: string): void => {
@@ -76,6 +79,7 @@ export default function ParentGeneralInfoScreen() {
   // this holds which child of the parent's is currently being displayed
   const [childSelected, setChildSelected] = useState<Student>(userStudents[0]);
   const [childIdSelected, setChildIdSelected] = useState<Option>({value: userStudents[0].id, label: userStudents[0].firstName})
+  const [childClasses, setChildClasses] = useState<{classId: string; className: string; teacherName: string; grade: number}[]>()
 
   // stuff for select button
   const ref = useRef<TriggerRef>(null);
@@ -90,9 +94,6 @@ export default function ParentGeneralInfoScreen() {
     ref.current?.open();
   }
 
-  // modal controller states
-  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-
   const onChildSelected = useCallback((id: string) => {
     let foundKid = userStudents.find(item => item.id === id);
     if(foundKid) {
@@ -105,11 +106,26 @@ export default function ParentGeneralInfoScreen() {
         attendanceRate: foundKid.attendanceRate
       }
       setChildSelected(foundKid);
+
+      const classIds = getClassesMappedByStudent(id);
+
+      const scheduleRows = classIds
+          .map((classId) => {
+              const cls = userClasses.find((c) => c.id === classId);
+              if (!cls) return null;
+              const teacherName = getTeacherNamebyId(cls.teacherId);
+              const grade = getStudentGradeInClass(id, classId);
+              return { classId, className: cls.name, teacherName, grade };
+          })
+          .filter(Boolean) as { classId: string; className: string; teacherName: string; grade: number }[];
+    
+      setChildClasses(scheduleRows);
+      
     } else {
       console.warn("Somehow, a kid was selected that didn't exist. onChildSelected()")
     }
 
-  }, [userStudents]);
+  }, [getClassesMappedByStudent, getStudentGradeInClass, getTeacherNamebyId, userClasses, userStudents]);
   useEffect(() => {
     if(childIdSelected) {
       onChildSelected(childIdSelected?.value);
@@ -139,11 +155,24 @@ export default function ParentGeneralInfoScreen() {
           </Select>
         </View>
         <View>
-          <Card
-            header="Schedule"
-            preview={scheduleListCreation(getClassesMappedByStudent(childSelected.id))}
-            onPress={() => RouteCard("studentSchedule")}
-          />
+          <View>
+            <Text style={[containerStyle.sectionLabel, {color: subtextcolor}]}>
+              {childSelected ? `${childSelected.firstName}'s CLASSES` : "CLASS SCHEDULE"}
+            </Text>
+            {/* 
+            {childClasses?.length === 0 ? (
+              <View style={containerStyle.empty}>
+                <Text style={{color: subtextcolor, fontSize: 16}}>No classes found</Text>
+              </View>
+            ) : (
+              childClasses?.map((row, index) => {
+                const gradeDisplay = row.grade != null ? Math.round(row.grade) : null;
+                return (
+                  
+                )
+              })
+            )}*/}
+          </View>
           <Card
             header="Records"
             preview={`Your child has ${childSelected.attendanceRate}% attendance and is up to date with all medical records`} // bug, this says undefined?

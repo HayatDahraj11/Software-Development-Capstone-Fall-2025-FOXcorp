@@ -29,6 +29,10 @@ export const containerStyle = StyleSheet.create({
         marginBottom: 10,
         marginLeft: 4,
     },
+    empty: {
+        alignItems: "center", 
+        paddingTop: 40,
+    },
 })
 
 // the big thing on the home screen, first thing you see

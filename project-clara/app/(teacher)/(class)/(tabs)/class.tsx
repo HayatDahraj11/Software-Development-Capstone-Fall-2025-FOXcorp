@@ -2,6 +2,7 @@ import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Href } from "expo-router";
 import { useTeacherLoginContext } from "@/src/features/context/TeacherLoginContext";
 import { useLocalSearchParams } from "expo-router";
 import { usePushNotifications } from "@/src/features/notifications/logic/usePushNotifications";
@@ -76,10 +77,14 @@ const styles = StyleSheet.create({
         <Text style={[styles.gridText]}>Grades</Text>
         <Ionicons name="ellipsis-horizontal-outline" size={32} color={boxBorderColor} />
       </Pressable>
-      <View  style={[styles.grid, ]}>
-        <Text style={[styles.gridText]}>etc.</Text>
-        <Ionicons name="ellipsis-horizontal-outline" size={32} color={boxBorderColor} />
-      </View>
+      <Pressable  style={[styles.grid, ]} onPress={() => router.push({pathname: "/take-attendance",params: { classId }} as unknown as Href)}>
+        <Text style={[styles.gridText]}>Take Attendance</Text>
+        <Ionicons name="checkbox-outline" size={32} color={boxBorderColor} />
+      </Pressable>
+      <Pressable  style={[styles.grid, ]} onPress={() => router.push({pathname: "/incidents",params: { classId }} as unknown as Href)}>
+        <Text style={[styles.gridText]}>Incidents</Text>
+        <Ionicons name="warning-outline" size={32} color={boxBorderColor} />
+      </Pressable>
     </View>
   );
 }

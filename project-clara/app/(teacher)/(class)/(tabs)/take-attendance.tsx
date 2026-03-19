@@ -1,3 +1,7 @@
+// teacher screen for marking attendance
+// shows a list of all students in the class with present/absent/late toggle buttons
+// tapping a button saves right away so the teacher doesnt have to hit a separate save button
+// uses optimistic updates so the UI feels fast even if the network is slow
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -15,6 +19,7 @@ import { useTeacherLoginContext } from "@/src/features/context/TeacherLoginConte
 import { useAttendance } from "@/src/features/attendance/logic/useAttendance";
 import { AttendanceStatus } from "@/src/features/attendance/api/attendanceRepo";
 
+// the three options a teacher can pick for each student
 const STATUS_OPTIONS: { value: AttendanceStatus; label: string; icon: string; color: string }[] = [
   { value: AttendanceStatus.PRESENT, label: "Present", icon: "checkmark-circle", color: "#16a34a" },
   { value: AttendanceStatus.ABSENT, label: "Absent", icon: "close-circle", color: "#dc2626" },
@@ -42,7 +47,8 @@ export default function TakeAttendanceScreen() {
   const tint = useThemeColor({}, "tint");
   const borderColor = useThemeColor({}, "listBorderTranslucent");
 
-  // local optimistic state so toggles feel instant
+  // keeping a local copy of statuses so buttons light up immediately
+  // without waiting for the api round trip. if the save fails we revert it
   const [localStatuses, setLocalStatuses] = useState<Record<string, AttendanceStatus>>({});
 
   const selectedClass = userClasses.find((cls) => cls.id === classIdString);
@@ -71,6 +77,7 @@ export default function TakeAttendanceScreen() {
     }
   };
 
+  // prefer local state over whats in the db so optimistic updates show up
   const getDisplayStatus = (studentId: string): AttendanceStatus | null => {
     return localStatuses[studentId] ?? getTodayStatus(studentId);
   };

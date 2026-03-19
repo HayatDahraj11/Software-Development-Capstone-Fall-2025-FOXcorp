@@ -1,3 +1,5 @@
+// simple read-only repo for class schedules
+// just fetches what days/times a class meets
 import { generateClient } from "aws-amplify/api";
 import { schedulesByClassId } from "@/src/graphql/queries";
 

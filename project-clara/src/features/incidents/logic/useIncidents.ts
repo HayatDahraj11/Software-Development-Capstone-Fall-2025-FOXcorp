@@ -1,3 +1,5 @@
+// hook for loading and creating incident reports
+// sorts by newest first since the graphql index cant do it for us
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Incident,
@@ -44,6 +46,7 @@ export function useIncidents(classId: string): UseIncidentsReturn {
     if (result.error) {
       setError(result.error);
     } else {
+      // sort newest first since we cant do it in the query
       const sorted = (result.data ?? []).sort(
         (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
@@ -65,6 +68,7 @@ export function useIncidents(classId: string): UseIncidentsReturn {
       classId: string;
       schoolId: string;
     }): Promise<boolean> => {
+      // auto set the date to today when creating
       const today = new Date().toISOString().split("T")[0];
       const result = await reportIncident({
         ...params,

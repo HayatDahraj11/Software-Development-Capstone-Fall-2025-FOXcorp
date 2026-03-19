@@ -1,3 +1,7 @@
+// parent view of their kids classes and when they meet
+// pulls class info from context (already loaded on login) and fetches
+// the actual schedule times from the Schedule table in dynamodb
+// if a class has no schedule entries it just shows the card without times
 import { useLocalSearchParams } from "expo-router";
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -7,6 +11,7 @@ import { useParentLoginContext } from "@/src/features/context/ParentLoginContext
 import { useSchedules } from "@/src/features/schedules/logic/useSchedules";
 import { DayOfWeek } from "@/src/features/schedules/api/scheduleRepo";
 
+// for sorting days monday first
 const DAY_ORDER: DayOfWeek[] = [
   "MONDAY",
   "TUESDAY",
@@ -27,8 +32,8 @@ const DAY_SHORT: Record<DayOfWeek, string> = {
   SUNDAY: "Sun",
 };
 
+// converts 24hr time from aws (like "14:30:00") to readable format (like "2:30 PM")
 function formatTime(awsTime: string): string {
-  // awsTime is "HH:mm:ss" or "HH:mm"
   const [h, m] = awsTime.split(":");
   const hour = parseInt(h, 10);
   const ampm = hour >= 12 ? "PM" : "AM";
@@ -91,6 +96,7 @@ export default function StudentScheduleScreen() {
           </View>
         ) : (
           classRows.map((row) => {
+            // -1 means no grade found (from getStudentGradeInClass), so treat it as null
             const gradeDisplay = row.grade != null && row.grade >= 0 ? Math.round(row.grade) : null;
 
             // sort schedules by day order

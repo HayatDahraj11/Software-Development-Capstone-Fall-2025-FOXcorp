@@ -1,3 +1,5 @@
+// hook that takes an array of classIds and fetches all their schedules in parallel
+// used on the parent schedule screen so we can show times for every class at once
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Schedule, fetchSchedulesByClass } from "../api/scheduleRepo";
 
@@ -28,6 +30,7 @@ export function useSchedules(classIds: string[]): UseSchedulesReturn {
     setError(null);
 
     try {
+      // fire off all the fetches at the same time, way faster than doing them one by one
       const results = await Promise.all(
         classIds.map((id) => fetchSchedulesByClass(id))
       );
@@ -43,6 +46,7 @@ export function useSchedules(classIds: string[]): UseSchedulesReturn {
       if (isMounted.current) setError("Failed to load schedules");
     }
     if (isMounted.current) setIsLoading(false);
+  // joining ids into a string so useCallback actually knows when to re-run
   }, [classIds.join(",")]);
 
   useEffect(() => {

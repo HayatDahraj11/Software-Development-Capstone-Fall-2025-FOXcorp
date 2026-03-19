@@ -1,3 +1,6 @@
+// teacher screen for viewing and reporting behavioral incidents
+// shows past incidents grouped by date, same layout pattern as announcements
+// the + button opens a bottom sheet where you pick a student, severity, and describe what happened
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -18,6 +21,7 @@ import { useIncidents } from "@/src/features/incidents/logic/useIncidents";
 
 const SEVERITY_OPTIONS = ["Low", "Medium", "High", "Critical"];
 
+// color coding for each severity level, bg is the light background tint
 const SEVERITY_COLORS: Record<string, { bg: string; text: string }> = {
   Low: { bg: "#22c55e20", text: "#16a34a" },
   Medium: { bg: "#f59e0b20", text: "#d97706" },
@@ -79,6 +83,7 @@ export default function IncidentsScreen() {
     }
   };
 
+  // wipe the form and close the modal
   const resetAndClose = () => {
     setShowCreate(false);
     setDescription("");
@@ -87,7 +92,8 @@ export default function IncidentsScreen() {
     setShowStudentPicker(false);
   };
 
-  // group incidents by date
+  // group incidents by date so we can show them with date dividers like announcements
+  // adding T00:00:00 so the date doesnt get timezone shifted to the wrong day
   const grouped: Record<string, typeof incidents> = {};
   for (const inc of incidents) {
     const dateStr = inc.date

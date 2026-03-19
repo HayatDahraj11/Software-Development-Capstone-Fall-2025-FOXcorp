@@ -1,3 +1,6 @@
+// hook for managing attendance in a class
+// loads all records on mount, filters for today, and lets you mark students
+// if a student already has a record for today it updates it instead of making a dupe
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   AttendanceRecord,
@@ -37,6 +40,7 @@ export function useAttendance(
     };
   }, []);
 
+  // defaults to today but you can pass a different date if needed
   const today = date ?? new Date().toISOString().split("T")[0];
 
   const loadAttendance = useCallback(async () => {
@@ -60,6 +64,7 @@ export function useAttendance(
     loadAttendance();
   }, [loadAttendance]);
 
+  // only care about today's records for the status buttons
   const todayRecords = records.filter((r) => r.date === today);
 
   const getTodayStatus = useCallback(
@@ -81,10 +86,12 @@ export function useAttendance(
   const saveAttendanceForStudent = useCallback(
     async (studentId: string, status: AttendanceStatus): Promise<boolean> => {
       setIsSaving(true);
+      // check if this student already got marked today
       const existingId = getTodayRecordId(studentId);
 
       let result;
       if (existingId) {
+        // already marked, just update the status
         result = await changeAttendance({ id: existingId, status });
       } else {
         result = await submitAttendance({

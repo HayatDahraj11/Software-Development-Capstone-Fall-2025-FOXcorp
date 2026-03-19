@@ -1,3 +1,5 @@
+// handles all the attendance CRUD stuff with dynamodb
+// uses the byClass index to grab attendance records for a specific class
 import { generateClient } from "aws-amplify/api";
 import { attendancesByClassId } from "@/src/graphql/queries";
 import { createAttendance, updateAttendance } from "@/src/graphql/mutations";
@@ -5,6 +7,7 @@ import { AttendanceStatus } from "@/src/API";
 
 const client = generateClient();
 
+// re-exporting so screens can import from one place
 export { AttendanceStatus };
 
 export interface AttendanceRecord {
@@ -22,6 +25,7 @@ export interface RepoResult<T> {
   error: string | null;
 }
 
+// grabs all attendance records for a given class
 export async function fetchAttendanceByClass(
   classId: string
 ): Promise<RepoResult<AttendanceRecord[]>> {
@@ -38,6 +42,7 @@ export async function fetchAttendanceByClass(
   }
 }
 
+// creates a brand new attendance record for a student on a given day
 export async function submitAttendance(params: {
   studentId: string;
   classId: string;
@@ -62,6 +67,7 @@ export async function submitAttendance(params: {
   }
 }
 
+// updates an existing record, like if teacher marked someone present but meant to mark late
 export async function changeAttendance(params: {
   id: string;
   status: AttendanceStatus;

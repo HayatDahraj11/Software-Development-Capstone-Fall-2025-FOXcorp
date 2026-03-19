@@ -1,3 +1,6 @@
+// handles incident report crud with dynamodb
+// note: the byClass index doesnt have a sort key so we cant use sortDirection
+// sorting happens client side in the hook instead
 import { generateClient } from "aws-amplify/api";
 import { incidentsByClassId } from "@/src/graphql/queries";
 import { createIncident } from "@/src/graphql/mutations";
@@ -22,6 +25,7 @@ export interface RepoResult<T> {
   error: string | null;
 }
 
+// pulls all incidents for a class
 export async function fetchIncidentsByClass(
   classId: string
 ): Promise<RepoResult<Incident[]>> {
@@ -38,6 +42,7 @@ export async function fetchIncidentsByClass(
   }
 }
 
+// files a new incident report, needs all the relationship ids (teacher, student, class, school)
 export async function reportIncident(params: {
   description: string;
   severity: string;

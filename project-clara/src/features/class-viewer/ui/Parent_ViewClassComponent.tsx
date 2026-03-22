@@ -3,10 +3,10 @@
 // currently, this modal is designed before we have the backend role stuff set up
 // when we have the backend ready, information about the class will be pulled based on class and student Id
 // for now, this is static
-import { Image } from "expo-image";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { Colors } from "@/src/features/app-themes/constants/theme";
+import { Avatar, AvatarFallback, AvatarImage } from '@/src/rnreusables/ui/avatar';
+import { containerStyle } from "../../app-themes/constants/stylesheets";
 import { useThemeColor } from "../../app-themes/logic/use-theme-color";
 
 
@@ -25,123 +25,76 @@ const PlaceholderImage = require('@/assets/images/icon.png')
 
 export default function Parent_ViewClassComponent({classId, className, teacherId, teacherName, studentGrade, onClickProfilePic}: Props) {
     
-    const styles = StyleSheet.create ({
-        overlay: {
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            backgroundColor: 'rgba(0,0,0,0.5)',
-        },
-        modalContainer: {
-            width: '80%',
-            height: '50%',
-            borderRadius: 10,
-            position: 'relative',
-            backgroundColor: useThemeColor({},"modalBackground"),
-        },
-        modalContent: {
-            flex: 1,
-            padding: 0,
-            flexDirection: 'column',
-            justifyContent: 'flex-start',
-        },
-        titleContainer: {
-            padding: 10,
-        },
-        classContainer: {
-            paddingHorizontal: 16,
-            paddingVertical: 8,
-            flex: 1/7,
-            flexDirection: 'row',
-            alignItems: 'stretch',
-            justifyContent: 'space-between',
-        },
-        classText: {
-            fontSize: 16,
-            fontWeight: 'normal',
-            color: useThemeColor({},'listText'),
-            textAlign: 'center',
-        },
-        teacherContainer: {
-            paddingHorizontal: 16,
-            paddingVertical: 8,
-            flex: 1/4,
-            flexDirection: 'column',
-        },
-        teacherTextContainer: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'flex-start',
-        },
-        teacherText: {
-            fontSize: 16,
-            fontWeight: 'normal',
-            color: useThemeColor({},'listText'),
-            textAlign: 'center',
-            paddingHorizontal: 10,
-            paddingVertical: 5,
-        },
-        teacherNameText: {
-            fontSize: 16,
-            fontWeight: 'bold',
-            color: useThemeColor({},'listText'),
-            textAlign: 'center',
-            paddingHorizontal: 10,
-        },
-        teacherImageContainer: {
-            width: 50,
-            height: 50,
-            borderRadius: 50,
-            alignContent: 'center',
-            justifyContent: 'center',
-            backgroundColor: Colors.dark.background,
-        },
-        teacherImage: {
-            width: '90%',
-            height: '90%',
-            borderRadius: 50,
-            alignSelf: 'center',
-        },
-        notesContainer: {
-            paddingHorizontal: 16,
-            paddingVertical: 8,
-            flex: 1/4,
-            flexDirection: 'column',
-        },
-        notesHeaderText: {
-            fontSize: 16,
-            fontWeight: 'bold',
-            color: useThemeColor({},'listText'),
-            paddingHorizontal: 10,
-        },
-        notesText: {
-            fontSize: 16,
-            fontWeight: 'normal',
-            color: useThemeColor({},'listText'),
-        },
-    })
+    const bgcolor = useThemeColor({}, "background");
+    const cardbgcolor = useThemeColor({}, "cardBackground");
+    const lightbackground = useThemeColor({}, "lightContrastBackground")
+    const tabiconcolor = useThemeColor({}, "tabIconDefault");
+    const textcolor = useThemeColor({}, "text");
+    const tintcolor = useThemeColor({}, 'tint');
+    const listtextcolor = useThemeColor({}, "listText");
+    const subtextcolor = useThemeColor({}, "placeholderText");
+    const modalbgcolor = useThemeColor({}, "modalBackground");
+
 
     return (
-        <View style={styles.modalContent}>
-            <View style={styles.classContainer}>
-                <Text style={styles.classText}>{className}</Text>
-                <Text style={styles.classText}>Grade: {studentGrade}</Text>
+        <View style={styles.content}>
+            <View style={styles.headerContainer}>
+                <Text style={[styles.headerText, {color: textcolor}]}>{className}</Text>
+                <Text style={[styles.headerText, {color: textcolor}]}>{`Grade: ${studentGrade}`}</Text>
             </View>
-            <View style={styles.teacherContainer}>
-                <View style={styles.teacherTextContainer}>
-                    <Text style={styles.teacherText}>Teacher:</Text>
-                </View>
-                <View style={styles.teacherTextContainer}>
-                    <View style={styles.teacherImageContainer}>
-                        <Image source={PlaceholderImage} style={styles.teacherImage}/>
-                    </View>
-                    <Text style={styles.teacherNameText}>{teacherName}</Text>
+            <View style={[styles.sectionContainer, {backgroundColor: lightbackground}]}>
+                <Text style={[containerStyle.sectionLabel, {color: textcolor}]}>Teacher</Text>
+                <View style={styles.rowContainer}>
+                    <Text style={[styles.teacherText, {color: textcolor}]}>{teacherName}</Text>
+                    <Pressable onPress={(teacherId) => onClickProfilePic}>
+                        <Avatar alt={`${teacherName}'s Avatar`}>
+                            <AvatarImage source={PlaceholderImage} />
+                            <AvatarFallback>
+                                <Text>!!</Text>
+                            </AvatarFallback>
+                        </Avatar>
+                    </Pressable>
                 </View>
             </View>
-            <View style={styles.notesContainer}>
-                <Text style={styles.notesHeaderText}>Teacher Notes:</Text>
-                <Text style={styles.notesText}>not yet defined</Text>
+            <View style={[styles.sectionContainer]}>
+                <Text style={[containerStyle.sectionLabel, {color: textcolor}]}>Announcements</Text>
+                <Text style={[styles.teacherText, {color: textcolor}]}>tbd!</Text>
+            </View>
+            <View style={[styles.sectionContainer, {backgroundColor: lightbackground}]}>
+                <Text style={[containerStyle.sectionLabel, {color: textcolor}]}>{`Teacher's Notes`}</Text>
+                <Text style={[styles.teacherText, {color: textcolor}]}>tbd!</Text>
             </View>
         </View>
     )
 }
+ 
+const styles = StyleSheet.create ({
+    content: {
+        justifyContent: 'space-around',
+        flexDirection: 'column',
+    },
+    rowContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+    },
+    headerContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+    },
+    headerText: {
+        fontSize: 16,
+        fontWeight: "600",
+    },
+    teacherText: {
+        fontSize: 16,
+        fontWeight: "400",
+    },
+    sectionContainer: {
+        marginVertical: 12,
+        padding: 6,
+        borderRadius: 2,
+        flexDirection: 'column',
+    },
+
+})

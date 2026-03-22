@@ -19,7 +19,7 @@ type Props = {
     theme?: string;
     urgent?: boolean; // urgent should come with a badge!
     pressable?: boolean; // will add a chevron to the right of a card if this is true
-    icon?: {name: keyof typeof Ionicons.glyphMap, size: number, color: ColorValue, backgroundColor: string} // details for an ionicons icon
+    icon?: {name: keyof typeof Ionicons.glyphMap, size: number, color: ColorValue, backgroundColor: ColorValue} // details for an ionicons icon
     badge?: {type: BadgeType, content: string, contentColor: ColorValue, backgroundColor: ColorValue} // a badge, normally denoting something important
 
 };

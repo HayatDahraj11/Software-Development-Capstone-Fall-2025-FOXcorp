@@ -38,7 +38,7 @@ export default function ParentGeneralInfoScreen() {
   const tintcolor = useThemeColor({}, 'tint');
   const listtextcolor = useThemeColor({}, "listText");
   const subtextcolor = useThemeColor({}, "placeholderText");
-  const modalbgcolor = useThemeColor({}, "modalBackground")
+  const modalbgcolor = useThemeColor({}, "modalBackground");
 
   const {
         userParent,

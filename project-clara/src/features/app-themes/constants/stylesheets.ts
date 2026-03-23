@@ -137,6 +137,13 @@ export const dropdownStyle = StyleSheet.create({
         minWidth: '25%',
         width: '25%',
     },
+    wideDropdownContainer: {
+        alignContent: 'flex-start',
+        justifyContent: 'space-around',
+        flexDirection: 'row',
+        minWidth: '95%',
+        width: '95%',
+    },
     dropdownButton: {
         flex: 1,
         alignItems: "center",
@@ -148,6 +155,18 @@ export const dropdownStyle = StyleSheet.create({
         shadowRadius: 4,
         elevation: 2,
     },
+    wideDropdownButton: {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "space-evenly",
+        borderRadius: 20,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+        elevation: 2,
+        height: "100%",
+    },
     dropdownLabel: {
         fontSize: 14,
         fontWeight: '600',
@@ -157,8 +176,28 @@ export const dropdownStyle = StyleSheet.create({
 // dialog component styles
 export const dialogStyle = StyleSheet.create({
     dialogueContainer: {
-        minHeight: '30%',
+        minHeight: '25%',
         minWidth: '80%',
         width: '80%',
     },
+})
+
+// radio group component styles
+export const radioGroupStyle = StyleSheet.create({
+    groupContainer: {
+        flex: 1,
+        justifyContent: 'space-evenly',
+    },
+    itemContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        padding: 3,
+    },
+    itemLabel: {
+        fontSize: 16,
+    },
+    itemTick: {
+        marginRight: 12,
+        marginLeft: 10,
+    }
 })

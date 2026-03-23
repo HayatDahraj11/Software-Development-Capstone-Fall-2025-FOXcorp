@@ -47,7 +47,7 @@ export default function Parent_ViewClassComponent({classId, className, teacherId
                 <View style={styles.rowContainer}>
                     <Text style={[styles.teacherText, {color: textcolor}]}>{teacherName}</Text>
                     <Pressable onPress={(teacherId) => onClickProfilePic}>
-                        <Avatar alt={`${teacherName}'s Avatar`}>
+                        <Avatar alt={`${teacherName}'s Avatar`} >
                             <AvatarImage source={PlaceholderImage} />
                             <AvatarFallback>
                                 <Text>!!</Text>
@@ -76,7 +76,7 @@ const styles = StyleSheet.create ({
     rowContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center'
+        alignItems: 'center',
     },
     headerContainer: {
         flexDirection: 'row',

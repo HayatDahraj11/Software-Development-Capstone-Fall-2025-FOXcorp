@@ -9,7 +9,7 @@ export type UserCredentials = {
 }
 
 export type LocalSettings = {
-    app_theme: string; // 'dark' or 'light'
+    app_theme: "dark" | "light" | "system";
 }
 
 export type StorageQueryResult = {
@@ -25,7 +25,7 @@ export type StorageCreationResult = {
 
 // a default set of settings to replace any missing/incorrect values in stored settings
 // or, useful for a "reset settings" option
-function getDefaultSettings(systemTheme: string): LocalSettings {
+function getDefaultSettings(systemTheme: LocalSettings["app_theme"]): LocalSettings {
     const defaults: LocalSettings = {
         app_theme: systemTheme
     }
@@ -34,7 +34,7 @@ function getDefaultSettings(systemTheme: string): LocalSettings {
 
 // searches storage for settings matching user id in usercredentials
 // returns settings on success, returns a failure message on fail
-export async function queryLocalStorageForUser(credentials: UserCredentials, systemTheme: string): Promise<StorageQueryResult> {
+export async function queryLocalStorageForUser(credentials: UserCredentials, systemTheme: LocalSettings["app_theme"]): Promise<StorageQueryResult> {
     const defaultSettings: LocalSettings = getDefaultSettings(systemTheme)
     // grabbing stored data
     try{
@@ -43,7 +43,7 @@ export async function queryLocalStorageForUser(credentials: UserCredentials, sys
             const userObject = JSON.parse(userJson)
             const userSettings: LocalSettings = {app_theme: userObject["app_theme"]}
             // if app theme is missing or stored incorrectly, correct it now! 
-            if(userSettings.app_theme !== "light" && userSettings.app_theme !== "dark") {
+            if(!isAppTheme(userSettings.app_theme)) {
                 console.log("User theme missing, setting to default.")
                 userSettings.app_theme = defaultSettings.app_theme;
             }
@@ -64,7 +64,7 @@ export async function queryLocalStorageForUser(credentials: UserCredentials, sys
 }
 
 // creates a new dictionary of settings for a new user id
-export async function createLocalStorageForUser(credentials: UserCredentials, systemTheme: string): Promise<StorageCreationResult> {
+export async function createLocalStorageForUser(credentials: UserCredentials, systemTheme: LocalSettings["app_theme"]): Promise<StorageCreationResult> {
     const userDefaults:LocalSettings = getDefaultSettings(systemTheme); 
     const userDefaultsStringify = JSON.stringify(userDefaults); 
     try {
@@ -91,4 +91,14 @@ export async function updateLocalStorageForUser(credentials: UserCredentials, ne
         console.error("storage_handler.ts, updateLocalStorageForUser: ",err.message)
         return { success: false, message: "See logs for error" }
     }
+}
+
+// returns if temp is a valid app theme variable
+export function isAppTheme(temp: any): temp is LocalSettings["app_theme"] {
+    return (
+        typeof temp === "string" &&
+        temp === "light" ||
+        temp === "dark" ||
+        temp === "system"
+    );
 }

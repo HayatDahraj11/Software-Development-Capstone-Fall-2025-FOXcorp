@@ -11,6 +11,7 @@ import {
   conversationsByParentId,
   conversationsByTeacherId,
   messagesByConversationIdAndCreatedAt,
+  getConversation,
 } from "@/src/graphql/queries";
 
 import {
@@ -20,6 +21,8 @@ import {
 } from "@/src/graphql/mutations";
 
 import { onCreateMessage } from "@/src/graphql/subscriptions";
+
+import { sendPushToUser } from "@/src/features/notifications/api/sendPushToUser";
 
 // ── Types ───────────────────────────────────────────────────────────
 
@@ -275,6 +278,52 @@ export async function sendMessage(params: {
       .catch((err: any) =>
         console.warn("conversation preview update failed:", err)
       );
+
+    // send a push notification to the other person so they know they got a message
+    // this is fire-and-forget so if it fails the message still goes through fine
+    (async () => {
+      try {
+        // we need the conversation details to figure out who to notify
+        const convoResult: any = await client.graphql({
+          query: getConversation,
+          variables: { id: params.conversationId },
+        });
+        const convo = convoResult.data?.getConversation;
+        if (!convo) return;
+
+        // if a parent sent it, notify the teacher and vice versa
+        const recipientId =
+          params.senderType === "PARENT" ? convo.teacherId : convo.parentId;
+        if (!recipientId) return;
+
+        // build a nice title like "Mrs. Smith - Math Class" or "Jane Doe - Re: Tommy"
+        const senderDisplayName = params.senderName;
+        const context =
+          convo.type === "GROUP"
+            ? convo.className ?? "Class"
+            : convo.studentName
+            ? `Re: ${convo.studentName}`
+            : "";
+
+        // the route tells the app where to navigate when they tap the notification
+        sendPushToUser({
+          recipientUserId: recipientId,
+          title: `${senderDisplayName}${context ? ` - ${context}` : ""}`,
+          body: params.body,
+          data: {
+            route:
+              params.senderType === "PARENT"
+                ? "/(teacher)/conversation"
+                : "/(parent)/conversation",
+            conversationId: params.conversationId,
+            conversationTitle: senderDisplayName,
+          },
+        });
+      } catch (err) {
+        // dont let a push failure break the message send
+        console.warn("push notification after send failed:", err);
+      }
+    })();
 
     return { data: result.data.createMessage, error: null };
   } catch (err) {

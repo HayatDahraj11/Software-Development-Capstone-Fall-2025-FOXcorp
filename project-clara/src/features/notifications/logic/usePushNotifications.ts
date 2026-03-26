@@ -7,6 +7,7 @@ import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import { Href, useRouter } from 'expo-router';
+import { registerPushToken } from '@/src/features/notifications/api/pushTokenRepo';
 
 // typescript readable notification state interface
 interface PushNotificationState {
@@ -45,8 +46,11 @@ export async function sendPushNotification(expoPushToken: string) {
     });
 }
 
-export const usePushNotifications = (): PushNotificationState => {
-    
+export const usePushNotifications = (
+    userId?: string,
+    userType?: "PARENT" | "TEACHER"
+): PushNotificationState => {
+
     // notification handler and params
     Notifications.setNotificationHandler({
     handleNotification: async () => ({
@@ -61,12 +65,9 @@ export const usePushNotifications = (): PushNotificationState => {
     const [expoPushToken, setExpoPushToken] = useState('');
     // latest received notification
     const [notification, setNotification] = useState<Notifications.Notification | undefined>(undefined);
-    // helps manage which notifications we care about
-    //const notificationListener = useRef<Notifications.EventSubscription>(undefined);
-    //const responseListener = useRef<Notifications.EventSubscription>(undefined);
-    
+
     const router = useRouter();
-    
+    const hasRegistered = useRef(false);
 
     // ------ registering for device notifications ------
 
@@ -139,21 +140,30 @@ export const usePushNotifications = (): PushNotificationState => {
                 router.push( (data.route) as Href );
             } catch(error) {
                 console.error("Notification tap error: ",error);
-            } 
+            }
         }, [router]
     );
 
     useEffect(() => {
         // gets expo push token or dies trying
         registerForPushNotificationsAsync()
-            .then(token => setExpoPushToken(token ?? ''))
+            .then(token => {
+                setExpoPushToken(token ?? '');
+                // register token with backend if we have user info
+                if (token && userId && userType && !hasRegistered.current) {
+                    hasRegistered.current = true;
+                    registerPushToken(userId, userType, token).catch((err) =>
+                        console.warn("Push token backend registration failed:", err)
+                    );
+                }
+            })
             .catch((error: any) => setExpoPushToken(`${error}`));
 
         // updates current notification we care about
         const notificationListener = Notifications.addNotificationReceivedListener(notification => {
             setNotification(notification);
         });
-        
+
         // runs handleNotificationResponse with this notification
         const responseListener = Notifications.addNotificationResponseReceivedListener(
             handleNotificationResponse
@@ -164,7 +174,7 @@ export const usePushNotifications = (): PushNotificationState => {
             notificationListener.remove();
             responseListener.remove();
         };
-    }, [handleNotificationResponse]);
+    }, [handleNotificationResponse, userId, userType]);
 
     return {
         expoPushToken,

@@ -264,6 +264,10 @@ export const createClass = /* GraphQL */ `mutation CreateClass(
       nextToken
       __typename
     }
+    schedules {
+      nextToken
+      __typename
+    }
     createdAt
     updatedAt
     __typename
@@ -308,6 +312,10 @@ export const updateClass = /* GraphQL */ `mutation UpdateClass(
       __typename
     }
     incidents {
+      nextToken
+      __typename
+    }
+    schedules {
       nextToken
       __typename
     }
@@ -358,6 +366,10 @@ export const deleteClass = /* GraphQL */ `mutation DeleteClass(
       nextToken
       __typename
     }
+    schedules {
+      nextToken
+      __typename
+    }
     createdAt
     updatedAt
     __typename
@@ -366,6 +378,90 @@ export const deleteClass = /* GraphQL */ `mutation DeleteClass(
 ` as GeneratedMutation<
   APITypes.DeleteClassMutationVariables,
   APITypes.DeleteClassMutation
+>;
+export const createSchedule = /* GraphQL */ `mutation CreateSchedule(
+  $input: CreateScheduleInput!
+  $condition: ModelScheduleConditionInput
+) {
+  createSchedule(input: $input, condition: $condition) {
+    id
+    classId
+    class {
+      id
+      name
+      teacherId
+      schoolId
+      createdAt
+      updatedAt
+      __typename
+    }
+    dayOfWeek
+    startTime
+    endTime
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateScheduleMutationVariables,
+  APITypes.CreateScheduleMutation
+>;
+export const updateSchedule = /* GraphQL */ `mutation UpdateSchedule(
+  $input: UpdateScheduleInput!
+  $condition: ModelScheduleConditionInput
+) {
+  updateSchedule(input: $input, condition: $condition) {
+    id
+    classId
+    class {
+      id
+      name
+      teacherId
+      schoolId
+      createdAt
+      updatedAt
+      __typename
+    }
+    dayOfWeek
+    startTime
+    endTime
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateScheduleMutationVariables,
+  APITypes.UpdateScheduleMutation
+>;
+export const deleteSchedule = /* GraphQL */ `mutation DeleteSchedule(
+  $input: DeleteScheduleInput!
+  $condition: ModelScheduleConditionInput
+) {
+  deleteSchedule(input: $input, condition: $condition) {
+    id
+    classId
+    class {
+      id
+      name
+      teacherId
+      schoolId
+      createdAt
+      updatedAt
+      __typename
+    }
+    dayOfWeek
+    startTime
+    endTime
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteScheduleMutationVariables,
+  APITypes.DeleteScheduleMutation
 >;
 export const createEnrollment = /* GraphQL */ `mutation CreateEnrollment(
   $input: CreateEnrollmentInput!
@@ -514,6 +610,8 @@ export const createAttendance = /* GraphQL */ `mutation CreateAttendance(
       studentMedicalRecordId
       __typename
     }
+    checkInTime
+    updatedAt
     class {
       id
       name
@@ -524,7 +622,6 @@ export const createAttendance = /* GraphQL */ `mutation CreateAttendance(
       __typename
     }
     createdAt
-    updatedAt
     __typename
   }
 }
@@ -556,6 +653,8 @@ export const updateAttendance = /* GraphQL */ `mutation UpdateAttendance(
       studentMedicalRecordId
       __typename
     }
+    checkInTime
+    updatedAt
     class {
       id
       name
@@ -566,7 +665,6 @@ export const updateAttendance = /* GraphQL */ `mutation UpdateAttendance(
       __typename
     }
     createdAt
-    updatedAt
     __typename
   }
 }
@@ -598,6 +696,8 @@ export const deleteAttendance = /* GraphQL */ `mutation DeleteAttendance(
       studentMedicalRecordId
       __typename
     }
+    checkInTime
+    updatedAt
     class {
       id
       name
@@ -608,7 +708,6 @@ export const deleteAttendance = /* GraphQL */ `mutation DeleteAttendance(
       __typename
     }
     createdAt
-    updatedAt
     __typename
   }
 }
@@ -1164,6 +1263,63 @@ export const deleteMessage = /* GraphQL */ `mutation DeleteMessage(
 ` as GeneratedMutation<
   APITypes.DeleteMessageMutationVariables,
   APITypes.DeleteMessageMutation
+>;
+export const createPushToken = /* GraphQL */ `mutation CreatePushToken(
+  $input: CreatePushTokenInput!
+  $condition: ModelPushTokenConditionInput
+) {
+  createPushToken(input: $input, condition: $condition) {
+    id
+    userId
+    userType
+    token
+    platform
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreatePushTokenMutationVariables,
+  APITypes.CreatePushTokenMutation
+>;
+export const updatePushToken = /* GraphQL */ `mutation UpdatePushToken(
+  $input: UpdatePushTokenInput!
+  $condition: ModelPushTokenConditionInput
+) {
+  updatePushToken(input: $input, condition: $condition) {
+    id
+    userId
+    userType
+    token
+    platform
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdatePushTokenMutationVariables,
+  APITypes.UpdatePushTokenMutation
+>;
+export const deletePushToken = /* GraphQL */ `mutation DeletePushToken(
+  $input: DeletePushTokenInput!
+  $condition: ModelPushTokenConditionInput
+) {
+  deletePushToken(input: $input, condition: $condition) {
+    id
+    userId
+    userType
+    token
+    platform
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeletePushTokenMutationVariables,
+  APITypes.DeletePushTokenMutation
 >;
 export const createSchool = /* GraphQL */ `mutation CreateSchool(
   $input: CreateSchoolInput!

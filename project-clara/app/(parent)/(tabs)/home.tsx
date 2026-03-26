@@ -14,7 +14,7 @@ import { useParentLoginContext } from "@/src/features/context/ParentLoginContext
 import { useDashboardData } from "@/src/features/dashboard/logic/useDashboardData";
 
 export default function ParentHomeScreen() {
-    const { userParent, userStudents } = useParentLoginContext();
+    const { userParent, userStudents, setChosenStudentId } = useParentLoginContext();
     const { expoPushToken } = usePushNotifications(userParent.userId, "PARENT");
     const router = useRouter();
     const { latestConversation, messageCount, medicalAlert } =
@@ -96,7 +96,10 @@ export default function ParentHomeScreen() {
                             key={student.id}
                             header={`${student.firstName} ${student.lastName}`}
                             preview={student.gradeLevel!=null ? `Grade ${student.gradeLevel}` : ``}
-                            onPress={() => router.push("/(parent)/(tabs)/general-info" as Href)}
+                            onPress={() => {
+                                setChosenStudentId(student.id); // save this so the general-info screen knows which kid it is supposed to be looking at
+                                router.push("/(parent)/(tabs)/general-info" as Href);
+                            }}
                             urgent={true}
                             pressable={true}
                             icon={{name: "person", size: 24, color: tint, backgroundColor: (tint+20)}}
@@ -106,7 +109,12 @@ export default function ParentHomeScreen() {
                                     content: `${attendance}%`, 
                                     contentColor: attendance >= 90 ? "#16a34a" : attendance >= 75 ? "#d97706" : "#dc2626",
                                     backgroundColor: attendance >= 90 ? "#22c55e20" : attendance >= 75 ? "#f59e0b20" : "#ef444420"
-                                    } : undefined
+                                    } : { 
+                                    type: 0,
+                                    content: "100%",
+                                    contentColor: "#16a34a",
+                                    backgroundColor: "#22c55e20",
+                                    }
                                 }
                         />
                     );

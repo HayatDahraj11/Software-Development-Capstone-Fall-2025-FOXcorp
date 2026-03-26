@@ -1,4 +1,4 @@
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Platform, Pressable, ScrollView, Text, View } from "react-native";
 
@@ -48,6 +48,8 @@ export default function ParentGeneralInfoScreen() {
         getClassesMappedByStudent,
         getTeacherNamebyId,
         getStudentGradeInClass,
+        getChosenStudentId,
+        getChosenStudentIndex,
   } = useParentLoginContext();
 
   const RouteCard = (route: string): void => {
@@ -72,8 +74,8 @@ export default function ParentGeneralInfoScreen() {
   };
 
   // this holds which child of the parent's is currently being displayed
-  const [childSelected, setChildSelected] = useState<Student>(userStudents[0]);
-  const [childIdSelected, setChildIdSelected] = useState<Option>({value: userStudents[0].id, label: userStudents[0].firstName})
+  const [childSelected, setChildSelected] = useState<Student>(userStudents[getChosenStudentIndex()]);
+  const [childIdSelected, setChildIdSelected] = useState<Option>({value: userStudents[getChosenStudentIndex()].id, label: userStudents[getChosenStudentIndex()].firstName})
   const [childClasses, setChildClasses] = useState<{classId: string; className: string; teacherId: string; teacherName: string; grade: number}[]>()
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [classOpened, setClassOpened] = useState<{classId: string; className: string; teacherId: string; teacherName: string; grade: number}>();
@@ -139,6 +141,14 @@ export default function ParentGeneralInfoScreen() {
       console.warn("Tried to open a class that wasn't found.")
     }
   }
+
+  // updates the student selected on screen focus
+  useFocusEffect(
+    useCallback(() => {
+      setChildSelected(userStudents[getChosenStudentIndex()]);
+      setChildIdSelected({value: userStudents[getChosenStudentIndex()].id, label: userStudents[getChosenStudentIndex()].firstName})
+    }, [getChosenStudentIndex, userStudents])
+  )
 
   // when linking to the doc pages, access the [studentId] folder using param: {studentId: childSelected.studentId}
   // you can also pass the student object as a param, { student = childSelected }

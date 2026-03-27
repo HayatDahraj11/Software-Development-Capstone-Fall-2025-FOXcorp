@@ -283,18 +283,26 @@ export async function sendMessage(params: {
     // this is fire-and-forget so if it fails the message still goes through fine
     (async () => {
       try {
+        console.log("push notification: looking up conversation", params.conversationId);
         // we need the conversation details to figure out who to notify
         const convoResult: any = await client.graphql({
           query: getConversation,
           variables: { id: params.conversationId },
         });
         const convo = convoResult.data?.getConversation;
-        if (!convo) return;
+        if (!convo) {
+          console.log("push notification: conversation not found, skipping");
+          return;
+        }
 
         // if a parent sent it, notify the teacher and vice versa
         const recipientId =
           params.senderType === "PARENT" ? convo.teacherId : convo.parentId;
-        if (!recipientId) return;
+        if (!recipientId) {
+          console.log("push notification: no recipient id found, skipping");
+          return;
+        }
+        console.log("push notification: sending to recipient", recipientId);
 
         // build a nice title like "Mrs. Smith - Math Class" or "Jane Doe - Re: Tommy"
         const senderDisplayName = params.senderName;

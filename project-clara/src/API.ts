@@ -186,6 +186,7 @@ export type Class = {
   enrollments?: ModelEnrollmentConnection | null,
   attendances?: ModelAttendanceConnection | null,
   incidents?: ModelIncidentConnection | null,
+  schedules?: ModelScheduleConnection | null,
   createdAt: string,
   updatedAt: string,
 };
@@ -222,9 +223,10 @@ export type Attendance = {
   date: string,
   status: AttendanceStatus,
   student?: Student | null,
+  checkInTime?: string | null,
+  updatedAt?: string | null,
   class?: Class | null,
   createdAt: string,
-  updatedAt: string,
 };
 
 export enum AttendanceStatus {
@@ -257,6 +259,35 @@ export type Incident = {
   createdAt: string,
   updatedAt: string,
 };
+
+export type ModelScheduleConnection = {
+  __typename: "ModelScheduleConnection",
+  items:  Array<Schedule | null >,
+  nextToken?: string | null,
+};
+
+export type Schedule = {
+  __typename: "Schedule",
+  id: string,
+  classId: string,
+  class?: Class | null,
+  dayOfWeek: DayOfWeek,
+  startTime: string,
+  endTime: string,
+  createdAt: string,
+  updatedAt: string,
+};
+
+export enum DayOfWeek {
+  MONDAY = "MONDAY",
+  TUESDAY = "TUESDAY",
+  WEDNESDAY = "WEDNESDAY",
+  THURSDAY = "THURSDAY",
+  FRIDAY = "FRIDAY",
+  SATURDAY = "SATURDAY",
+  SUNDAY = "SUNDAY",
+}
+
 
 export type ModelParentStudentsConnection = {
   __typename: "ModelParentStudentsConnection",
@@ -365,6 +396,43 @@ export type DeleteClassInput = {
   id: string,
 };
 
+export type CreateScheduleInput = {
+  id?: string | null,
+  classId: string,
+  dayOfWeek: DayOfWeek,
+  startTime: string,
+  endTime: string,
+};
+
+export type ModelScheduleConditionInput = {
+  classId?: ModelIDInput | null,
+  dayOfWeek?: ModelDayOfWeekInput | null,
+  startTime?: ModelStringInput | null,
+  endTime?: ModelStringInput | null,
+  and?: Array< ModelScheduleConditionInput | null > | null,
+  or?: Array< ModelScheduleConditionInput | null > | null,
+  not?: ModelScheduleConditionInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+};
+
+export type ModelDayOfWeekInput = {
+  eq?: DayOfWeek | null,
+  ne?: DayOfWeek | null,
+};
+
+export type UpdateScheduleInput = {
+  id: string,
+  classId?: string | null,
+  dayOfWeek?: DayOfWeek | null,
+  startTime?: string | null,
+  endTime?: string | null,
+};
+
+export type DeleteScheduleInput = {
+  id: string,
+};
+
 export type CreateEnrollmentInput = {
   id?: string | null,
   studentId: string,
@@ -400,6 +468,8 @@ export type CreateAttendanceInput = {
   classId: string,
   date: string,
   status: AttendanceStatus,
+  checkInTime?: string | null,
+  updatedAt?: string | null,
 };
 
 export type ModelAttendanceConditionInput = {
@@ -407,11 +477,12 @@ export type ModelAttendanceConditionInput = {
   classId?: ModelIDInput | null,
   date?: ModelStringInput | null,
   status?: ModelAttendanceStatusInput | null,
+  checkInTime?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
   and?: Array< ModelAttendanceConditionInput | null > | null,
   or?: Array< ModelAttendanceConditionInput | null > | null,
   not?: ModelAttendanceConditionInput | null,
   createdAt?: ModelStringInput | null,
-  updatedAt?: ModelStringInput | null,
 };
 
 export type ModelAttendanceStatusInput = {
@@ -425,6 +496,8 @@ export type UpdateAttendanceInput = {
   classId?: string | null,
   date?: string | null,
   status?: AttendanceStatus | null,
+  checkInTime?: string | null,
+  updatedAt?: string | null,
 };
 
 export type DeleteAttendanceInput = {
@@ -706,6 +779,53 @@ export type DeleteMessageInput = {
   id: string,
 };
 
+export type CreatePushTokenInput = {
+  id?: string | null,
+  userId: string,
+  userType: SenderType,
+  token: string,
+  platform: string,
+  createdAt?: string | null,
+  updatedAt?: string | null,
+};
+
+export type ModelPushTokenConditionInput = {
+  userId?: ModelIDInput | null,
+  userType?: ModelSenderTypeInput | null,
+  token?: ModelStringInput | null,
+  platform?: ModelStringInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  and?: Array< ModelPushTokenConditionInput | null > | null,
+  or?: Array< ModelPushTokenConditionInput | null > | null,
+  not?: ModelPushTokenConditionInput | null,
+};
+
+export type PushToken = {
+  __typename: "PushToken",
+  id: string,
+  userId: string,
+  userType: SenderType,
+  token: string,
+  platform: string,
+  createdAt: string,
+  updatedAt: string,
+};
+
+export type UpdatePushTokenInput = {
+  id: string,
+  userId?: string | null,
+  userType?: SenderType | null,
+  token?: string | null,
+  platform?: string | null,
+  createdAt?: string | null,
+  updatedAt?: string | null,
+};
+
+export type DeletePushTokenInput = {
+  id: string,
+};
+
 export type CreateSchoolInput = {
   id?: string | null,
   name: string,
@@ -838,6 +958,19 @@ export type ModelClassFilterInput = {
   not?: ModelClassFilterInput | null,
 };
 
+export type ModelScheduleFilterInput = {
+  id?: ModelIDInput | null,
+  classId?: ModelIDInput | null,
+  dayOfWeek?: ModelDayOfWeekInput | null,
+  startTime?: ModelStringInput | null,
+  endTime?: ModelStringInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  and?: Array< ModelScheduleFilterInput | null > | null,
+  or?: Array< ModelScheduleFilterInput | null > | null,
+  not?: ModelScheduleFilterInput | null,
+};
+
 export type ModelEnrollmentFilterInput = {
   id?: ModelIDInput | null,
   studentId?: ModelIDInput | null,
@@ -856,8 +989,9 @@ export type ModelAttendanceFilterInput = {
   classId?: ModelIDInput | null,
   date?: ModelStringInput | null,
   status?: ModelAttendanceStatusInput | null,
-  createdAt?: ModelStringInput | null,
+  checkInTime?: ModelStringInput | null,
   updatedAt?: ModelStringInput | null,
+  createdAt?: ModelStringInput | null,
   and?: Array< ModelAttendanceFilterInput | null > | null,
   or?: Array< ModelAttendanceFilterInput | null > | null,
   not?: ModelAttendanceFilterInput | null,
@@ -957,6 +1091,25 @@ export type ModelMessageFilterInput = {
   and?: Array< ModelMessageFilterInput | null > | null,
   or?: Array< ModelMessageFilterInput | null > | null,
   not?: ModelMessageFilterInput | null,
+};
+
+export type ModelPushTokenFilterInput = {
+  id?: ModelIDInput | null,
+  userId?: ModelIDInput | null,
+  userType?: ModelSenderTypeInput | null,
+  token?: ModelStringInput | null,
+  platform?: ModelStringInput | null,
+  createdAt?: ModelStringInput | null,
+  updatedAt?: ModelStringInput | null,
+  and?: Array< ModelPushTokenFilterInput | null > | null,
+  or?: Array< ModelPushTokenFilterInput | null > | null,
+  not?: ModelPushTokenFilterInput | null,
+};
+
+export type ModelPushTokenConnection = {
+  __typename: "ModelPushTokenConnection",
+  items:  Array<PushToken | null >,
+  nextToken?: string | null,
 };
 
 export enum ModelSortDirection {
@@ -1094,6 +1247,18 @@ export type ModelSubscriptionClassFilterInput = {
   or?: Array< ModelSubscriptionClassFilterInput | null > | null,
 };
 
+export type ModelSubscriptionScheduleFilterInput = {
+  id?: ModelSubscriptionIDInput | null,
+  classId?: ModelSubscriptionIDInput | null,
+  dayOfWeek?: ModelSubscriptionStringInput | null,
+  startTime?: ModelSubscriptionStringInput | null,
+  endTime?: ModelSubscriptionStringInput | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+  and?: Array< ModelSubscriptionScheduleFilterInput | null > | null,
+  or?: Array< ModelSubscriptionScheduleFilterInput | null > | null,
+};
+
 export type ModelSubscriptionEnrollmentFilterInput = {
   id?: ModelSubscriptionIDInput | null,
   studentId?: ModelSubscriptionIDInput | null,
@@ -1123,8 +1288,9 @@ export type ModelSubscriptionAttendanceFilterInput = {
   classId?: ModelSubscriptionIDInput | null,
   date?: ModelSubscriptionStringInput | null,
   status?: ModelSubscriptionStringInput | null,
-  createdAt?: ModelSubscriptionStringInput | null,
+  checkInTime?: ModelSubscriptionStringInput | null,
   updatedAt?: ModelSubscriptionStringInput | null,
+  createdAt?: ModelSubscriptionStringInput | null,
   and?: Array< ModelSubscriptionAttendanceFilterInput | null > | null,
   or?: Array< ModelSubscriptionAttendanceFilterInput | null > | null,
 };
@@ -1200,6 +1366,18 @@ export type ModelSubscriptionMessageFilterInput = {
   updatedAt?: ModelSubscriptionStringInput | null,
   and?: Array< ModelSubscriptionMessageFilterInput | null > | null,
   or?: Array< ModelSubscriptionMessageFilterInput | null > | null,
+};
+
+export type ModelSubscriptionPushTokenFilterInput = {
+  id?: ModelSubscriptionIDInput | null,
+  userId?: ModelSubscriptionIDInput | null,
+  userType?: ModelSubscriptionStringInput | null,
+  token?: ModelSubscriptionStringInput | null,
+  platform?: ModelSubscriptionStringInput | null,
+  createdAt?: ModelSubscriptionStringInput | null,
+  updatedAt?: ModelSubscriptionStringInput | null,
+  and?: Array< ModelSubscriptionPushTokenFilterInput | null > | null,
+  or?: Array< ModelSubscriptionPushTokenFilterInput | null > | null,
 };
 
 export type ModelSubscriptionSchoolFilterInput = {
@@ -1524,6 +1702,10 @@ export type CreateClassMutation = {
       __typename: "ModelIncidentConnection",
       nextToken?: string | null,
     } | null,
+    schedules?:  {
+      __typename: "ModelScheduleConnection",
+      nextToken?: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -1568,6 +1750,10 @@ export type UpdateClassMutation = {
     } | null,
     incidents?:  {
       __typename: "ModelIncidentConnection",
+      nextToken?: string | null,
+    } | null,
+    schedules?:  {
+      __typename: "ModelScheduleConnection",
       nextToken?: string | null,
     } | null,
     createdAt: string,
@@ -1616,6 +1802,91 @@ export type DeleteClassMutation = {
       __typename: "ModelIncidentConnection",
       nextToken?: string | null,
     } | null,
+    schedules?:  {
+      __typename: "ModelScheduleConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type CreateScheduleMutationVariables = {
+  input: CreateScheduleInput,
+  condition?: ModelScheduleConditionInput | null,
+};
+
+export type CreateScheduleMutation = {
+  createSchedule?:  {
+    __typename: "Schedule",
+    id: string,
+    classId: string,
+    class?:  {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    dayOfWeek: DayOfWeek,
+    startTime: string,
+    endTime: string,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type UpdateScheduleMutationVariables = {
+  input: UpdateScheduleInput,
+  condition?: ModelScheduleConditionInput | null,
+};
+
+export type UpdateScheduleMutation = {
+  updateSchedule?:  {
+    __typename: "Schedule",
+    id: string,
+    classId: string,
+    class?:  {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    dayOfWeek: DayOfWeek,
+    startTime: string,
+    endTime: string,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type DeleteScheduleMutationVariables = {
+  input: DeleteScheduleInput,
+  condition?: ModelScheduleConditionInput | null,
+};
+
+export type DeleteScheduleMutation = {
+  deleteSchedule?:  {
+    __typename: "Schedule",
+    id: string,
+    classId: string,
+    class?:  {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    dayOfWeek: DayOfWeek,
+    startTime: string,
+    endTime: string,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -1768,6 +2039,8 @@ export type CreateAttendanceMutation = {
       schoolStudentsId?: string | null,
       studentMedicalRecordId?: string | null,
     } | null,
+    checkInTime?: string | null,
+    updatedAt?: string | null,
     class?:  {
       __typename: "Class",
       id: string,
@@ -1778,7 +2051,6 @@ export type CreateAttendanceMutation = {
       updatedAt: string,
     } | null,
     createdAt: string,
-    updatedAt: string,
   } | null,
 };
 
@@ -1809,6 +2081,8 @@ export type UpdateAttendanceMutation = {
       schoolStudentsId?: string | null,
       studentMedicalRecordId?: string | null,
     } | null,
+    checkInTime?: string | null,
+    updatedAt?: string | null,
     class?:  {
       __typename: "Class",
       id: string,
@@ -1819,7 +2093,6 @@ export type UpdateAttendanceMutation = {
       updatedAt: string,
     } | null,
     createdAt: string,
-    updatedAt: string,
   } | null,
 };
 
@@ -1850,6 +2123,8 @@ export type DeleteAttendanceMutation = {
       schoolStudentsId?: string | null,
       studentMedicalRecordId?: string | null,
     } | null,
+    checkInTime?: string | null,
+    updatedAt?: string | null,
     class?:  {
       __typename: "Class",
       id: string,
@@ -1860,7 +2135,6 @@ export type DeleteAttendanceMutation = {
       updatedAt: string,
     } | null,
     createdAt: string,
-    updatedAt: string,
   } | null,
 };
 
@@ -2398,6 +2672,60 @@ export type DeleteMessageMutation = {
   } | null,
 };
 
+export type CreatePushTokenMutationVariables = {
+  input: CreatePushTokenInput,
+  condition?: ModelPushTokenConditionInput | null,
+};
+
+export type CreatePushTokenMutation = {
+  createPushToken?:  {
+    __typename: "PushToken",
+    id: string,
+    userId: string,
+    userType: SenderType,
+    token: string,
+    platform: string,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type UpdatePushTokenMutationVariables = {
+  input: UpdatePushTokenInput,
+  condition?: ModelPushTokenConditionInput | null,
+};
+
+export type UpdatePushTokenMutation = {
+  updatePushToken?:  {
+    __typename: "PushToken",
+    id: string,
+    userId: string,
+    userType: SenderType,
+    token: string,
+    platform: string,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type DeletePushTokenMutationVariables = {
+  input: DeletePushTokenInput,
+  condition?: ModelPushTokenConditionInput | null,
+};
+
+export type DeletePushTokenMutation = {
+  deletePushToken?:  {
+    __typename: "PushToken",
+    id: string,
+    userId: string,
+    userType: SenderType,
+    token: string,
+    platform: string,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
 export type CreateSchoolMutationVariables = {
   input: CreateSchoolInput,
   condition?: ModelSchoolConditionInput | null,
@@ -2846,6 +3174,10 @@ export type GetClassQuery = {
       __typename: "ModelIncidentConnection",
       nextToken?: string | null,
     } | null,
+    schedules?:  {
+      __typename: "ModelScheduleConnection",
+      nextToken?: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -2866,6 +3198,55 @@ export type ListClassesQuery = {
       name: string,
       teacherId: string,
       schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type GetScheduleQueryVariables = {
+  id: string,
+};
+
+export type GetScheduleQuery = {
+  getSchedule?:  {
+    __typename: "Schedule",
+    id: string,
+    classId: string,
+    class?:  {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    dayOfWeek: DayOfWeek,
+    startTime: string,
+    endTime: string,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type ListSchedulesQueryVariables = {
+  filter?: ModelScheduleFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListSchedulesQuery = {
+  listSchedules?:  {
+    __typename: "ModelScheduleConnection",
+    items:  Array< {
+      __typename: "Schedule",
+      id: string,
+      classId: string,
+      dayOfWeek: DayOfWeek,
+      startTime: string,
+      endTime: string,
       createdAt: string,
       updatedAt: string,
     } | null >,
@@ -2960,6 +3341,8 @@ export type GetAttendanceQuery = {
       schoolStudentsId?: string | null,
       studentMedicalRecordId?: string | null,
     } | null,
+    checkInTime?: string | null,
+    updatedAt?: string | null,
     class?:  {
       __typename: "Class",
       id: string,
@@ -2970,7 +3353,6 @@ export type GetAttendanceQuery = {
       updatedAt: string,
     } | null,
     createdAt: string,
-    updatedAt: string,
   } | null,
 };
 
@@ -2990,8 +3372,9 @@ export type ListAttendancesQuery = {
       classId: string,
       date: string,
       status: AttendanceStatus,
+      checkInTime?: string | null,
+      updatedAt?: string | null,
       createdAt: string,
-      updatedAt: string,
     } | null >,
     nextToken?: string | null,
   } | null,
@@ -3298,6 +3681,46 @@ export type ListMessagesQuery = {
   } | null,
 };
 
+export type GetPushTokenQueryVariables = {
+  id: string,
+};
+
+export type GetPushTokenQuery = {
+  getPushToken?:  {
+    __typename: "PushToken",
+    id: string,
+    userId: string,
+    userType: SenderType,
+    token: string,
+    platform: string,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type ListPushTokensQueryVariables = {
+  filter?: ModelPushTokenFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListPushTokensQuery = {
+  listPushTokens?:  {
+    __typename: "ModelPushTokenConnection",
+    items:  Array< {
+      __typename: "PushToken",
+      id: string,
+      userId: string,
+      userType: SenderType,
+      token: string,
+      platform: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
 export type TeachersByCognitoUserIdQueryVariables = {
   cognitoUserId: string,
   sortDirection?: ModelSortDirection | null,
@@ -3394,6 +3817,31 @@ export type ClassesBySchoolIdQuery = {
   } | null,
 };
 
+export type SchedulesByClassIdQueryVariables = {
+  classId: string,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelScheduleFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type SchedulesByClassIdQuery = {
+  schedulesByClassId?:  {
+    __typename: "ModelScheduleConnection",
+    items:  Array< {
+      __typename: "Schedule",
+      id: string,
+      classId: string,
+      dayOfWeek: DayOfWeek,
+      startTime: string,
+      endTime: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
 export type EnrollmentsByStudentIdQueryVariables = {
   studentId: string,
   sortDirection?: ModelSortDirection | null,
@@ -3460,8 +3908,9 @@ export type AttendancesByStudentIdQuery = {
       classId: string,
       date: string,
       status: AttendanceStatus,
+      checkInTime?: string | null,
+      updatedAt?: string | null,
       createdAt: string,
-      updatedAt: string,
     } | null >,
     nextToken?: string | null,
   } | null,
@@ -3485,8 +3934,9 @@ export type AttendancesByClassIdQuery = {
       classId: string,
       date: string,
       status: AttendanceStatus,
+      checkInTime?: string | null,
+      updatedAt?: string | null,
       createdAt: string,
-      updatedAt: string,
     } | null >,
     nextToken?: string | null,
   } | null,
@@ -3830,6 +4280,31 @@ export type MessagesByConversationIdAndCreatedAtQuery = {
       senderType: SenderType,
       senderName: string,
       body: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null >,
+    nextToken?: string | null,
+  } | null,
+};
+
+export type PushTokensByUserIdQueryVariables = {
+  userId: string,
+  sortDirection?: ModelSortDirection | null,
+  filter?: ModelPushTokenFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type PushTokensByUserIdQuery = {
+  pushTokensByUserId?:  {
+    __typename: "ModelPushTokenConnection",
+    items:  Array< {
+      __typename: "PushToken",
+      id: string,
+      userId: string,
+      userType: SenderType,
+      token: string,
+      platform: string,
       createdAt: string,
       updatedAt: string,
     } | null >,
@@ -4295,6 +4770,10 @@ export type OnCreateClassSubscription = {
       __typename: "ModelIncidentConnection",
       nextToken?: string | null,
     } | null,
+    schedules?:  {
+      __typename: "ModelScheduleConnection",
+      nextToken?: string | null,
+    } | null,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -4338,6 +4817,10 @@ export type OnUpdateClassSubscription = {
     } | null,
     incidents?:  {
       __typename: "ModelIncidentConnection",
+      nextToken?: string | null,
+    } | null,
+    schedules?:  {
+      __typename: "ModelScheduleConnection",
       nextToken?: string | null,
     } | null,
     createdAt: string,
@@ -4385,6 +4868,88 @@ export type OnDeleteClassSubscription = {
       __typename: "ModelIncidentConnection",
       nextToken?: string | null,
     } | null,
+    schedules?:  {
+      __typename: "ModelScheduleConnection",
+      nextToken?: string | null,
+    } | null,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnCreateScheduleSubscriptionVariables = {
+  filter?: ModelSubscriptionScheduleFilterInput | null,
+};
+
+export type OnCreateScheduleSubscription = {
+  onCreateSchedule?:  {
+    __typename: "Schedule",
+    id: string,
+    classId: string,
+    class?:  {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    dayOfWeek: DayOfWeek,
+    startTime: string,
+    endTime: string,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnUpdateScheduleSubscriptionVariables = {
+  filter?: ModelSubscriptionScheduleFilterInput | null,
+};
+
+export type OnUpdateScheduleSubscription = {
+  onUpdateSchedule?:  {
+    __typename: "Schedule",
+    id: string,
+    classId: string,
+    class?:  {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    dayOfWeek: DayOfWeek,
+    startTime: string,
+    endTime: string,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnDeleteScheduleSubscriptionVariables = {
+  filter?: ModelSubscriptionScheduleFilterInput | null,
+};
+
+export type OnDeleteScheduleSubscription = {
+  onDeleteSchedule?:  {
+    __typename: "Schedule",
+    id: string,
+    classId: string,
+    class?:  {
+      __typename: "Class",
+      id: string,
+      name: string,
+      teacherId: string,
+      schoolId: string,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+    dayOfWeek: DayOfWeek,
+    startTime: string,
+    endTime: string,
     createdAt: string,
     updatedAt: string,
   } | null,
@@ -4533,6 +5098,8 @@ export type OnCreateAttendanceSubscription = {
       schoolStudentsId?: string | null,
       studentMedicalRecordId?: string | null,
     } | null,
+    checkInTime?: string | null,
+    updatedAt?: string | null,
     class?:  {
       __typename: "Class",
       id: string,
@@ -4543,7 +5110,6 @@ export type OnCreateAttendanceSubscription = {
       updatedAt: string,
     } | null,
     createdAt: string,
-    updatedAt: string,
   } | null,
 };
 
@@ -4573,6 +5139,8 @@ export type OnUpdateAttendanceSubscription = {
       schoolStudentsId?: string | null,
       studentMedicalRecordId?: string | null,
     } | null,
+    checkInTime?: string | null,
+    updatedAt?: string | null,
     class?:  {
       __typename: "Class",
       id: string,
@@ -4583,7 +5151,6 @@ export type OnUpdateAttendanceSubscription = {
       updatedAt: string,
     } | null,
     createdAt: string,
-    updatedAt: string,
   } | null,
 };
 
@@ -4613,6 +5180,8 @@ export type OnDeleteAttendanceSubscription = {
       schoolStudentsId?: string | null,
       studentMedicalRecordId?: string | null,
     } | null,
+    checkInTime?: string | null,
+    updatedAt?: string | null,
     class?:  {
       __typename: "Class",
       id: string,
@@ -4623,7 +5192,6 @@ export type OnDeleteAttendanceSubscription = {
       updatedAt: string,
     } | null,
     createdAt: string,
-    updatedAt: string,
   } | null,
 };
 
@@ -5142,6 +5710,57 @@ export type OnDeleteMessageSubscription = {
       createdAt: string,
       updatedAt: string,
     } | null,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnCreatePushTokenSubscriptionVariables = {
+  filter?: ModelSubscriptionPushTokenFilterInput | null,
+};
+
+export type OnCreatePushTokenSubscription = {
+  onCreatePushToken?:  {
+    __typename: "PushToken",
+    id: string,
+    userId: string,
+    userType: SenderType,
+    token: string,
+    platform: string,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnUpdatePushTokenSubscriptionVariables = {
+  filter?: ModelSubscriptionPushTokenFilterInput | null,
+};
+
+export type OnUpdatePushTokenSubscription = {
+  onUpdatePushToken?:  {
+    __typename: "PushToken",
+    id: string,
+    userId: string,
+    userType: SenderType,
+    token: string,
+    platform: string,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnDeletePushTokenSubscriptionVariables = {
+  filter?: ModelSubscriptionPushTokenFilterInput | null,
+};
+
+export type OnDeletePushTokenSubscription = {
+  onDeletePushToken?:  {
+    __typename: "PushToken",
+    id: string,
+    userId: string,
+    userType: SenderType,
+    token: string,
+    platform: string,
+    createdAt: string,
     updatedAt: string,
   } | null,
 };

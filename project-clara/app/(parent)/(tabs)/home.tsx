@@ -8,8 +8,8 @@ import { useParentLoginContext } from "@/src/features/context/ParentLoginContext
 import { useDashboardData } from "@/src/features/dashboard/logic/useDashboardData";
 
 export default function ParentHomeScreen() {
-    const { expoPushToken } = usePushNotifications();
     const { userParent, userStudents } = useParentLoginContext();
+    const { expoPushToken } = usePushNotifications(userParent.userId, "PARENT");
     const router = useRouter();
     const { latestConversation, messageCount, medicalAlert } =
         useDashboardData(userParent.userId, userStudents);

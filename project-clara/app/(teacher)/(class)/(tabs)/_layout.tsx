@@ -91,6 +91,20 @@ export default function ParentTabLayout() {
             }} />
 
             <Tabs.Screen
+                name="take-attendance"
+                options={{
+                    href: null,
+                    title: "Take Attendance",
+            }} />
+
+            <Tabs.Screen
+                name="incidents"
+                options={{
+                    href: null,
+                    title: "Incidents",
+            }} />
+
+            <Tabs.Screen
                 name="grades"
                 options={{
                     title: "Grades",

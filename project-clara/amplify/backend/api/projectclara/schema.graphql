@@ -65,6 +65,7 @@ type Class @model @auth(rules: [{ allow: public }]) {
   enrollments: [Enrollment] @hasMany(indexName: "byClass", fields: ["id"])
   attendances: [Attendance] @hasMany(indexName: "byClass", fields: ["id"])
   incidents: [Incident] @hasMany(indexName: "byClass", fields: ["id"])
+  schedules: [Schedule] @hasMany(indexName: "byClass", fields: ["id"])
 }
 # Separate Schedule model
 enum DayOfWeek { MONDAY TUESDAY WEDNESDAY THURSDAY FRIDAY SATURDAY SUNDAY }
@@ -179,4 +180,17 @@ type Message @model @auth(rules: [{ allow: public }]) {
   body:       String!
   createdAt:  AWSDateTime!
   conversation: Conversation @belongsTo(fields: ["conversationId"])
+}
+
+# ── Push Notifications ──────────────────────────────────────────────
+# Stores Expo push tokens so the backend can send notifications.
+# One row per device per user (users can have multiple devices).
+type PushToken @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+  userId: ID! @index(name: "byUser", queryField: "pushTokensByUserId")
+  userType: SenderType!
+  token: String!
+  platform: String!
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
 }

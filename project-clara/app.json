@@ -10,6 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
+      "bundleIdentifier": "com.gallagherjrby.projectclara",
       "userInterfaceStyle": "automatic"
     },
     "android": {

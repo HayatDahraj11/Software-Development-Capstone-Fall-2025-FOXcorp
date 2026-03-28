@@ -30,6 +30,8 @@ yarn-error.*
 .DS_Store
 *.pem
 
+SESSION_NOTES_MARCH.md
+
 # local env files
 .env*.local
 

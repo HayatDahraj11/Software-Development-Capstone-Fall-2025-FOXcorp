@@ -3,6 +3,7 @@ import { createContext, ReactNode, useCallback, useContext, useEffect, useState 
 import { Teacher, Class } from "src/features/fetch-user-data/api/teacher_data_fetcher";
 import { debug_classes, debug_teacher } from "../auth/logic/debug_teacher_data";
 import { useTeacherUserData } from "../fetch-user-data/logic/useTeacherUserData";
+import { unregisterPushTokens } from "../notifications/api/pushTokenRepo";
 
 export interface TeacherContextType {
     isContextLoading: boolean;
@@ -118,6 +119,13 @@ export const TeacherLoginProvider = ({children}: {children: ReactNode}) => {
                 console.log("AWS Signout sent and failed: ",{error})
                 return false
             }
+        }
+
+        // clear push tokens before signing out so we dont get ghost notifications
+        if (userTeacher?.userId) {
+            await unregisterPushTokens(userTeacher.userId).catch((err) =>
+                console.warn("Failed to unregister push tokens on logout:", err)
+            );
         }
 
         // attempting logout with aws

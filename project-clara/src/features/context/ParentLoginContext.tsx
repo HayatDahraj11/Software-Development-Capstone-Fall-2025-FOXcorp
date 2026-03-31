@@ -1,8 +1,8 @@
 import { getCurrentUser, signOut } from "aws-amplify/auth";
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
-import { useParentUserData } from "../fetch-user-data/logic/useParentUserData";
 import { Class, Enrollment, Parent, Student, Teacher_parentSide } from "src/features/fetch-user-data/api/parent_data_fetcher";
 import { debug_classes, debug_enrollments, debug_kids, debug_parent, debug_teachers } from "../auth/logic/debug_parent_data";
+import { useParentUserData } from "../fetch-user-data/logic/useParentUserData";
 import { unregisterPushTokens } from "../notifications/api/pushTokenRepo";
 
 export interface ParentContextType {
@@ -18,6 +18,9 @@ export interface ParentContextType {
     getClassesMappedByStudent: (studentId: string) => string[];
     getStudentGradeInClass: (studentId: string, classId: string) => number;
     getTeacherNamebyId: (teacherId: string) => string;
+    setChosenStudentId: (id: string) => void;
+    getChosenStudentId: () => string;
+    getChosenStudentIndex: () => number; 
 }
 
 // parent-wide login context
@@ -49,6 +52,8 @@ export const ParentLoginProvider = ({children}: {children: ReactNode}) => {
     const [userClasses, setUserClasses] = useState<Class[]>(debug_classes);
     const [userEnrollments, setUserEnrollments] = useState<Enrollment[]>(debug_enrollments);
     const [userTeachers, setUserTeachers] = useState<Teacher_parentSide[]>(debug_teachers);
+    const [studentChosenId, setStudentChosenId] = useState<string>(debug_kids[0].id)
+    const [studentChosenIndex, setStudentChosenIndex] = useState<number>(0);
     
 
     // function runs when the user first signs in
@@ -142,6 +147,7 @@ export const ParentLoginProvider = ({children}: {children: ReactNode}) => {
             setUserClasses(debug_classes);
             setUserEnrollments(debug_enrollments);
             setUserTeachers(debug_teachers);
+            setStudentChosenId(debug_kids[0].id)
             setIsReadyForFinalize(true);
         } else if(parent !== undefined && students !== undefined && classes !== undefined && enrollments !== undefined && teachers_parentSide !== undefined) {
             console.log("found aws parent and student info! returning")
@@ -150,6 +156,7 @@ export const ParentLoginProvider = ({children}: {children: ReactNode}) => {
             setUserClasses(classes);
             setUserEnrollments(enrollments);
             setUserTeachers(teachers_parentSide);
+            setStudentChosenId(students[0].id)
             setIsReadyForFinalize(true);
         }
     }, [parent, students, isDebug, isReadyForStateWaiter, classes, enrollments, teachers_parentSide])
@@ -243,6 +250,29 @@ export const ParentLoginProvider = ({children}: {children: ReactNode}) => {
         return teacherName;
     }
 
+    // set function for the chosen student id that will be saved between screens
+    // also, will set the index of the chosen student within the userStudents array
+    const setChosenStudentId = (id: string): void => {
+        setStudentChosenId(id);
+        if(isDebug) {
+            const temp: number = debug_kids.findIndex(stu => stu.id === id);
+            setStudentChosenIndex(temp);
+        } else {
+            const temp: number = userStudents.findIndex(stu => stu.id === id);
+            setStudentChosenIndex(temp);
+        }
+    }
+
+    // get function for above
+    const getChosenStudentId = (): string => {
+        return studentChosenId;
+    }
+
+    // get function for the index within the userStudents array that the chosen student is at
+    const getChosenStudentIndex = (): number => {
+        return studentChosenIndex;
+    }
+
 
     const userData = {
         isContextLoading,
@@ -257,6 +287,9 @@ export const ParentLoginProvider = ({children}: {children: ReactNode}) => {
         getClassesMappedByStudent,
         getStudentGradeInClass,
         getTeacherNamebyId,
+        setChosenStudentId,
+        getChosenStudentId,
+        getChosenStudentIndex,
     }
 
     return (

@@ -2,6 +2,7 @@ import { Href, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 
+import { containerStyle } from "@/src/features/app-themes/constants/stylesheets";
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import Card from "@/src/features/cards/ui/Card";
 import { useTeacherLoginContext } from "@/src/features/context/TeacherLoginContext";
@@ -10,6 +11,8 @@ export default function Index() {
     const router = useRouter();
     const [isAllDone, setIsAllDone] = useState(false);
     const [isContextDone, setIsContextDone] = useState(false);
+
+    const bgcolor = useThemeColor({}, "background")
 
     const {
             isContextLoading,
@@ -74,8 +77,9 @@ export default function Index() {
     };
 
     return (
-        <View style={styles.container}>
+        <View style={[containerStyle.container, {backgroundColor: bgcolor}]}>
             <FlatList
+                contentContainerStyle={containerStyle.scrollContent}
                 data={CardFlatListData}
                 renderItem={({item, index}) => (
                     <Card

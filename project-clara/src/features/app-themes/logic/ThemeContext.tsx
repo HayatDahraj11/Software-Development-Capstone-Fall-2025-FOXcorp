@@ -1,19 +1,21 @@
+import { useColorScheme as useSystemColorScheme } from 'nativewind';
 import React, { createContext, useCallback, useContext, useState } from 'react';
-import { useColorScheme as useSystemColorScheme } from 'react-native';
 
 type ThemeMode = 'light' | 'dark';
 
 interface ThemeContextType {
   theme: ThemeMode;
+  systemTheme: ThemeMode; // the os's current theme, stored to be referenced later
   setTheme: (theme: ThemeMode) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function AppThemeProvider({ children }: { children: React.ReactNode }) {
-  const systemTheme = useSystemColorScheme();
+  const {colorScheme} = useSystemColorScheme();
+  const systemTheme = colorScheme === "dark" ? "dark" : "light";
   const [theme, setThemeState] = useState<ThemeMode>(
-    systemTheme === 'dark' ? 'dark' : 'light'
+    colorScheme === 'dark' ? 'dark' : 'light'
   );
 
   const setTheme = useCallback((newTheme: ThemeMode) => {
@@ -21,7 +23,7 @@ export function AppThemeProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
+    <ThemeContext.Provider value={{ theme, systemTheme, setTheme }}>
       {children}
     </ThemeContext.Provider>
   );

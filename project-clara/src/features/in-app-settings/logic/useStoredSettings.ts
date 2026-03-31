@@ -1,10 +1,10 @@
-import { useCallback, useState } from "react";
 import { useAppTheme } from "@/src/features/app-themes/logic/ThemeContext";
+import { useCallback, useState } from "react";
 import { createLocalStorageForUser, LocalSettings, queryLocalStorageForUser, StorageQueryResult, updateLocalStorageForUser, UserCredentials } from "../api/storage_handler";
 
 
 interface UseStoredSettingsReturn {
-    app_theme: string;
+    app_theme: LocalSettings["app_theme"];
     isLoading: boolean;
     handleStoredSettings: () => Promise<void>;
     updateStoredSettings: (newSettings: LocalSettings) => Promise<void>;
@@ -16,9 +16,9 @@ interface UseStoredSettingsReturn {
 export function useStoredSettings(userId: string): UseStoredSettingsReturn {
     const [isLoading, setIsLoading] = useState<boolean>(false)
 
-    const { theme: currentSystemTheme, setTheme } = useAppTheme();
+    const { theme: currentAppTheme, systemTheme: currentSystemTheme, setTheme } = useAppTheme();
 
-    const [app_theme, setApp_Theme] = useState<string>(currentSystemTheme)
+    const [app_theme, setApp_Theme] = useState<LocalSettings["app_theme"]>(currentSystemTheme)
 
     // helper function to update all setting states in data
     const updateDataStates = useCallback(async (data: StorageQueryResult) => {
@@ -79,6 +79,7 @@ export function useStoredSettings(userId: string): UseStoredSettingsReturn {
     // takes in a new set of localsettings and updates the storage to match them
     const updateStoredSettings = useCallback(async (newSettings: LocalSettings) => {
         setIsLoading(true)
+        console.log(newSettings)
         const credentials: UserCredentials = {id: userId};
 
         try {
@@ -112,7 +113,13 @@ export function useStoredSettings(userId: string): UseStoredSettingsReturn {
                 // the stuff this function will do will grow as the settings screen grows
 
                 // updating app appearance to match saved app_theme
-                setTheme(settings.user_settings.app_theme === "light" ? "light" : "dark")
+                if(settings.user_settings.app_theme === "system") {
+                    setTheme(currentSystemTheme);
+                } else if (settings.user_settings.app_theme === "light") {
+                    setTheme("light");
+                } else {
+                    setTheme("dark");
+                }
 
                 // TODO:
                 // changeable font sizes

@@ -35,7 +35,7 @@ export default function ParentHomeScreen() {
 
     return (
         <View style={[containerStyle.container, { backgroundColor: bg }]}>
-            <ScrollView contentContainerStyle={containerStyle.scrollContent} showsVerticalScrollIndicator={false}>
+            <ScrollView contentContainerStyle={containerStyle.scrollContent} showsVerticalScrollIndicator={false} scrollEnabled={false}>
 
                 {/* Hero Welcome Section */}
                 <View style={homeScreenHeroStyle.heroSection}>
@@ -86,39 +86,44 @@ export default function ParentHomeScreen() {
                 <Text style={[containerStyle.sectionLabel, { color: subtextColor }]}>YOUR CHILDREN</Text>
 
                 {/* Student Cards */}
-                {userStudents.map((student) => {
-                    const attendance = student.attendanceRate != null
-                        ? Math.round(student.attendanceRate)
-                        : null;
+                <View style={[{maxHeight: '30%'}]}>
+                    <ScrollView contentContainerStyle={{paddingHorizontal: 2}} scrollEnabled={true} showsVerticalScrollIndicator={true} >
+                        {userStudents.map((student) => {
+                            const attendance = student.attendanceRate != null
+                            ? Math.round(student.attendanceRate)
+                            : null;
 
-                    return (
-                        <Card 
-                            key={student.id}
-                            header={`${student.firstName} ${student.lastName}`}
-                            preview={student.gradeLevel!=null ? `Grade ${student.gradeLevel}` : ``}
-                            onPress={() => {
-                                setChosenStudentId(student.id); // save this so the general-info screen knows which kid it is supposed to be looking at
-                                router.push("/(parent)/(tabs)/general-info" as Href);
-                            }}
-                            urgent={true}
-                            pressable={true}
-                            icon={{name: "person", size: 24, color: tint, backgroundColor: (tint+20)}}
-                            badge={
-                                attendance!=null ? {
-                                    type: 0, 
-                                    content: `${attendance}%`, 
-                                    contentColor: attendance >= 90 ? "#16a34a" : attendance >= 75 ? "#d97706" : "#dc2626",
-                                    backgroundColor: attendance >= 90 ? "#22c55e20" : attendance >= 75 ? "#f59e0b20" : "#ef444420"
-                                    } : { 
-                                    type: 0,
-                                    content: "100%",
-                                    contentColor: "#16a34a",
-                                    backgroundColor: "#22c55e20",
-                                    }
-                                }
-                        />
-                    );
-                })}
+                            return (
+                                <Card 
+                                    key={student.id}
+                                    header={`${student.firstName} ${student.lastName}`}
+                                    preview={student.gradeLevel!=null ? `Grade ${student.gradeLevel}` : ``}
+                                    onPress={() => {
+                                        setChosenStudentId(student.id); // save this so the general-info screen knows which kid it is supposed to be looking at
+                                        router.push("/(parent)/(tabs)/general-info" as Href);
+                                    }}
+                                    urgent={true}
+                                    pressable={true}
+                                    icon={{name: "person", size: 24, color: tint, backgroundColor: (tint+20)}}
+                                    badge={
+                                        attendance!=null ? {
+                                            type: 0, 
+                                            content: `${attendance}%`, 
+                                            contentColor: attendance >= 90 ? "#16a34a" : attendance >= 75 ? "#d97706" : "#dc2626",
+                                            backgroundColor: attendance >= 90 ? "#22c55e20" : attendance >= 75 ? "#f59e0b20" : "#ef444420"
+                                            } : { 
+                                            type: 0,
+                                            content: "100%",
+                                            contentColor: "#16a34a",
+                                            backgroundColor: "#22c55e20",
+                                            }
+                                        }
+                                />
+                            );
+                        })}
+                    </ScrollView>
+                </View>
+                
 
                 {/* Section Label */}
                 <Text style={[containerStyle.sectionLabel, { color: subtextColor }]}>UPDATES</Text>

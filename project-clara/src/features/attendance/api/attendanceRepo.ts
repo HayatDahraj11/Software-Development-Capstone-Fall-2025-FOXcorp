@@ -72,7 +72,8 @@ export async function changeAttendance(params: {
   id: string;
   status: AttendanceStatus;
 }): Promise<RepoResult<AttendanceRecord>> {
-  try {
+ try {
+    // 1. Update attendance
     const result: any = await client.graphql({
       query: updateAttendance,
       variables: {
@@ -82,6 +83,38 @@ export async function changeAttendance(params: {
         },
       },
     });
+
+    // Send message only if ABSENT or LATE
+    if (params.status === "ABSENT" || params.status === "LATE") {
+      // Find conversation for this student
+      const convoRes: any = await client.graphql({
+        query: listConversations,
+        variables: {
+          filter: { studentId: { eq: params.studentId } },
+        },
+      });
+
+      const conversation =
+        convoRes?.data?.listConversations?.items?.[0];
+
+      // If no conversation, skip
+      if (conversation) {
+        await client.graphql({
+          query: createMessage,
+          variables: {
+            input: {
+              conversationId: conversation.id,
+              senderId: "teacher-id", // can improve later
+              senderType: "TEACHER",
+              senderName: "Teacher",
+              body: `Student marked ${params.status} today`,
+              createdAt: new Date().toISOString(),
+            },
+          },
+        });
+      }
+    }
+
     return { data: result.data.updateAttendance, error: null };
   } catch (err: any) {
     return { data: null, error: err?.message ?? "Failed to update attendance" };

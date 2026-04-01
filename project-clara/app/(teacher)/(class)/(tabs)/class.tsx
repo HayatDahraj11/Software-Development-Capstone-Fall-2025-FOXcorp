@@ -1,11 +1,19 @@
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { Pressable, StyleSheet, Text, View, ScrollView } from "react-native";
+import { Pressable, StyleSheet, View, ScrollView } from "react-native";
 import { Href } from "expo-router";
 import { useTeacherLoginContext } from "@/src/features/context/TeacherLoginContext";
 import { useLocalSearchParams } from "expo-router";
 import { usePushNotifications } from "@/src/features/notifications/logic/usePushNotifications";
+import { Text } from '@/src/rnreusables/ui/text';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/src/rnreusables/ui/dropdown-menu';
 
 // grid items for the class home screen, each with a route, label, and icon
 const GRID_ITEMS: {
@@ -21,6 +29,44 @@ const GRID_ITEMS: {
   { label: "Take Attendance", icon: "checkbox", route: "/take-attendance" },
   { label: "Incidents", icon: "warning", route: "/incidents" },
 ];
+
+// Dropdown for switching classes
+function ClassDropdown({ selectedClassId }: { selectedClassId?: string }) {
+  const router = useRouter();
+  const { userClasses } = useTeacherLoginContext();
+  const textColor = useThemeColor({}, 'text');
+  const tint = useThemeColor({}, 'text')
+
+  const selectedClass = userClasses.find(cls => cls.id === selectedClassId);
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          {/* Use Text directly, styled like header */}
+          <Text style={{ fontSize: 26, fontWeight: '700', color: textColor }}>
+            {selectedClass?.name ?? "Class"}
+          </Text>
+          <Ionicons name="chevron-down" size={20} color={tint} />
+        </View>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent sideOffset={2} className="w-56" align="start">
+        <DropdownMenuGroup>
+          {userClasses.map(cls => (
+            <DropdownMenuItem
+              key={cls.id}
+              onPress={() =>
+                router.push({pathname: `/class?classId=${cls.id}`,} as unknown as Href)
+              }
+            >
+              <Text>{cls.name}</Text>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 export default function ClassHome() {
   const router = useRouter();
@@ -45,16 +91,14 @@ export default function ClassHome() {
     <ScrollView style={[styles.container, { backgroundColor: bg }]} contentContainerStyle={styles.scrollContent}>
       {/* header with class name and student count */}
       <View style={styles.header}>
-        <Text style={[styles.className, { color: textColor }]}>
-          {selectedClass?.name ?? "Class"}
+      <ClassDropdown selectedClassId={classIdString} />
+      <View style={[styles.countBadge, { backgroundColor: tint + "18" }]}>
+        <Ionicons name="people" size={16} color={tint} />
+        <Text style={[styles.countText, { color: tint }]}>
+          {studentCount} {studentCount === 1 ? "Student" : "Students"}
         </Text>
-        <View style={[styles.countBadge, { backgroundColor: tint + "18" }]}>
-          <Ionicons name="people" size={16} color={tint} />
-          <Text style={[styles.countText, { color: tint }]}>
-            {studentCount} {studentCount === 1 ? "Student" : "Students"}
-          </Text>
-        </View>
       </View>
+    </View>
 
       {/* grid of action cards */}
       <View style={styles.grid}>

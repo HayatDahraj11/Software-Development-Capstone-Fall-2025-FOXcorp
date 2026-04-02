@@ -114,6 +114,17 @@ type Announcement @model @auth(rules: [{ allow: public }]) {
   classId: ID @index(name: "byClass")
 }
 
+type EmergencyNotification @model {
+  id: ID!
+  title: String!
+  message: String!
+  type: String!         # "LOCKDOWN", "WEATHER", "CLOSURE"
+  schoolId: ID @index(name: "bySchool")
+  classId: ID @index(name: "byClass")
+  status: String        # "SENT", "ACKNOWLEDGED"
+  createdAt: AWSDateTime!
+}
+
 type MedicalRecord @model @auth(rules: [{ allow: public }]) {
   id: ID!
 

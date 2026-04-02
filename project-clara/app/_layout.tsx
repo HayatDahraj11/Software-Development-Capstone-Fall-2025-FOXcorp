@@ -10,10 +10,9 @@ import awsconfig from "../src/aws-exports"; // relative import to the typed conf
 // --- Amplify Imports End ---
 
 import "@/global.css";
-import { AppThemeProvider } from "@/src/features/app-themes/logic/ThemeContext";
+import { AppThemeProvider, useAppTheme } from "@/src/features/app-themes/logic/ThemeContext";
 //import { useColorScheme } from "@/src/features/app-themes/logic/use-color-scheme";
 import { NAV_THEME } from "@/lib/theme";
-import { useColorScheme } from "nativewind";
 
 // --- Configure Amplify Start ---
 // Configure Amplify once at startup
@@ -27,7 +26,7 @@ try {
 // --- Configure Amplify End ---
 
 function RootLayoutInner() {
-  const {colorScheme} = useColorScheme();
+  const colorScheme =  useAppTheme().theme;
 
   return (
     <ThemeProvider value={NAV_THEME[colorScheme ?? 'light']}>

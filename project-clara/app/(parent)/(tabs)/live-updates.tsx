@@ -1,14 +1,25 @@
-import { Href, useRouter } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { Href, useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Platform, ScrollView, Text, View } from "react-native";
 
+import { containerStyle, dropdownStyle } from "@/src/features/app-themes/constants/stylesheets";
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import { DataCard, createStudentAttendanceCard, createStudentClassUpdateCard } from "@/src/features/cards/logic/cardDataCreator";
 import Card from "@/src/features/cards/ui/Card";
-import Parent_ChildPicker from "@/src/features/child-selection/ui/Parent_ChildPicker";
 import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
-import { Teacher_parentSide } from "@/src/features/fetch-user-data/api/parent_data_fetcher";
-import { MaterialIcons } from "@expo/vector-icons";
+import { Student, Teacher_parentSide } from "@/src/features/fetch-user-data/api/parent_data_fetcher";
+import {
+  Option,
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/src/rnreusables/ui/select';
+import type { TriggerRef } from '@rn-primitives/select';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function ParentLiveUpdatesScreen() {
   // context givent parent and student data
@@ -18,9 +29,31 @@ export default function ParentLiveUpdatesScreen() {
       userClasses,
       userEnrollments,
       userTeachers,
+      getClassesMappedByStudent,
+      getTeacherNamebyId,
+      getStudentGradeInClass,
+      getChosenStudentId,
+      getChosenStudentIndex,
   } = useParentLoginContext();
 
+  
+  // colors grabbed by app theme
+  const bgcolor = useThemeColor({}, "background");
+  const cardbgcolor = useThemeColor({}, "cardBackground");
+  const tabiconcolor = useThemeColor({}, "tabIconDefault");
+  const textcolor = useThemeColor({}, "text");
+  const tintcolor = useThemeColor({}, 'tint');
+  const listtextcolor = useThemeColor({}, "listText");
+  const subtextcolor = useThemeColor({}, "placeholderText");
+  const modalbgcolor = useThemeColor({}, "modalBackground");
+
   const [screenCards, setScreenCards] = useState<DataCard[]>([]);
+
+    // this holds which child of the parent's is currently being displayed
+  const [childSelected, setChildSelected] = useState<Student>(userStudents[getChosenStudentIndex()]);
+  const [childIdSelected, setChildIdSelected] = useState<Option>({value: userStudents[getChosenStudentIndex()].id, label: userStudents[getChosenStudentIndex()].firstName})
+  const [childClasses, setChildClasses] = useState<{classId: string; className: string; teacherId: string; teacherName: string; grade: number}[]>()
+  const [gradeDisplay, setGradeDisplay] = useState<number | undefined>();
 
   const firstLoad = useCallback(async () => {
     let cardset: DataCard[] = []
@@ -70,12 +103,23 @@ export default function ParentLiveUpdatesScreen() {
         else { }
   };
 
-  // this holds which child of the parent's is currently being displayed
-  const [childSelected, setChildSelected] = useState(userStudents[0]);
 
-  // modal controller states
-  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-  const onChildSelected = (id: string) => {
+
+  // stuff for select button
+  const ref = useRef<TriggerRef>(null);
+  const insets = useSafeAreaInsets();
+  const contentInsets = {
+    top: insets.top,
+    bottom: Platform.select({ios: insets.bottom, android: insets.bottom + 24}),
+    left: 12,
+    right: 12,
+  };
+  function onTouchStart() {
+    ref.current?.open();
+  }
+
+  // grabbing child selected data aswell as their classes
+  const onChildSelected = useCallback((id: string) => {
     let foundKid = userStudents.find(item => item.id === id);
     if(foundKid) {
       foundKid = {
@@ -87,23 +131,33 @@ export default function ParentLiveUpdatesScreen() {
         attendanceRate: foundKid.attendanceRate
       }
       setChildSelected(foundKid);
+
+      const classIds = getClassesMappedByStudent(id);
+
+      const scheduleRows = classIds
+          .map((classId) => {
+              const cls = userClasses.find((c) => c.id === classId);
+              if (!cls) return null;
+              const teacherName = getTeacherNamebyId(cls.teacherId);
+              const grade = getStudentGradeInClass(id, classId);
+              return { classId, className: cls.name, teacherName, grade };
+          })
+          .filter(Boolean) as { classId: string; className: string; teacherId: string; teacherName: string; grade: number }[];
+    
+      setChildClasses(scheduleRows);
+      const grade = scheduleRows[0].grade;
+      setGradeDisplay(grade);
+      
     } else {
-      if(id === "0") {
-        const lilbro = {
-          id: "0",
-          firstName: "Everyone",
-          lastName: "displayall",
-          gradeLevel: 0,
-          currentStatus: "displayall",
-          attendanceRate: -1
-        }
-        setChildSelected(lilbro)
-      }
-      else {
-        console.log("Somehow, a kid was selected that didn't exist. onChildSelected()")
-      }
+      console.warn("Somehow, a kid was selected that didn't exist. onChildSelected()")
     }
-  };
+
+  }, [getClassesMappedByStudent, getStudentGradeInClass, getTeacherNamebyId, userClasses, userStudents]);
+  useEffect(() => { // this will update child selected when a new child is selected...
+    if(childIdSelected) {
+      onChildSelected(childIdSelected?.value);
+    }
+  }, [childIdSelected, onChildSelected])
 
   // states for filtering the flatlist by kid
   // made with help from gemini
@@ -127,68 +181,74 @@ export default function ParentLiveUpdatesScreen() {
     
   }, [childSelected, fullList, screenCards])
 
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: useThemeColor({}, "background"),
-    },
-    headerContainer: {
-      flex: 1/10,
-      alignContent: 'flex-start',
-      justifyContent: 'center',
-      flexDirection: 'column',
-    },
-    dropdownContainer: {
-        flexDirection: 'row',
-        width: '20%',
-        height: '80%',
-        backgroundColor: useThemeColor({}, "cardBackground"),
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 10,
-        marginHorizontal: 20,
-        shadowColor: useThemeColor({}, "tabIconDefault"),
-    },
-    dropdownLabel: {
-        color: useThemeColor({}, "text"),
-        fontSize: 14,
-        fontWeight: '600',
-    },
-    flatListContainer: {
-    }
-  });
+  // updates the student selected on screen focus
+  useFocusEffect(
+    useCallback(() => {
+      setChildSelected(userStudents[getChosenStudentIndex()]);
+      setChildIdSelected({value: userStudents[getChosenStudentIndex()].id, label: userStudents[getChosenStudentIndex()].firstName})
+    }, [getChosenStudentIndex, userStudents])
+  )
 
   return (
-    <View style={styles.container}>
-      <View style={styles.headerContainer}>
-        <Pressable style={styles.dropdownContainer} onPress={() => setIsModalVisible(true)}>
-          <MaterialIcons name={"keyboard-arrow-down"} size={22} color={useThemeColor({}, "icon")}/>
-          <Text style={styles.dropdownLabel}>{childSelected.firstName}</Text>
-        </Pressable>
-      </View>
-      {/* visual bug: dropdown container size inconsistent with general-info appearance */}
-      <View style={styles.flatListContainer}>
-        <FlatList
-            data={filteredList}
-            renderItem={({item}) => (
-                <Card 
-                    header={item.header}
-                    preview={item.preview}
-                    onPress={() => RouteCard(item.route)}
-                    urgent={item.urgent}
-                />
-            )}
-        />
-      </View>
+    <View style={[containerStyle.container, {backgroundColor: bgcolor}]}>
+      <ScrollView contentContainerStyle={containerStyle.scrollContent} showsVerticalScrollIndicator={false}>
 
-      <Parent_ChildPicker 
-        isVisible={isModalVisible}
-        onCloseModal={() => setIsModalVisible(false)}
-        studentNames={userStudents.map((item) => item.firstName)}
-        studentIds={userStudents.map((item) => item.id)}
-        onSelect={onChildSelected}
-        allowAll={true}
-      />
+        {/* Select Student Dropdown */}
+        <View style={containerStyle.headerContainer}>
+          <Select value={childIdSelected} style={[dropdownStyle.dropdownContainer]} onValueChange={setChildIdSelected}>
+            <SelectTrigger ref={ref} style={[dropdownStyle.dropdownButton, {backgroundColor: cardbgcolor}]} onTouchStart={Platform.select({web: onTouchStart})}>
+              <SelectValue style={[dropdownStyle.dropdownLabel, {color: textcolor}]} placeholder={childSelected.firstName} />
+            </SelectTrigger>
+            <SelectContent insets={contentInsets} style={{backgroundColor: cardbgcolor}} >
+              <SelectGroup>
+                <SelectLabel style={{color: tintcolor}}>Select a Student</SelectLabel>
+                {userStudents.map((stu) => (
+                  <SelectItem key={stu.id} label={stu.firstName} value={stu.id}>
+                    {stu.firstName}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </View>
+
+        {/* Current Class Card */}
+        <Text style={[containerStyle.sectionLabel, {color: subtextcolor}]}>CURRENT CLASS</Text>
+        {(childClasses !== undefined && childClasses[0] !== null) ? (  // For now, it will default render the first class of the student. When we have class times setup, it will display the correct class that aligns with the current time
+          <Card 
+            header={childClasses[0].className}
+            preview={childClasses[0].teacherName}
+            onPress={() => {/* todo class popup */}}
+            urgent={true}
+            pressable={true}
+            icon={{name: "book", size: 22, color: tintcolor, backgroundColor: (tintcolor+20)}}
+            badge={
+              (gradeDisplay !== null && gradeDisplay !== undefined) ? (
+                {type: 0, content: `${gradeDisplay}%`, contentColor: gradeDisplay >= 90 ? "#16a34a" : gradeDisplay >= 70 ? "#d97706" : "#dc2626", backgroundColor: gradeDisplay >= 90 ? "#22c55e20" : gradeDisplay >= 70 ? "#f59e0b20" : "#ef444420"}
+              ) : (undefined)
+            }
+          />
+        ) : (
+          <View style={containerStyle.empty}>
+            <Text style={{color: subtextcolor, fontSize: 16}}>Student is Not In Class</Text>
+          </View>
+        )
+        }
+
+        {/* Relevant Announcements or Alerts Section */}
+        <View>
+          <Text style={[containerStyle.sectionLabel, {color: subtextcolor}]}>ANNOUNCEMENTS and ALERTS</Text>
+          <Text style={{color: textcolor}}>tbd!</Text>
+        </View>
+
+
+        {/* Relevant Teacher Updates or Notes Section */}
+        <View>
+          <Text style={[containerStyle.sectionLabel, {color: subtextcolor}]}>TEACHER NOTES</Text>
+          <Text style={{color: textcolor}}>tbd!</Text>
+        </View>
+
+      </ScrollView>
     </View>
   );
 }

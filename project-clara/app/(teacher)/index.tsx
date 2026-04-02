@@ -7,12 +7,15 @@ import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import Card from "@/src/features/cards/ui/Card";
 import { useTeacherLoginContext } from "@/src/features/context/TeacherLoginContext";
 
+
+
 export default function Index() {
     const router = useRouter();
     const [isAllDone, setIsAllDone] = useState(false);
     const [isContextDone, setIsContextDone] = useState(false);
 
     const bgcolor = useThemeColor({}, "background")
+    const tint = useThemeColor({}, "tint");
 
     const {
             isContextLoading,
@@ -52,7 +55,6 @@ export default function Index() {
         alignItems: 'center',
         flexDirection: 'column',
         justifyContent: 'flex-start',
-        backgroundColor: useThemeColor({}, "background")
     },
 });
 
@@ -81,11 +83,18 @@ export default function Index() {
             <FlatList
                 contentContainerStyle={containerStyle.scrollContent}
                 data={CardFlatListData}
-                renderItem={({item, index}) => (
+                renderItem={({ item }) => (
                     <Card
                         header={item.header}
                         preview={item.preview}
                         onPress={() => RouteCard(item.route)}
+                        pressable={true}
+                        icon={{
+                            name: "school",
+                            size: 22,
+                            color: tint,
+                            backgroundColor: tint + "20",
+                        }}
                     />
                 )}
             />

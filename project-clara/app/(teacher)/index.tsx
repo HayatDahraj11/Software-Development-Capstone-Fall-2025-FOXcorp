@@ -66,7 +66,7 @@ export default function Index() {
     const CardFlatListData = userClasses.map((cls) => ({
         id: cls.id,
         header: cls.name,
-        preview: `Tap to view class`,
+        preview: ``,
         route: `/class?classId=${cls.id}`,
     }));
 

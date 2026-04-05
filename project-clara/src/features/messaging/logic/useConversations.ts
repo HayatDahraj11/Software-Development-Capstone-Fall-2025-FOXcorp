@@ -51,7 +51,13 @@ export function useConversations(
     if (result.error) {
       setError(result.error);
     } else {
-      setConversations(result.data ?? []);
+     // attach unreadCount to each conversation
+     const convsWithUnread = (result.data ?? []).map((conv) => ({
+       ...conv,
+       unreadCount: conv.unreadCount ?? 0, // default 0 if backend doesn't provide it
+     }));
+
+    setConversations(convsWithUnread);
     }
     setIsLoading(false);
   }, [role, userId]);

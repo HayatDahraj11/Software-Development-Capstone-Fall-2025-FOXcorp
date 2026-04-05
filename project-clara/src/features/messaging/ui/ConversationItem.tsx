@@ -105,6 +105,21 @@ export default function ConversationItem({
       marginTop: 4,
       numberOfLines: 1,
     },
+    unreadBadge: {
+      backgroundColor: "#FF3B30", // red badge
+      borderRadius: 10,
+      minWidth: 20,
+      height: 20,
+      justifyContent: "center",
+      alignItems: "center",
+      paddingHorizontal: 6,
+      marginLeft: 8,
+    },
+    unreadBadgeText: {
+      color: "#fff",
+      fontSize: 12,
+      fontWeight: "600",
+    },
   });
 
   return (
@@ -122,9 +137,18 @@ export default function ConversationItem({
           <Text style={styles.title} numberOfLines={1}>
             {title}
           </Text>
-          <Text style={styles.time}>
-            {relativeTime(conversation.lastMessageAt)}
-          </Text>
+           <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Text style={styles.time}>
+             {relativeTime(conversation.lastMessageAt)}
+            </Text>
+
+            {conversation.unreadCount && conversation.unreadCount > 0 && (
+             <View style={styles.unreadBadge}>
+               <Text style={styles.unreadBadgeText}>
+                {conversation.unreadCount}
+              </Text>
+            </View>
+            )}
         </View>
 
         {subtitle && (

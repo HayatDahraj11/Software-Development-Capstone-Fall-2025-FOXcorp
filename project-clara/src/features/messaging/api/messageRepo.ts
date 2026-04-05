@@ -44,6 +44,7 @@ export interface Conversation {
   lastMessageAt?: string | null;
   createdAt?: string;
   updatedAt?: string;
+  unreadCount?: number;  // number of messages not read by the viewer
 }
 
 export interface Message {

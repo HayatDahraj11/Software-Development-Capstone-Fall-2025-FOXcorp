@@ -3,7 +3,12 @@
 import { generateClient } from "aws-amplify/api";
 import { schedulesByClassId } from "@/src/graphql/queries";
 
-const client = generateClient();
+// lazy init so Amplify.configure() has time to run before we create the client
+let _client: any = null;
+function getClient() {
+    if (!_client) _client = generateClient();
+    return _client;
+}
 
 export type DayOfWeek =
   | "MONDAY"
@@ -32,9 +37,10 @@ export async function fetchSchedulesByClass(
   classId: string
 ): Promise<RepoResult<Schedule[]>> {
   try {
-    const result: any = await client.graphql({
+    const result: any = await getClient().graphql({
       query: schedulesByClassId,
       variables: { classId },
+      authMode: "apiKey",
     });
     const items: Schedule[] =
       result?.data?.schedulesByClassId?.items ?? [];

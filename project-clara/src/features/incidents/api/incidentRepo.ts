@@ -5,7 +5,12 @@ import { generateClient } from "aws-amplify/api";
 import { incidentsByClassId } from "@/src/graphql/queries";
 import { createIncident } from "@/src/graphql/mutations";
 
-const client = generateClient();
+// lazy init so Amplify.configure() has time to run before we create the client
+let _client: any = null;
+function getClient() {
+    if (!_client) _client = generateClient();
+    return _client;
+}
 
 export interface Incident {
   id: string;
@@ -30,9 +35,10 @@ export async function fetchIncidentsByClass(
   classId: string
 ): Promise<RepoResult<Incident[]>> {
   try {
-    const result: any = await client.graphql({
+    const result: any = await getClient().graphql({
       query: incidentsByClassId,
       variables: { classId },
+      authMode: "apiKey",
     });
     const items: Incident[] =
       result?.data?.incidentsByClassId?.items ?? [];
@@ -53,7 +59,7 @@ export async function reportIncident(params: {
   schoolId: string;
 }): Promise<RepoResult<Incident>> {
   try {
-    const result: any = await client.graphql({
+    const result: any = await getClient().graphql({
       query: createIncident,
       variables: {
         input: {
@@ -66,6 +72,7 @@ export async function reportIncident(params: {
           schoolId: params.schoolId,
         },
       },
+      authMode: "apiKey",
     });
     return { data: result.data.createIncident, error: null };
   } catch (err: any) {

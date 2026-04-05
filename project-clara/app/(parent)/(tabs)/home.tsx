@@ -156,12 +156,12 @@ export default function ParentHomeScreen() {
                 />
 
                 {/* Announcements Card */}
-                <Card 
+                <Card
                     header={"Announcements"}
-                    preview={"Coming soon!"}
-                    onPress={() => {}}
+                    preview={"View class announcements"}
+                    onPress={() => router.push("/(parent)/(tabs)/live-updates" as Href)}
                     urgent={false}
-                    pressable={false}
+                    pressable={true}
                     icon={{name: "megaphone", size: 22, color: "#8b5cf6", backgroundColor: "#8b5cf620"}}
                 />
 

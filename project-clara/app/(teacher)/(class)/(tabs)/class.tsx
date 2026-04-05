@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 import { Pressable, StyleSheet, Text, View, ScrollView } from "react-native";
 import { Href } from "expo-router";
 import { useTeacherLoginContext } from "@/src/features/context/TeacherLoginContext";
-import { useLocalSearchParams } from "expo-router";
+import { useGlobalSearchParams } from "expo-router";
 import { usePushNotifications } from "@/src/features/notifications/logic/usePushNotifications";
 
 // grid items for the class home screen, each with a route, label, and icon
@@ -24,7 +24,7 @@ const GRID_ITEMS: {
 
 export default function ClassHome() {
   const router = useRouter();
-  const { classId } = useLocalSearchParams();
+  const { classId } = useGlobalSearchParams();
 
   const { userTeacher, userClasses } = useTeacherLoginContext();
 

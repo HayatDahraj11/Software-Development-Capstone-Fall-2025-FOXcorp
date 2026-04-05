@@ -1,5 +1,5 @@
 import { Dimensions, FlatList, StyleSheet, Text, View } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { useGlobalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { BarChart } from "react-native-chart-kit";
 
@@ -18,7 +18,7 @@ function getLetterGrade(grade: number): string {
 }
 
 export default function GradesScreen() {
-  const { classId } = useLocalSearchParams();
+  const { classId } = useGlobalSearchParams();
   const { userClasses } = useTeacherLoginContext();
 
   const bg = useThemeColor({}, "background");

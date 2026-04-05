@@ -1,6 +1,7 @@
 import { Href, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, FlatList, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import { DataCard, createStudentAttendanceCard, createStudentClassUpdateCard } from "@/src/features/cards/logic/cardDataCreator";
@@ -8,6 +9,8 @@ import Card from "@/src/features/cards/ui/Card";
 import Parent_ChildPicker from "@/src/features/child-selection/ui/Parent_ChildPicker";
 import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
 import { Teacher_parentSide } from "@/src/features/fetch-user-data/api/parent_data_fetcher";
+import { useParentAnnouncements } from "@/src/features/announcements/logic/useParentAnnouncements";
+import { containerStyle } from "@/src/features/app-themes/constants/stylesheets";
 import { MaterialIcons } from "@expo/vector-icons";
 
 export default function ParentLiveUpdatesScreen() {
@@ -19,6 +22,38 @@ export default function ParentLiveUpdatesScreen() {
       userEnrollments,
       userTeachers,
   } = useParentLoginContext();
+
+  // get unique class ids from enrollments for fetching announcements
+  const classIds = [...new Set(userEnrollments.map((e) => e.classId))];
+  const { announcements, isLoading: announcementsLoading } = useParentAnnouncements(classIds);
+
+  const tint = useThemeColor({}, "tint");
+  const cardBg = useThemeColor({}, "cardBackground");
+  const textColor = useThemeColor({}, "text");
+  const subtextColor = useThemeColor({}, "placeholderText");
+  const borderColor = useThemeColor({}, "listBorderTranslucent");
+
+  // figure out how long ago an announcement was posted
+  const getTimeAgo = (dateStr: string): string => {
+    const now = new Date();
+    const date = new Date(dateStr);
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `${diffMins}m ago`;
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours}h ago`;
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  };
+
+  // find the class name for an announcement
+  const getClassName = (classId?: string | null): string => {
+    if (!classId) return "";
+    const cls = userClasses.find((c) => c.id === classId);
+    return cls?.name ?? "";
+  };
 
   const [screenCards, setScreenCards] = useState<DataCard[]>([]);
 
@@ -166,12 +201,46 @@ export default function ParentLiveUpdatesScreen() {
           <Text style={styles.dropdownLabel}>{childSelected.firstName}</Text>
         </Pressable>
       </View>
-      {/* visual bug: dropdown container size inconsistent with general-info appearance */}
+      {/* Announcements Section */}
+      {announcements.length > 0 && (
+        <View style={announcementStyles.section}>
+          <Text style={[containerStyle.sectionLabel, { color: subtextColor, paddingHorizontal: 16 }]}>
+            ANNOUNCEMENTS
+          </Text>
+          <ScrollView horizontal={false} style={{ maxHeight: 200, paddingHorizontal: 12 }}>
+            {announcements.slice(0, 5).map((ann) => (
+              <View key={ann.id} style={[announcementStyles.card, { backgroundColor: cardBg }]}>
+                <View style={announcementStyles.cardRow}>
+                  <View style={[announcementStyles.cardIcon, { backgroundColor: "#8b5cf620" }]}>
+                    <Ionicons name="megaphone" size={18} color="#8b5cf6" />
+                  </View>
+                  <View style={announcementStyles.cardContent}>
+                    <Text style={[announcementStyles.cardTitle, { color: textColor }]}>{ann.title}</Text>
+                    <Text style={[announcementStyles.cardMeta, { color: subtextColor }]}>
+                      {getClassName(ann.classId)} {getClassName(ann.classId) ? "· " : ""}{getTimeAgo(ann.createdAt)}
+                    </Text>
+                  </View>
+                </View>
+                <Text style={[announcementStyles.cardBody, { color: subtextColor }]} numberOfLines={2}>
+                  {ann.body}
+                </Text>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+      )}
+      {announcementsLoading && (
+        <View style={{ paddingVertical: 12, alignItems: "center" }}>
+          <ActivityIndicator size="small" color={tint} />
+        </View>
+      )}
+
+      {/* Student Updates */}
       <View style={styles.flatListContainer}>
         <FlatList
             data={filteredList}
             renderItem={({item}) => (
-                <Card 
+                <Card
                     header={item.header}
                     preview={item.preview}
                     onPress={() => RouteCard(item.route)}
@@ -192,4 +261,36 @@ export default function ParentLiveUpdatesScreen() {
     </View>
   );
 }
+
+const announcementStyles = StyleSheet.create({
+  section: { marginBottom: 8 },
+  card: {
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 8,
+    marginHorizontal: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  cardRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 6,
+  },
+  cardIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  cardContent: { flex: 1 },
+  cardTitle: { fontSize: 15, fontWeight: "600" },
+  cardMeta: { fontSize: 12, marginTop: 1 },
+  cardBody: { fontSize: 13, lineHeight: 19, marginLeft: 48 },
+});
 

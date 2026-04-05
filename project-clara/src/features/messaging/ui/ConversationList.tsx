@@ -93,8 +93,13 @@ export default function ConversationList({
         onRefresh={onRefresh}
         ListEmptyComponent={
           <View style={styles.centered}>
-            <Text style={styles.emptyText}>No conversations yet</Text>
-          </View>
+             <Text style={styles.emptyText}>
+                 You don’t have any conversations yet.
+              </Text>
+              <Text style={[styles.emptyText, { marginTop: 8 }]}>
+             Tap the + button to start a new conversation.
+                </Text>
+              </View>
         }
       />
     </View>

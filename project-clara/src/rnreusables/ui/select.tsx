@@ -12,13 +12,16 @@ import { FullWindowOverlay as RNFullWindowOverlay } from 'react-native-screens';
 
 type Option = SelectPrimitive.Option;
 
-const Select = SelectPrimitive.Root;
+function Select({ style, ...props }: React.ComponentProps<typeof SelectPrimitive.Root>) {
+  return <SelectPrimitive.Root style={style ? StyleSheet.flatten(style) : undefined} {...props} />;
+}
 
 const SelectGroup = SelectPrimitive.Group;
 
 function SelectValue({
   ref,
   className,
+  style,
   ...props
 }: SelectPrimitive.ValueProps &
   React.RefAttributes<SelectPrimitive.ValueRef> & {
@@ -33,6 +36,7 @@ function SelectValue({
         !value && 'text-muted-foreground',
         className
       )}
+      style={style ? StyleSheet.flatten(style) : undefined}
       {...props}
     />
   );
@@ -43,6 +47,7 @@ function SelectTrigger({
   className,
   children,
   size = 'default',
+  style,
   ...props
 }: SelectPrimitive.TriggerProps &
   React.RefAttributes<SelectPrimitive.TriggerRef> & {
@@ -62,6 +67,7 @@ function SelectTrigger({
         size === 'sm' && 'h-8 py-2 sm:py-1.5',
         className
       )}
+      style={style ? StyleSheet.flatten(style) : undefined}
       {...props}>
       <>{children}</>
       <Icon as={ChevronDown} aria-hidden={true} className="text-muted-foreground size-4" />
@@ -109,6 +115,7 @@ function SelectContent({
                   className
                 )}
                 position={position}
+                style={props.style ? StyleSheet.flatten(props.style) : undefined}
                 {...props}>
                 <SelectScrollUpButton />
                 <SelectPrimitive.Viewport

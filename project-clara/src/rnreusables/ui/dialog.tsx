@@ -5,7 +5,7 @@ import { NativeOnlyAnimatedView } from '@/src/rnreusables/ui/native-only-animate
 import * as DialogPrimitive from '@rn-primitives/dialog';
 import { X } from 'lucide-react-native';
 import * as React from 'react';
-import { Platform, Text, View, type ViewProps } from 'react-native';
+import { Platform, StyleSheet, Text, View, type ViewProps } from 'react-native';
 import { FadeIn, FadeOut } from 'react-native-reanimated';
 import { FullWindowOverlay as RNFullWindowOverlay } from 'react-native-screens';
 
@@ -52,6 +52,7 @@ function DialogContent({
   className,
   portalHost,
   children,
+  style,
   ...props
 }: DialogPrimitive.ContentProps &
   React.RefAttributes<DialogPrimitive.ContentRef> & {
@@ -70,6 +71,7 @@ function DialogContent({
             }),
             className
           )}
+          style={style ? StyleSheet.flatten(style) : undefined}
           {...props}>
           <>{children}</>
           <DialogPrimitive.Close

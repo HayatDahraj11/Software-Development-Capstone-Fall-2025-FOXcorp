@@ -39,8 +39,9 @@ export default function StudentRecordsScreen() {
     return (
         <View style={styles.container}>
             <ScrollView contentContainerStyle={styles.listContainer}>
-                <Card header="Attendance" preview="" onPress={() => RouteCard(" ")} theme="list"/>
-                <Card header="Medical" preview="School needs updated vaccine records for your child!" onPress={() => router.push(`/(parent)/(tabs)/${studentId}/studentMedical` as Href)} theme="list" urgent={true}/>
+                <Card header="Attendance" preview="View daily attendance records" onPress={() => router.push(`/(parent)/(tabs)/${studentId}/studentAttendance` as Href)} theme="list" pressable={true}/>
+                <Card header="Medical" preview="School needs updated vaccine records for your child!" onPress={() => router.push(`/(parent)/(tabs)/${studentId}/studentMedical` as Href)} theme="list" urgent={true} pressable={true}/>
+                <Card header="Incidents" preview="View behavioral reports" onPress={() => router.push(`/(parent)/(tabs)/${studentId}/studentIncidents` as Href)} theme="list" pressable={true}/>
                 <Card header="Transcript" preview="" onPress={() => RouteCard(" ")} theme="list"/>
             </ScrollView>
         </View>

@@ -6,7 +6,7 @@
 // the attendance record itself saves fine, but the nested resolver errors cause
 // Amplify V6 client to treat the whole response as a failure.
 import { generateClient } from "aws-amplify/api";
-import { attendancesByClassId } from "@/src/graphql/queries";
+import { attendancesByClassId, attendancesByStudentId } from "@/src/graphql/queries";
 import { AttendanceStatus } from "@/src/API";
 
 // lazy init so Amplify.configure() has time to run before we create the client
@@ -81,6 +81,29 @@ export async function fetchAttendanceByClass(
       return { data: err.data.attendancesByClassId.items, error: null };
     }
     console.error("fetchAttendanceByClass failed:", JSON.stringify(err, null, 2));
+    const msg = err?.errors?.[0]?.message ?? err?.message ?? "Failed to fetch attendance";
+    return { data: null, error: msg };
+  }
+}
+
+// grabs all attendance records for a given student (used by parent side)
+export async function fetchAttendanceByStudent(
+  studentId: string
+): Promise<RepoResult<AttendanceRecord[]>> {
+  try {
+    const result: any = await getClient().graphql({
+      query: attendancesByStudentId,
+      variables: { studentId },
+      authMode: "apiKey",
+    });
+    const items: AttendanceRecord[] =
+      result?.data?.attendancesByStudentId?.items ?? [];
+    return { data: items, error: null };
+  } catch (err: any) {
+    if (err?.data?.attendancesByStudentId?.items) {
+      return { data: err.data.attendancesByStudentId.items, error: null };
+    }
+    console.error("fetchAttendanceByStudent failed:", JSON.stringify(err, null, 2));
     const msg = err?.errors?.[0]?.message ?? err?.message ?? "Failed to fetch attendance";
     return { data: null, error: msg };
   }

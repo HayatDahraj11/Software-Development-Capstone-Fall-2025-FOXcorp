@@ -10,6 +10,7 @@ import Parent_ChildPicker from "@/src/features/child-selection/ui/Parent_ChildPi
 import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
 import { Teacher_parentSide } from "@/src/features/fetch-user-data/api/parent_data_fetcher";
 import { useParentAnnouncements } from "@/src/features/announcements/logic/useParentAnnouncements";
+import { fetchSchedulesByClass, DayOfWeek } from "@/src/features/schedules/api/scheduleRepo";
 import { containerStyle } from "@/src/features/app-themes/constants/stylesheets";
 import { MaterialIcons } from "@expo/vector-icons";
 
@@ -57,36 +58,59 @@ export default function ParentLiveUpdatesScreen() {
 
   const [screenCards, setScreenCards] = useState<DataCard[]>([]);
 
+  // converts 24hr time from aws (like "14:30:00") to readable format (like "2:30 PM")
+  const formatTime = (awsTime: string): string => {
+    const [h, m] = awsTime.split(":");
+    const hour = parseInt(h, 10);
+    const ampm = hour >= 12 ? "PM" : "AM";
+    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+    return `${displayHour}:${m} ${ampm}`;
+  };
+
+  // get current day of week in the format AWS uses
+  const getTodayDayOfWeek = (): DayOfWeek => {
+    const days: DayOfWeek[] = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
+    return days[new Date().getDay()];
+  };
+
   const firstLoad = useCallback(async () => {
     let cardset: DataCard[] = []
 
     // go through each student and generate relevant cards for them
     for(const stu of userStudents) {
-      const firstEnrollment = userEnrollments.find(enrollment => enrollment.studentId === stu.id) // finding the first enrollment this student is enrolled in
+      const firstEnrollment = userEnrollments.find(enrollment => enrollment.studentId === stu.id)
       const firstClass = userClasses.find(theclass => theclass.id === firstEnrollment?.classId)
-      // this will call aws if there is a firstClass
       let tempTeach: Teacher_parentSide
       if(firstClass) {
         const temptemp = userTeachers.find(teach => teach.id === firstClass.teacherId);
-        if(temptemp) {
-          tempTeach = temptemp;
-        } else {
-          tempTeach = {id: "error", name: "error", schoolId: "error"};
-        }
+        tempTeach = temptemp ?? {id: "error", name: "error", schoolId: "error"};
       } else {
         tempTeach = {id: "error", name: "error", schoolId: "error"};
       }
 
+      // fetch schedule for this class to get the end time
+      let endTime: string | undefined;
+      if(firstClass) {
+        try {
+          const schedResult = await fetchSchedulesByClass(firstClass.id);
+          if(schedResult.data) {
+            const todaySchedule = schedResult.data.find(s => s.dayOfWeek === getTodayDayOfWeek());
+            if(todaySchedule) {
+              endTime = formatTime(todaySchedule.endTime);
+            }
+          }
+        } catch { /* schedule fetch is best-effort */ }
+      }
+
       if(firstEnrollment && firstClass) {
-        // calling external function to handle creating data that goes into the card
-        const classCard = createStudentClassUpdateCard(stu, firstClass, firstEnrollment, tempTeach)
+        const classCard = createStudentClassUpdateCard(stu, firstClass, firstEnrollment, tempTeach, endTime)
         cardset.push(classCard);
       }
 
       const attendanceCard = createStudentAttendanceCard(stu);
       cardset.push(attendanceCard);
     }
-    
+
     setScreenCards(cardset);
   }, [userClasses, userEnrollments, userStudents, userTeachers])
 

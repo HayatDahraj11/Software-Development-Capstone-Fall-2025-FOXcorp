@@ -35,7 +35,10 @@ export function useIncidents(classId: string): UseIncidentsReturn {
   }, []);
 
   const loadIncidents = useCallback(async () => {
-    if (!classId) return;
+    if (!classId) {
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     setError(null);
 

@@ -2,7 +2,7 @@
 // all of these can be imported individually or as a group
 // this is intended for a unified style!!
 // this does not include colors as colors are chosen in runtime!
-import { StyleSheet } from "react-native"
+import { Platform, StyleSheet } from "react-native"
 
 
 export const containerStyle = StyleSheet.create({
@@ -149,23 +149,31 @@ export const dropdownStyle = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         borderRadius: 20,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.08,
-        shadowRadius: 4,
-        elevation: 2,
+        ...(Platform.OS === "web"
+            ? {}
+            : {
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.08,
+                shadowRadius: 4,
+                elevation: 2,
+            }),
     },
     wideDropdownButton: {
         flex: 1,
         alignItems: "center",
         justifyContent: "space-evenly",
         borderRadius: 20,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.08,
-        shadowRadius: 4,
-        elevation: 2,
         height: "100%",
+        ...(Platform.OS === "web"
+            ? {}
+            : {
+                shadowColor: "#000",
+                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: 0.08,
+                shadowRadius: 4,
+                elevation: 2,
+            }),
     },
     dropdownLabel: {
         fontSize: 14,

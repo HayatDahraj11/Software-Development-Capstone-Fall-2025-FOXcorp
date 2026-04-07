@@ -100,8 +100,11 @@ export default function StudentDetailModal() {
         CATEGORIES.find(c => c.key === cat) ?? CATEGORIES[0];
 
     return (
-        <Pressable style={styles.overlay} onPress={() => router.back()}>
-            <Pressable style={[styles.sheet, { backgroundColor: bg }]} onPress={(e) => e.stopPropagation()}>
+        <View style={styles.overlay}>
+            {/* Backdrop — tapping empty space closes the modal */}
+            <Pressable style={StyleSheet.absoluteFill} onPress={() => router.back()} />
+
+            <View style={[styles.sheet, { backgroundColor: bg }]}>
                 <ScrollView showsVerticalScrollIndicator={false}>
                     {/* Header */}
                     <View style={styles.headerRow}>
@@ -276,8 +279,8 @@ export default function StudentDetailModal() {
                         </Pressable>
                     </Pressable>
                 </Modal>
-            </Pressable>
-        </Pressable>
+            </View>
+        </View>
     );
 }
 

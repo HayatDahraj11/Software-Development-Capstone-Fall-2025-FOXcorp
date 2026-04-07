@@ -30,6 +30,7 @@ const GRID_ITEMS: {
   { label: "Grades", icon: "ribbon", route: "/grades" },
   { label: "Take Attendance", icon: "checkbox", route: "/take-attendance" },
   { label: "Incidents", icon: "warning", route: "/incidents" },
+  { label: "Schedule", icon: "calendar", route: "/schedule" },
 ];
 
 // Dropdown for switching classes

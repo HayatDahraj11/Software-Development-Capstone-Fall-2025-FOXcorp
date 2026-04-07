@@ -238,13 +238,16 @@ export default function ParentGeneralInfoScreen() {
                   <DialogContent 
                       style={[dialogStyle.dialogueContainer, {backgroundColor: modalbgcolor}]}
                   >
-                      <Parent_ViewClassComponent 
-                        classId={classOpened ? classOpened.classId : "broken"}
-                        className={classOpened ? classOpened.className : "broken"}
-                        teacherId={classOpened ? classOpened.teacherId : "broken"}
-                        teacherName={classOpened ? classOpened.teacherName : "broken"}
+                      <Parent_ViewClassComponent
+                        classId={classOpened ? classOpened.classId : ""}
+                        className={classOpened ? classOpened.className : ""}
+                        teacherId={classOpened ? classOpened.teacherId : ""}
+                        teacherName={classOpened ? classOpened.teacherName : ""}
                         studentGrade={classOpened ? classOpened.grade : -1}
-                        onClickProfilePic={() => {console.log("not built yet"); setIsDialogOpen(false);}}
+                        onClickProfilePic={() => {
+                          setIsDialogOpen(false);
+                          router.push("/(parent)/(tabs)/messaging");
+                        }}
                       />
                   </DialogContent>
               </Dialog>

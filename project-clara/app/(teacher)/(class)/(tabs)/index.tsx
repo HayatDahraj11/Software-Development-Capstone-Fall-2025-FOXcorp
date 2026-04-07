@@ -3,7 +3,7 @@ import { debug_teacher } from "@/src/features/auth/logic/debug_teacher_data";
 import { useStoredSettings } from "@/src/features/in-app-settings/logic/useStoredSettings";
 import { Redirect } from "expo-router";
 import { useEffect } from "react";
-import { Text, View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 
 
 
@@ -31,7 +31,7 @@ export default function Index() {
     return (
         <View>
             {isLoading ? (
-                <Text style={{color:"white"}}>Hello! I am a placeholder! Ignore me...</Text>
+                <ActivityIndicator size="large" style={{flex: 1, justifyContent: "center"}} />
             ) : (
                 <Redirect href="/(teacher)/(tabs)/class"/>
             )}

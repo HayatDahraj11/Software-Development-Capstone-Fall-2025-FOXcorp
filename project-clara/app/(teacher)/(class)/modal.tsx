@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -34,7 +34,6 @@ export default function StudentDetailModal() {
     }
 
     const [medRecord, setMedRecord] = useState<MedicalRecord | null>(null);
-    const [notes, setNotes] = useState("");
 
     useEffect(() => {
         if (studentId) {
@@ -104,18 +103,15 @@ export default function StudentDetailModal() {
                         )}
                     </View>
 
-                    {/* Notes */}
-                    <View style={styles.section}>
-                        <Text style={[styles.sectionTitle, { color: subtextColor }]}>TEACHER NOTES</Text>
-                        <TextInput
-                            style={[styles.textInput, { backgroundColor: cardBg, color: textColor, borderColor }]}
-                            placeholder="Add notes about this student..."
-                            placeholderTextColor={subtextColor}
-                            multiline
-                            value={notes}
-                            onChangeText={setNotes}
-                        />
-                    </View>
+                    {/* Emergency Notes from medical record */}
+                    {medRecord?.emergencyNotes && (
+                        <View style={styles.section}>
+                            <Text style={[styles.sectionTitle, { color: subtextColor }]}>EMERGENCY NOTES</Text>
+                            <View style={[styles.infoCard, { backgroundColor: cardBg }]}>
+                                <InfoRow icon="call" label="Notes" value={medRecord.emergencyNotes} color="#3b82f6" textColor={textColor} subtextColor={subtextColor} />
+                            </View>
+                        </View>
+                    )}
                 </ScrollView>
             </Pressable>
         </Pressable>
@@ -150,5 +146,4 @@ const styles = StyleSheet.create({
     infoCard: { borderRadius: 12, padding: 12 },
     infoRow: { flexDirection: "row", alignItems: "center", paddingVertical: 8 },
     noData: { fontSize: 14, padding: 4 },
-    textInput: { borderWidth: 1, borderRadius: 12, padding: 12, minHeight: 100, textAlignVertical: "top", fontSize: 14 },
 });

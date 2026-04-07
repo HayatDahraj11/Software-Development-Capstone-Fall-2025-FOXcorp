@@ -5,6 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
 import { useMedicalRecord } from "@/src/features/medical-records/logic/useMedicalRecord";
+import { useTeacherNotes } from "@/src/features/teacher-notes/logic/useTeacherNotes";
 import Card from "@/src/features/cards/ui/Card";
 
 export default function StudentDocumentationScreen() {
@@ -21,6 +22,7 @@ export default function StudentDocumentationScreen() {
     const urgentColor = useThemeColor({}, "urgent");
 
     const { record, isLoading } = useMedicalRecord(studentId);
+    const { notes, isLoading: notesLoading } = useTeacherNotes(studentId);
 
     if (isLoading) {
         return (
@@ -133,6 +135,46 @@ export default function StudentDocumentationScreen() {
                         <Text style={[styles.detailBody, {color: subtextColor}]}>No medications on file</Text>
                     )}
                 </View>
+
+                {/* Teacher Notes — read only for parents */}
+                <Text style={[styles.sectionLabel, {color: subtextColor, marginTop: 16}]}>TEACHER NOTES</Text>
+
+                {notesLoading ? (
+                    <ActivityIndicator size="small" color={tintColor} style={{ marginVertical: 12 }} />
+                ) : notes.length === 0 ? (
+                    <View style={[styles.detailCard, {backgroundColor: cardBg}]}>
+                        <Text style={[styles.detailBody, {color: subtextColor, marginLeft: 0}]}>No teacher notes for this student</Text>
+                    </View>
+                ) : (
+                    notes.map((note) => {
+                        const catColors: Record<string, { color: string; bg: string; icon: string }> = {
+                            GENERAL: { color: "#6b7280", bg: "#6b728020", icon: "chatbox" },
+                            ACADEMIC: { color: "#3b82f6", bg: "#3b82f620", icon: "school" },
+                            BEHAVIORAL: { color: "#f59e0b", bg: "#f59e0b20", icon: "alert-circle" },
+                            POSITIVE: { color: "#22c55e", bg: "#22c55e20", icon: "star" },
+                        };
+                        const cat = catColors[note.category ?? "GENERAL"] ?? catColors.GENERAL;
+                        const dateStr = new Date(note.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+
+                        return (
+                            <View key={note.id} style={[styles.detailCard, {backgroundColor: cardBg}]}>
+                                <View style={styles.detailHeader}>
+                                    <View style={[styles.iconBox, {backgroundColor: cat.bg}]}>
+                                        <Ionicons name={cat.icon as any} size={18} color={cat.color} />
+                                    </View>
+                                    <View style={{flex: 1}}>
+                                        <Text style={[styles.detailTitle, {color: textColor}]}>{note.title || (note.category === "ACADEMIC" ? "Academic Note" : "Teacher Note")}</Text>
+                                        <Text style={{fontSize: 11, color: subtextColor}}>{dateStr}</Text>
+                                    </View>
+                                    <View style={[styles.catTag, {backgroundColor: cat.bg}]}>
+                                        <Text style={{fontSize: 10, fontWeight: "700", color: cat.color}}>{note.category ?? "GENERAL"}</Text>
+                                    </View>
+                                </View>
+                                <Text style={[styles.detailBody, {color: textColor}]}>{note.body}</Text>
+                            </View>
+                        );
+                    })
+                )}
             </ScrollView>
         </View>
     );
@@ -183,5 +225,10 @@ const styles = StyleSheet.create({
         fontSize: 14,
         lineHeight: 20,
         marginLeft: 42,
+    },
+    catTag: {
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 4,
     },
 });

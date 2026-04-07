@@ -101,8 +101,8 @@ export default function StudentDetailModal() {
 
     return (
         <View style={styles.overlay}>
-            {/* Backdrop — tapping empty space closes the modal */}
-            <Pressable style={StyleSheet.absoluteFill} onPress={() => router.back()} />
+            {/* Backdrop area above sheet — tapping here closes the modal */}
+            <Pressable style={{ flex: 1 }} onPress={() => router.back()} />
 
             <View style={[styles.sheet, { backgroundColor: bg }]}>
                 <ScrollView showsVerticalScrollIndicator={false}>

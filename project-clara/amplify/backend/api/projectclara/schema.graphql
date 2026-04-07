@@ -68,6 +68,7 @@ type Class @model @auth(rules: [{ allow: public }]) {
   attendances: [Attendance] @hasMany(indexName: "byClass", fields: ["id"])
   incidents: [Incident] @hasMany(indexName: "byClass", fields: ["id"])
   schedules: [Schedule] @hasMany(indexName: "byClass", fields: ["id"])
+  teacherNotes: [TeacherNote] @hasMany(indexName: "byClass", fields: ["id"])
 }
 # Separate Schedule model
 enum DayOfWeek { MONDAY TUESDAY WEDNESDAY THURSDAY FRIDAY SATURDAY SUNDAY }

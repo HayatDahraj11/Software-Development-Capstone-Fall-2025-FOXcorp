@@ -100,11 +100,11 @@ export default function StudentDetailModal() {
         CATEGORIES.find(c => c.key === cat) ?? CATEGORIES[0];
 
     return (
-        <View style={styles.overlay}>
+        <View style={styles.overlay} pointerEvents="auto">
             {/* Backdrop area above sheet — tapping here closes the modal */}
             <Pressable style={{ flex: 1 }} onPress={() => router.back()} />
 
-            <View style={[styles.sheet, { backgroundColor: bg }]}>
+            <View style={[styles.sheet, { backgroundColor: bg }]} pointerEvents="auto">
                 <ScrollView showsVerticalScrollIndicator={false}>
                     {/* Header */}
                     <View style={styles.headerRow}>
@@ -299,7 +299,7 @@ function InfoRow({ icon, label, value, color, textColor, subtextColor }: {
 }
 
 const styles = StyleSheet.create({
-    overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "flex-end" },
+    overlay: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "flex-end", zIndex: 9999 },
     sheet: { maxHeight: "85%", borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, paddingBottom: 40 },
     headerRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 20 },
     avatarCircle: { width: 48, height: 48, borderRadius: 24, alignItems: "center", justifyContent: "center" },

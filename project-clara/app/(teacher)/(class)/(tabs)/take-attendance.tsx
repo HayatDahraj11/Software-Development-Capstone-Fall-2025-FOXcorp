@@ -11,7 +11,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { useGlobalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
@@ -27,7 +27,7 @@ const STATUS_OPTIONS: { value: AttendanceStatus; label: string; icon: string; co
 ];
 
 export default function TakeAttendanceScreen() {
-  const { classId } = useLocalSearchParams();
+  const { classId } = useGlobalSearchParams();
   const { userClasses } = useTeacherLoginContext();
 
   const classIdString = Array.isArray(classId) ? classId[0] : classId ?? "";

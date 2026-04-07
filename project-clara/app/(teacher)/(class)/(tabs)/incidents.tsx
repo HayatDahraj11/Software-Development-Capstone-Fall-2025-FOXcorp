@@ -12,7 +12,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { useGlobalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
@@ -30,7 +30,7 @@ const SEVERITY_COLORS: Record<string, { bg: string; text: string }> = {
 };
 
 export default function IncidentsScreen() {
-  const { classId } = useLocalSearchParams();
+  const { classId } = useGlobalSearchParams();
   const { userTeacher, userClasses } = useTeacherLoginContext();
 
   const classIdString = Array.isArray(classId) ? classId[0] : classId ?? "";

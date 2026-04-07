@@ -112,6 +112,9 @@ export function useAttendance(
         setIsSaving(false);
         return true;
       }
+      if (result.error) {
+        setError(result.error);
+      }
       setIsSaving(false);
       return false;
     },

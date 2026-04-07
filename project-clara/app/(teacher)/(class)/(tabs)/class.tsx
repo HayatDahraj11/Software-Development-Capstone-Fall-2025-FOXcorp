@@ -1,11 +1,21 @@
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { Pressable, StyleSheet, Text, View, ScrollView } from "react-native";
+import { Pressable, StyleSheet, View, ScrollView } from "react-native";
 import { Href } from "expo-router";
 import { useTeacherLoginContext } from "@/src/features/context/TeacherLoginContext";
-import { useLocalSearchParams } from "expo-router";
+import { useGlobalSearchParams } from "expo-router";
 import { usePushNotifications } from "@/src/features/notifications/logic/usePushNotifications";
+import { Text } from '@/src/rnreusables/ui/text';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/src/rnreusables/ui/dropdown-menu';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 
 // grid items for the class home screen, each with a route, label, and icon
 const GRID_ITEMS: {
@@ -20,11 +30,53 @@ const GRID_ITEMS: {
   { label: "Grades", icon: "ribbon", route: "/grades" },
   { label: "Take Attendance", icon: "checkbox", route: "/take-attendance" },
   { label: "Incidents", icon: "warning", route: "/incidents" },
+  { label: "Schedule", icon: "calendar", route: "/schedule" },
 ];
+
+// Dropdown for switching classes
+function ClassDropdown({ selectedClassId }: { selectedClassId?: string }) {
+  const router = useRouter();
+  const { userClasses } = useTeacherLoginContext();
+  const textColor = useThemeColor({}, 'text');
+  const tint = useThemeColor({}, 'text');
+
+  const selectedClass = userClasses.find(cls => cls.id === selectedClassId);
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Pressable
+          style={{ flexDirection: 'row', alignItems: 'center' }}
+        >
+          <Text style={{ fontSize: 26, fontWeight: '700', color: textColor }}>
+            {selectedClass?.name ?? "Class"}
+          </Text>
+          <Ionicons
+            name="chevron-down"
+            size={20}
+            color={tint}
+            style={{ marginLeft: 6 }}
+          />
+        </Pressable>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent sideOffset={4} align="start">
+        {userClasses.map(cls => (
+          <DropdownMenuItem
+            key={cls.id}
+            onPress={() => router.push(`/class?classId=${cls.id}`)}
+          >
+            <Text>{cls.name}</Text>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 export default function ClassHome() {
   const router = useRouter();
-  const { classId } = useLocalSearchParams();
+  const { classId } = useGlobalSearchParams();
 
   const { userTeacher, userClasses } = useTeacherLoginContext();
 
@@ -42,19 +94,21 @@ export default function ClassHome() {
   const studentCount = selectedClass?.enrollments?.length ?? 0;
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: bg }]} contentContainerStyle={styles.scrollContent}>
+    <ScrollView
+  style={[styles.container, { backgroundColor: bg }]}
+  contentContainerStyle={styles.scrollContent}
+  keyboardShouldPersistTaps="handled"
+>
       {/* header with class name and student count */}
       <View style={styles.header}>
-        <Text style={[styles.className, { color: textColor }]}>
-          {selectedClass?.name ?? "Class"}
+      <ClassDropdown selectedClassId={classIdString} />
+      <View style={[styles.countBadge, { backgroundColor: tint + "18" }]}>
+        <Ionicons name="people" size={16} color={tint} />
+        <Text style={[styles.countText, { color: tint }]}>
+          {studentCount} {studentCount === 1 ? "Student" : "Students"}
         </Text>
-        <View style={[styles.countBadge, { backgroundColor: tint + "18" }]}>
-          <Ionicons name="people" size={16} color={tint} />
-          <Text style={[styles.countText, { color: tint }]}>
-            {studentCount} {studentCount === 1 ? "Student" : "Students"}
-          </Text>
-        </View>
       </View>
+    </View>
 
       {/* grid of action cards */}
       <View style={styles.grid}>

@@ -86,6 +86,7 @@ describe("fetchSchedulesByClass", () => {
     expect(mockGraphql).toHaveBeenCalledWith({
       query: "schedulesByClassId",
       variables: { classId: "my-class-id" },
+      authMode: "apiKey",
     });
   });
 });

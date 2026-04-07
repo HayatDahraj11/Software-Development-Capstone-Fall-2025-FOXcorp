@@ -55,6 +55,10 @@ export const createStudent = /* GraphQL */ `mutation CreateStudent(
       updatedAt
       __typename
     }
+    teacherNotes {
+      nextToken
+      __typename
+    }
     createdAt
     updatedAt
     schoolStudentsId
@@ -113,6 +117,10 @@ export const deleteStudent = /* GraphQL */ `mutation DeleteStudent(
       updatedAt
       __typename
     }
+    teacherNotes {
+      nextToken
+      __typename
+    }
     createdAt
     updatedAt
     schoolStudentsId
@@ -146,6 +154,10 @@ export const createTeacher = /* GraphQL */ `mutation CreateTeacher(
       __typename
     }
     incidents {
+      nextToken
+      __typename
+    }
+    teacherNotes {
       nextToken
       __typename
     }
@@ -183,6 +195,10 @@ export const updateTeacher = /* GraphQL */ `mutation UpdateTeacher(
       nextToken
       __typename
     }
+    teacherNotes {
+      nextToken
+      __typename
+    }
     createdAt
     updatedAt
     __typename
@@ -214,6 +230,10 @@ export const deleteTeacher = /* GraphQL */ `mutation DeleteTeacher(
       __typename
     }
     incidents {
+      nextToken
+      __typename
+    }
+    teacherNotes {
       nextToken
       __typename
     }
@@ -268,6 +288,10 @@ export const createClass = /* GraphQL */ `mutation CreateClass(
       nextToken
       __typename
     }
+    teacherNotes {
+      nextToken
+      __typename
+    }
     createdAt
     updatedAt
     __typename
@@ -319,6 +343,10 @@ export const updateClass = /* GraphQL */ `mutation UpdateClass(
       nextToken
       __typename
     }
+    teacherNotes {
+      nextToken
+      __typename
+    }
     createdAt
     updatedAt
     __typename
@@ -367,6 +395,10 @@ export const deleteClass = /* GraphQL */ `mutation DeleteClass(
       __typename
     }
     schedules {
+      nextToken
+      __typename
+    }
+    teacherNotes {
       nextToken
       __typename
     }
@@ -775,6 +807,69 @@ export const deleteAnnouncement = /* GraphQL */ `mutation DeleteAnnouncement(
   APITypes.DeleteAnnouncementMutationVariables,
   APITypes.DeleteAnnouncementMutation
 >;
+export const createEmergencyNotification = /* GraphQL */ `mutation CreateEmergencyNotification(
+  $input: CreateEmergencyNotificationInput!
+  $condition: ModelEmergencyNotificationConditionInput
+) {
+  createEmergencyNotification(input: $input, condition: $condition) {
+    id
+    title
+    message
+    type
+    schoolId
+    classId
+    status
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateEmergencyNotificationMutationVariables,
+  APITypes.CreateEmergencyNotificationMutation
+>;
+export const updateEmergencyNotification = /* GraphQL */ `mutation UpdateEmergencyNotification(
+  $input: UpdateEmergencyNotificationInput!
+  $condition: ModelEmergencyNotificationConditionInput
+) {
+  updateEmergencyNotification(input: $input, condition: $condition) {
+    id
+    title
+    message
+    type
+    schoolId
+    classId
+    status
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateEmergencyNotificationMutationVariables,
+  APITypes.UpdateEmergencyNotificationMutation
+>;
+export const deleteEmergencyNotification = /* GraphQL */ `mutation DeleteEmergencyNotification(
+  $input: DeleteEmergencyNotificationInput!
+  $condition: ModelEmergencyNotificationConditionInput
+) {
+  deleteEmergencyNotification(input: $input, condition: $condition) {
+    id
+    title
+    message
+    type
+    schoolId
+    classId
+    status
+    createdAt
+    updatedAt
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteEmergencyNotificationMutationVariables,
+  APITypes.DeleteEmergencyNotificationMutation
+>;
 export const createMedicalRecord = /* GraphQL */ `mutation CreateMedicalRecord(
   $input: CreateMedicalRecordInput!
   $condition: ModelMedicalRecordConditionInput
@@ -876,6 +971,165 @@ export const deleteMedicalRecord = /* GraphQL */ `mutation DeleteMedicalRecord(
 ` as GeneratedMutation<
   APITypes.DeleteMedicalRecordMutationVariables,
   APITypes.DeleteMedicalRecordMutation
+>;
+export const createTeacherNote = /* GraphQL */ `mutation CreateTeacherNote(
+  $input: CreateTeacherNoteInput!
+  $condition: ModelTeacherNoteConditionInput
+) {
+  createTeacherNote(input: $input, condition: $condition) {
+    id
+    teacherId
+    studentId
+    classId
+    title
+    body
+    category
+    createdAt
+    updatedAt
+    teacher {
+      id
+      name
+      cognitoUserId
+      schoolId
+      createdAt
+      updatedAt
+      __typename
+    }
+    student {
+      id
+      firstName
+      lastName
+      dateOfBirth
+      gradeLevel
+      attendanceRate
+      currentStatus
+      createdAt
+      updatedAt
+      schoolStudentsId
+      studentMedicalRecordId
+      __typename
+    }
+    class {
+      id
+      name
+      teacherId
+      schoolId
+      createdAt
+      updatedAt
+      __typename
+    }
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.CreateTeacherNoteMutationVariables,
+  APITypes.CreateTeacherNoteMutation
+>;
+export const updateTeacherNote = /* GraphQL */ `mutation UpdateTeacherNote(
+  $input: UpdateTeacherNoteInput!
+  $condition: ModelTeacherNoteConditionInput
+) {
+  updateTeacherNote(input: $input, condition: $condition) {
+    id
+    teacherId
+    studentId
+    classId
+    title
+    body
+    category
+    createdAt
+    updatedAt
+    teacher {
+      id
+      name
+      cognitoUserId
+      schoolId
+      createdAt
+      updatedAt
+      __typename
+    }
+    student {
+      id
+      firstName
+      lastName
+      dateOfBirth
+      gradeLevel
+      attendanceRate
+      currentStatus
+      createdAt
+      updatedAt
+      schoolStudentsId
+      studentMedicalRecordId
+      __typename
+    }
+    class {
+      id
+      name
+      teacherId
+      schoolId
+      createdAt
+      updatedAt
+      __typename
+    }
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.UpdateTeacherNoteMutationVariables,
+  APITypes.UpdateTeacherNoteMutation
+>;
+export const deleteTeacherNote = /* GraphQL */ `mutation DeleteTeacherNote(
+  $input: DeleteTeacherNoteInput!
+  $condition: ModelTeacherNoteConditionInput
+) {
+  deleteTeacherNote(input: $input, condition: $condition) {
+    id
+    teacherId
+    studentId
+    classId
+    title
+    body
+    category
+    createdAt
+    updatedAt
+    teacher {
+      id
+      name
+      cognitoUserId
+      schoolId
+      createdAt
+      updatedAt
+      __typename
+    }
+    student {
+      id
+      firstName
+      lastName
+      dateOfBirth
+      gradeLevel
+      attendanceRate
+      currentStatus
+      createdAt
+      updatedAt
+      schoolStudentsId
+      studentMedicalRecordId
+      __typename
+    }
+    class {
+      id
+      name
+      teacherId
+      schoolId
+      createdAt
+      updatedAt
+      __typename
+    }
+    __typename
+  }
+}
+` as GeneratedMutation<
+  APITypes.DeleteTeacherNoteMutationVariables,
+  APITypes.DeleteTeacherNoteMutation
 >;
 export const createIncident = /* GraphQL */ `mutation CreateIncident(
   $input: CreateIncidentInput!
@@ -1540,6 +1794,10 @@ export const updateStudent = /* GraphQL */ `mutation UpdateStudent(
       emergencyNotes
       createdAt
       updatedAt
+      __typename
+    }
+    teacherNotes {
+      nextToken
       __typename
     }
     createdAt

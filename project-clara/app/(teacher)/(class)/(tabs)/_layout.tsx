@@ -62,13 +62,24 @@ export default function ParentTabLayout() {
             }} />
             <Tabs.Screen
                 name="class"
-                options={{
-                    title: className,
+                options={({ route }) => {
+                    const params = route.params as { classId?: string };
+                    const selectedClass = userClasses?.find(
+                    c => String(c.id) === String(params?.classId)
+                    );
+                    return {
+                    title: selectedClass?.name ?? "Class",
                     tabBarLabel: "Home",
-                    tabBarIcon: ({color, focused}) => (
-                        <Ionicons name = {focused ? 'home' : 'home-outline'} color = {color} size={24} />
+                    tabBarIcon: ({ color, focused }) => (
+                        <Ionicons
+                        name={focused ? "home" : "home-outline"}
+                        color={color}
+                        size={24}
+                        />
                     ),
-            }} />
+                    };
+                }}
+                />
             <Tabs.Screen
                 name="attendance-list"
                 options={{
@@ -102,6 +113,13 @@ export default function ParentTabLayout() {
                 options={{
                     href: null,
                     title: "Incidents",
+            }} />
+
+            <Tabs.Screen
+                name="schedule"
+                options={{
+                    href: null,
+                    title: "Schedule",
             }} />
 
             <Tabs.Screen

@@ -1,3 +1,5 @@
+// hook for loading and creating announcements
+// sorts by newest first since the graphql index cant do it for us
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Announcement, fetchAnnouncementsByClass, postAnnouncement } from "../api/announcementRepo";
 
@@ -20,7 +22,10 @@ export function useAnnouncements(classId: string): UseAnnouncementsReturn {
     }, []);
 
     const loadAnnouncements = useCallback(async () => {
-        if (!classId) return;
+        if (!classId) {
+            setIsLoading(false);
+            return;
+        }
         setIsLoading(true);
         setError(null);
 
@@ -31,7 +36,11 @@ export function useAnnouncements(classId: string): UseAnnouncementsReturn {
         if (result.error) {
             setError(result.error);
         } else {
-            setAnnouncements(result.data ?? []);
+            // sort newest first since we cant do it in the query
+            const sorted = (result.data ?? []).sort(
+                (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
+            setAnnouncements(sorted);
         }
         setIsLoading(false);
     }, [classId]);

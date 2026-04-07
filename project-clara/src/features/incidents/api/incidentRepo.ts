@@ -2,10 +2,32 @@
 // note: the byClass index doesnt have a sort key so we cant use sortDirection
 // sorting happens client side in the hook instead
 import { generateClient } from "aws-amplify/api";
-import { incidentsByClassId } from "@/src/graphql/queries";
-import { createIncident } from "@/src/graphql/mutations";
+import { incidentsByClassId, incidentsByStudentId } from "@/src/graphql/queries";
 
-const client = generateClient();
+// lean mutation that only returns flat fields we need
+// the generated createIncident requests nested @belongsTo relations
+// (teacher, student, class, school) which cause AppSync resolver errors
+const createIncidentLean = /* GraphQL */ `mutation CreateIncident($input: CreateIncidentInput!) {
+  createIncident(input: $input) {
+    id
+    description
+    severity
+    date
+    teacherId
+    studentId
+    classId
+    schoolId
+    createdAt
+    updatedAt
+  }
+}`;
+
+// lazy init so Amplify.configure() has time to run before we create the client
+let _client: any = null;
+function getClient() {
+    if (!_client) _client = generateClient();
+    return _client;
+}
 
 export interface Incident {
   id: string;
@@ -30,15 +52,39 @@ export async function fetchIncidentsByClass(
   classId: string
 ): Promise<RepoResult<Incident[]>> {
   try {
-    const result: any = await client.graphql({
+    const result: any = await getClient().graphql({
       query: incidentsByClassId,
       variables: { classId },
+      authMode: "apiKey",
     });
     const items: Incident[] =
       result?.data?.incidentsByClassId?.items ?? [];
     return { data: items, error: null };
   } catch (err: any) {
     return { data: null, error: err?.message ?? "Failed to fetch incidents" };
+  }
+}
+
+// pulls all incidents for a specific student (used by parent side)
+export async function fetchIncidentsByStudent(
+  studentId: string
+): Promise<RepoResult<Incident[]>> {
+  try {
+    const result: any = await getClient().graphql({
+      query: incidentsByStudentId,
+      variables: { studentId },
+      authMode: "apiKey",
+    });
+    const items: Incident[] =
+      result?.data?.incidentsByStudentId?.items ?? [];
+    return { data: items, error: null };
+  } catch (err: any) {
+    if (err?.data?.incidentsByStudentId?.items) {
+      return { data: err.data.incidentsByStudentId.items, error: null };
+    }
+    console.error("fetchIncidentsByStudent failed:", JSON.stringify(err, null, 2));
+    const msg = err?.errors?.[0]?.message ?? err?.message ?? "Failed to fetch incidents";
+    return { data: null, error: msg };
   }
 }
 
@@ -53,8 +99,8 @@ export async function reportIncident(params: {
   schoolId: string;
 }): Promise<RepoResult<Incident>> {
   try {
-    const result: any = await client.graphql({
-      query: createIncident,
+    const result: any = await getClient().graphql({
+      query: createIncidentLean,
       variables: {
         input: {
           description: params.description,
@@ -66,9 +112,15 @@ export async function reportIncident(params: {
           schoolId: params.schoolId,
         },
       },
+      authMode: "apiKey",
     });
     return { data: result.data.createIncident, error: null };
   } catch (err: any) {
-    return { data: null, error: err?.message ?? "Failed to report incident" };
+    if (err?.data?.createIncident) {
+      return { data: err.data.createIncident, error: null };
+    }
+    console.error("reportIncident failed:", JSON.stringify(err, null, 2));
+    const msg = err?.errors?.[0]?.message ?? err?.message ?? "Failed to report incident";
+    return { data: null, error: msg };
   }
 }

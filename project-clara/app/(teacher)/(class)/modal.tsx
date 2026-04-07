@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Alert, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import { useTeacherLoginContext } from "@/src/features/context/TeacherLoginContext";
 import { fetchMedicalRecord, MedicalRecord } from "@/src/features/medical-records/api/medicalRecordRepo";
+import { useTeacherNotes } from "@/src/features/teacher-notes/logic/useTeacherNotes";
 
 export default function StudentDetailModal() {
     const { studentId } = useLocalSearchParams<{ studentId: string }>();
-    const { userClasses } = useTeacherLoginContext();
+    const { userTeacher, userClasses } = useTeacherLoginContext();
 
     const bg = useThemeColor({}, "background");
     const cardBg = useThemeColor({}, "cardBackground");
@@ -17,11 +18,13 @@ export default function StudentDetailModal() {
     const subtextColor = useThemeColor({}, "placeholderText");
     const tint = useThemeColor({}, "tint");
     const borderColor = useThemeColor({}, "listBorderTranslucent");
+    const modalBg = useThemeColor({}, "modalBackground");
 
     // find student from class enrollments
     let studentName = "Student";
     let studentGrade: number | null = null;
     let studentAttendance: number | null = null;
+    let classId: string | null = null;
 
     for (const cls of userClasses) {
         const enrollment = cls.enrollments?.find((e) => e.student?.id === studentId);
@@ -29,12 +32,12 @@ export default function StudentDetailModal() {
             studentName = `${enrollment.student.firstName} ${enrollment.student.lastName}`;
             studentGrade = enrollment.currentGrade ?? null;
             studentAttendance = enrollment.student.attendanceRate ?? null;
+            classId = cls.id;
             break;
         }
     }
 
     const [medRecord, setMedRecord] = useState<MedicalRecord | null>(null);
-    const [notes, setNotes] = useState("");
 
     useEffect(() => {
         if (studentId) {
@@ -44,7 +47,57 @@ export default function StudentDetailModal() {
         }
     }, [studentId]);
 
+    // teacher notes
+    const { notes, isLoading: notesLoading, addNote, removeNote, isSaving } = useTeacherNotes(studentId ?? "");
+
+    const [showAddNote, setShowAddNote] = useState(false);
+    const [noteTitle, setNoteTitle] = useState("");
+    const [noteBody, setNoteBody] = useState("");
+    const [noteCategory, setNoteCategory] = useState<string>("GENERAL");
+
+    const CATEGORIES = [
+        { key: "GENERAL", label: "General", icon: "chatbox", color: "#6b7280" },
+        { key: "ACADEMIC", label: "Academic", icon: "school", color: "#3b82f6" },
+        { key: "BEHAVIORAL", label: "Behavioral", icon: "alert-circle", color: "#f59e0b" },
+        { key: "POSITIVE", label: "Positive", icon: "star", color: "#22c55e" },
+    ];
+
+    const handleAddNote = async () => {
+        if (!noteBody.trim()) return;
+        const success = await addNote({
+            teacherId: userTeacher.userId,
+            studentId: studentId ?? "",
+            classId,
+            title: noteTitle.trim() || null,
+            body: noteBody.trim(),
+            category: noteCategory,
+        });
+        if (success) {
+            setShowAddNote(false);
+            setNoteTitle("");
+            setNoteBody("");
+            setNoteCategory("GENERAL");
+        } else {
+            Alert.alert("Error", "Failed to save note. Please try again.");
+        }
+    };
+
+    const handleDeleteNote = (noteId: string) => {
+        Alert.alert("Delete Note", "Are you sure you want to delete this note?", [
+            { text: "Cancel", style: "cancel" },
+            { text: "Delete", style: "destructive", onPress: () => removeNote(noteId) },
+        ]);
+    };
+
     const gradeDisplay = studentGrade != null ? Math.round(studentGrade) : null;
+
+    const formatDate = (iso: string) => {
+        const d = new Date(iso);
+        return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    };
+
+    const getCategoryConfig = (cat?: string | null) =>
+        CATEGORIES.find(c => c.key === cat) ?? CATEGORIES[0];
 
     return (
         <Pressable style={styles.overlay} onPress={() => router.back()}>
@@ -104,19 +157,125 @@ export default function StudentDetailModal() {
                         )}
                     </View>
 
-                    {/* Notes */}
-                    <View style={styles.section}>
-                        <Text style={[styles.sectionTitle, { color: subtextColor }]}>TEACHER NOTES</Text>
-                        <TextInput
-                            style={[styles.textInput, { backgroundColor: cardBg, color: textColor, borderColor }]}
-                            placeholder="Add notes about this student..."
-                            placeholderTextColor={subtextColor}
-                            multiline
-                            value={notes}
-                            onChangeText={setNotes}
-                        />
+                    {/* Emergency Notes from medical record */}
+                    {medRecord?.emergencyNotes && (
+                        <View style={styles.section}>
+                            <Text style={[styles.sectionTitle, { color: subtextColor }]}>EMERGENCY NOTES</Text>
+                            <View style={[styles.infoCard, { backgroundColor: cardBg }]}>
+                                <InfoRow icon="call" label="Notes" value={medRecord.emergencyNotes} color="#3b82f6" textColor={textColor} subtextColor={subtextColor} />
+                            </View>
+                        </View>
+                    )}
+
+                    {/* Teacher Notes */}
+                    <View style={[styles.section, { borderTopColor: borderColor }]}>
+                        <View style={styles.sectionHeader}>
+                            <Text style={[styles.sectionTitle, { color: subtextColor, marginBottom: 0 }]}>MY NOTES</Text>
+                            <Pressable
+                                style={[styles.addBtn, { backgroundColor: tint }]}
+                                onPress={() => setShowAddNote(true)}
+                            >
+                                <Ionicons name="add" size={16} color="#fff" />
+                                <Text style={styles.addBtnText}>Add</Text>
+                            </Pressable>
+                        </View>
+
+                        {notesLoading ? (
+                            <ActivityIndicator size="small" color={tint} style={{ marginTop: 12 }} />
+                        ) : notes.length === 0 ? (
+                            <View style={[styles.infoCard, { backgroundColor: cardBg, marginTop: 10 }]}>
+                                <Text style={[styles.noData, { color: subtextColor }]}>No notes yet. Tap "Add" to write one.</Text>
+                            </View>
+                        ) : (
+                            <View style={{ marginTop: 10, gap: 8 }}>
+                                {notes.map((note) => {
+                                    const cat = getCategoryConfig(note.category);
+                                    return (
+                                        <View key={note.id} style={[styles.noteCard, { backgroundColor: cardBg }]}>
+                                            <View style={styles.noteHeader}>
+                                                <View style={[styles.catBadge, { backgroundColor: cat.color + "20" }]}>
+                                                    <Ionicons name={cat.icon as any} size={12} color={cat.color} />
+                                                    <Text style={{ fontSize: 11, fontWeight: "600", color: cat.color, marginLeft: 4 }}>{cat.label}</Text>
+                                                </View>
+                                                <Text style={{ fontSize: 11, color: subtextColor }}>{formatDate(note.createdAt)}</Text>
+                                                <Pressable onPress={() => handleDeleteNote(note.id)} hitSlop={8}>
+                                                    <Ionicons name="trash-outline" size={14} color="#dc2626" />
+                                                </Pressable>
+                                            </View>
+                                            {note.title && (
+                                                <Text style={[styles.noteTitle, { color: textColor }]}>{note.title}</Text>
+                                            )}
+                                            <Text style={[styles.noteBody, { color: textColor }]}>{note.body}</Text>
+                                        </View>
+                                    );
+                                })}
+                            </View>
+                        )}
                     </View>
                 </ScrollView>
+
+                {/* Add Note Modal */}
+                <Modal visible={showAddNote} transparent animationType="fade" onRequestClose={() => setShowAddNote(false)}>
+                    <Pressable style={styles.modalOverlay} onPress={() => setShowAddNote(false)}>
+                        <Pressable style={[styles.modalSheet, { backgroundColor: modalBg }]} onPress={(e) => e.stopPropagation()}>
+                            <Text style={[styles.modalTitle, { color: textColor }]}>Add Note</Text>
+
+                            {/* Category pills */}
+                            <View style={styles.categoryRow}>
+                                {CATEGORIES.map(cat => (
+                                    <Pressable
+                                        key={cat.key}
+                                        style={[
+                                            styles.categoryPill,
+                                            { borderColor: cat.color },
+                                            noteCategory === cat.key && { backgroundColor: cat.color + "20" },
+                                        ]}
+                                        onPress={() => setNoteCategory(cat.key)}
+                                    >
+                                        <Ionicons name={cat.icon as any} size={12} color={cat.color} />
+                                        <Text style={{ fontSize: 12, fontWeight: "600", color: cat.color, marginLeft: 4 }}>{cat.label}</Text>
+                                    </Pressable>
+                                ))}
+                            </View>
+
+                            <TextInput
+                                style={[styles.input, { color: textColor, borderColor, backgroundColor: cardBg }]}
+                                value={noteTitle}
+                                onChangeText={setNoteTitle}
+                                placeholder="Title (optional)"
+                                placeholderTextColor={subtextColor}
+                                autoFocus={Platform.OS !== "web"}
+                            />
+
+                            <TextInput
+                                style={[styles.input, styles.textArea, { color: textColor, borderColor, backgroundColor: cardBg }]}
+                                value={noteBody}
+                                onChangeText={setNoteBody}
+                                placeholder="Write your note..."
+                                placeholderTextColor={subtextColor}
+                                multiline
+                            />
+
+                            <View style={styles.modalButtons}>
+                                <Pressable
+                                    style={[styles.modalBtn, { backgroundColor: subtextColor + "20" }]}
+                                    onPress={() => setShowAddNote(false)}
+                                >
+                                    <Text style={[styles.modalBtnText, { color: textColor }]}>Cancel</Text>
+                                </Pressable>
+                                <Pressable
+                                    style={[styles.modalBtn, { backgroundColor: tint, opacity: isSaving || !noteBody.trim() ? 0.5 : 1 }]}
+                                    onPress={handleAddNote}
+                                    disabled={isSaving || !noteBody.trim()}
+                                >
+                                    <Text style={[styles.modalBtnText, { color: "#fff" }]}>
+                                        {isSaving ? "Saving..." : "Save"}
+                                    </Text>
+                                </Pressable>
+                            </View>
+                        </Pressable>
+                    </Pressable>
+                </Modal>
             </Pressable>
         </Pressable>
     );
@@ -138,7 +297,7 @@ function InfoRow({ icon, label, value, color, textColor, subtextColor }: {
 
 const styles = StyleSheet.create({
     overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "flex-end" },
-    sheet: { maxHeight: "75%", borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, paddingBottom: 40 },
+    sheet: { maxHeight: "85%", borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, paddingBottom: 40 },
     headerRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 20 },
     avatarCircle: { width: 48, height: 48, borderRadius: 24, alignItems: "center", justifyContent: "center" },
     headerText: { flex: 1 },
@@ -146,9 +305,26 @@ const styles = StyleSheet.create({
     badgeRow: { flexDirection: "row", gap: 8, marginTop: 6 },
     badge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6 },
     section: { marginTop: 16, paddingTop: 16, borderTopWidth: 1, borderTopColor: "transparent" },
+    sectionHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
     sectionTitle: { fontSize: 12, fontWeight: "700", letterSpacing: 1, marginBottom: 10 },
     infoCard: { borderRadius: 12, padding: 12 },
     infoRow: { flexDirection: "row", alignItems: "center", paddingVertical: 8 },
     noData: { fontSize: 14, padding: 4 },
-    textInput: { borderWidth: 1, borderRadius: 12, padding: 12, minHeight: 100, textAlignVertical: "top", fontSize: 14 },
+    addBtn: { flexDirection: "row", alignItems: "center", paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8, gap: 4 },
+    addBtnText: { fontSize: 13, fontWeight: "600", color: "#fff" },
+    noteCard: { borderRadius: 12, padding: 12 },
+    noteHeader: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 6 },
+    catBadge: { flexDirection: "row", alignItems: "center", paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, flex: 1 },
+    noteTitle: { fontSize: 15, fontWeight: "600", marginBottom: 2 },
+    noteBody: { fontSize: 14, lineHeight: 20 },
+    modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "center", alignItems: "center" },
+    modalSheet: { width: "90%", maxWidth: 420, borderRadius: 16, padding: 24 },
+    modalTitle: { fontSize: 20, fontWeight: "700", marginBottom: 16 },
+    categoryRow: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 16 },
+    categoryPill: { flexDirection: "row", alignItems: "center", paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, borderWidth: 1 },
+    input: { borderWidth: 1, borderRadius: 12, padding: 12, fontSize: 15, marginBottom: 12 },
+    textArea: { minHeight: 100, textAlignVertical: "top" },
+    modalButtons: { flexDirection: "row", gap: 12, marginTop: 4 },
+    modalBtn: { flex: 1, paddingVertical: 12, borderRadius: 10, alignItems: "center" },
+    modalBtnText: { fontSize: 15, fontWeight: "600" },
 });

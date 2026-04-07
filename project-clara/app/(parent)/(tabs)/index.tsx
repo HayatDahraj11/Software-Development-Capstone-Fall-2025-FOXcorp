@@ -2,7 +2,7 @@ import { useParentLoginContext } from "@/src/features/context/ParentLoginContext
 import { useStoredSettings } from "@/src/features/in-app-settings/logic/useStoredSettings";
 import { Redirect } from "expo-router";
 import { useEffect, useState } from "react";
-import { Text } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 
 
 
@@ -32,7 +32,7 @@ export default function Index() {
     }, [])
 
     if(!isAllDone) {
-        return ( <Text style={{color:"white"}}>Hello! I am a placeholder! Ignore me...</Text> )
+        return ( <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}><ActivityIndicator size="large" /></View> )
     }
 
     //console.log("tabs/index loading over");

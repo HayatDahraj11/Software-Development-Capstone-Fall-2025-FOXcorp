@@ -2,10 +2,10 @@ import { Href, useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Platform, ScrollView, Text, View } from "react-native";
 
+import { Announcement } from "@/src/features/announcements/api/announcementRepo";
 import { useParentAnnouncements } from "@/src/features/announcements/logic/useParentAnnouncements";
 import { containerStyle, dropdownStyle } from "@/src/features/app-themes/constants/stylesheets";
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
-import { DataCard, createStudentAttendanceCard, createStudentClassUpdateCard } from "@/src/features/cards/logic/cardDataCreator";
 import Card from "@/src/features/cards/ui/Card";
 import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
 import { Student, Teacher_parentSide } from "@/src/features/fetch-user-data/api/parent_data_fetcher";
@@ -37,6 +37,8 @@ export default function ParentLiveUpdatesScreen() {
       getStudentGradeInClass,
       getChosenStudentId,
       getChosenStudentIndex,
+      getAnnouncementIndexesbyStudentId,
+      getStudentIndexesWithAnnouncements,
   } = useParentLoginContext();
 
   
@@ -50,8 +52,6 @@ export default function ParentLiveUpdatesScreen() {
   const subtextcolor = useThemeColor({}, "placeholderText");
   const modalbgcolor = useThemeColor({}, "modalBackground");
 
-  const [screenCards, setScreenCards] = useState<DataCard[]>([]);
-
     // this holds which child of the parent's is currently being displayed
   const [childSelected, setChildSelected] = useState<Student>(userStudents[getChosenStudentIndex()]);
   const [childIdSelected, setChildIdSelected] = useState<Option>({value: userStudents[getChosenStudentIndex()].id, label: userStudents[getChosenStudentIndex()].firstName})
@@ -60,6 +60,8 @@ export default function ParentLiveUpdatesScreen() {
   // get unique class ids from enrollments for fetching announcements
   const classIds = [...new Set(userEnrollments.map((e) => e.classId))];
   const { announcements, isLoading: announcementsLoading } = useParentAnnouncements(classIds);
+  const [childAnnouncements, setChildAnnouncements] = useState<Announcement[] | undefined>();
+  const [childrenIndexesWithAnnouncements, setChildrenIndexesWithAnnouncements] = useState<number[]>([]);
 
   const tint = useThemeColor({}, "tint");
   const cardBg = useThemeColor({}, "cardBackground");
@@ -105,7 +107,6 @@ export default function ParentLiveUpdatesScreen() {
   };
 
   const firstLoad = useCallback(async () => {
-    let cardset: DataCard[] = []
 
     // go through each student and generate relevant cards for them
     for(const stu of userStudents) {
@@ -132,18 +133,10 @@ export default function ParentLiveUpdatesScreen() {
           }
         } catch { /* schedule fetch is best-effort */ }
       }
-
-      if(firstEnrollment && firstClass) {
-        const classCard = createStudentClassUpdateCard(stu, firstClass, firstEnrollment, tempTeach, endTime)
-        cardset.push(classCard);
-      }
-
-      const attendanceCard = createStudentAttendanceCard(stu);
-      cardset.push(attendanceCard);
     }
 
-    setScreenCards(cardset);
-  }, [userClasses, userEnrollments, userStudents, userTeachers])
+    setChildrenIndexesWithAnnouncements(getStudentIndexesWithAnnouncements(announcements));
+  }, [announcements, getStudentIndexesWithAnnouncements, userClasses, userEnrollments, userStudents, userTeachers])
 
   useEffect(() => {
     firstLoad();
@@ -190,6 +183,10 @@ export default function ParentLiveUpdatesScreen() {
       setChildSelected(foundKid);
 
       const classIds = getClassesMappedByStudent(id);
+      const announcementIndexes: number[] = getAnnouncementIndexesbyStudentId(id, announcements);
+      console.log(announcementIndexes)
+
+      const relevantAnnouncements: Announcement[] = announcementIndexes.map(i => announcements[i]);
 
       const scheduleRows = classIds
           .map((classId) => {
@@ -201,6 +198,7 @@ export default function ParentLiveUpdatesScreen() {
           })
           .filter(Boolean) as { classId: string; className: string; teacherId: string; teacherName: string; grade: number }[];
     
+      setChildAnnouncements(relevantAnnouncements);
       setChildClasses(scheduleRows);
       const grade = scheduleRows[0].grade;
       setGradeDisplay(grade);
@@ -209,34 +207,12 @@ export default function ParentLiveUpdatesScreen() {
       console.warn("Somehow, a kid was selected that didn't exist. onChildSelected()")
     }
 
-  }, [getClassesMappedByStudent, getStudentGradeInClass, getTeacherNamebyId, userClasses, userStudents]);
+  }, [announcements, getAnnouncementIndexesbyStudentId, getClassesMappedByStudent, getStudentGradeInClass, getTeacherNamebyId, userClasses, userStudents]);
   useEffect(() => { // this will update child selected when a new child is selected...
     if(childIdSelected) {
       onChildSelected(childIdSelected?.value);
     }
   }, [childIdSelected, onChildSelected])
-
-  // states for filtering the flatlist by kid
-  // made with help from gemini
-  const [filteredList, setFilteredList] = useState(screenCards);
-  const [fullList, setFullList] = useState(screenCards)
-
-  useEffect(() => {
-    // if "Display All" is selected
-    if(childSelected.id === '0') {
-      setFilteredList(screenCards); // then display all the cards available
-    }
-    else {
-      // when childSelected is changed, this will parse through the card list and select ones with matching studentIds
-      for(let i = 0; i<screenCards.length; i++) {
-        const newFilteredData = screenCards.filter(item => 
-          item.itemId.match(childSelected.id)
-        );
-        setFilteredList(newFilteredData);
-      }
-    }
-    
-  }, [childSelected, fullList, screenCards])
 
   // updates the student selected on screen focus
   useFocusEffect(
@@ -259,10 +235,16 @@ export default function ParentLiveUpdatesScreen() {
             <SelectContent insets={contentInsets} style={{backgroundColor: cardbgcolor}} >
               <SelectGroup>
                 <SelectLabel style={{color: tintcolor}}>Select a Student</SelectLabel>
-                {userStudents.map((stu) => (
-                  <SelectItem key={stu.id} label={stu.firstName} value={stu.id}>
-                    {stu.firstName}
-                  </SelectItem>
+                {userStudents.map((stu, index) => (
+                  childrenIndexesWithAnnouncements.includes(index) ? ( // if the student has an announcement, highlight them
+                    <SelectItem key={stu.id} label={stu.firstName} value={stu.id}>
+                      {`${stu.firstName} ★`}
+                    </SelectItem>
+                  ) : (
+                    <SelectItem key={stu.id} label={stu.firstName} value={stu.id}>
+                      {stu.firstName}
+                    </SelectItem>
+                  )
                 ))}
               </SelectGroup>
             </SelectContent>
@@ -296,10 +278,10 @@ export default function ParentLiveUpdatesScreen() {
         <Text style={[containerStyle.sectionLabel, { color: subtextColor }]}>
           ANNOUNCEMENTS
         </Text>
-        {announcements.length > 0 && (
+        {(childAnnouncements !== undefined && childAnnouncements.length > 0) ? (
         <View style={containerStyle.miniScrollContainer}>
           <ScrollView showsVerticalScrollIndicator={false} horizontal={false} contentContainerStyle={containerStyle.miniScrollContent}>
-            {announcements.slice(0, 5).map((ann) => (
+            {childAnnouncements.slice(0, 5).map((ann) => (
               <Card 
                 key={ann.id}
                 header={ann.title}
@@ -309,6 +291,10 @@ export default function ParentLiveUpdatesScreen() {
               />
             ))}
           </ScrollView>
+        </View>
+      ) : (
+        <View style={containerStyle.miniScrollContainer}>
+          <Text style={[containerStyle.sectionLabel, {color: textColor}]}>{childSelected.firstName} has no announcements!</Text>
         </View>
       )}
       {announcementsLoading && (

@@ -12,8 +12,9 @@ export default function ClassLayout() {
         name="modal"
         options={{
           presentation: "transparentModal",
-          headerShown: true,
-          title: "Modal",
+          headerShown: false,
+          animation: "fade",
+          gestureEnabled: false,
         }}
       />
     </Stack>

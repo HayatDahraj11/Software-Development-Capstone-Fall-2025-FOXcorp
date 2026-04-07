@@ -104,7 +104,8 @@ export default function StudentDetailModal() {
             {/* Backdrop area above sheet — tapping here closes the modal */}
             <Pressable style={{ flex: 1 }} onPress={() => router.back()} />
 
-            <View style={[styles.sheet, { backgroundColor: bg }]}>
+            {/* Sheet — Pressable wrapper absorbs clicks so they don't reach the navigator overlay on web */}
+            <Pressable style={[styles.sheet, { backgroundColor: bg }]} onPress={() => {}}>
                 <ScrollView showsVerticalScrollIndicator={false}>
                     {/* Header */}
                     <View style={styles.headerRow}>
@@ -279,7 +280,7 @@ export default function StudentDetailModal() {
                         </Pressable>
                     </Pressable>
                 </Modal>
-            </View>
+            </Pressable>
         </View>
     );
 }

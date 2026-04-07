@@ -86,7 +86,7 @@ export default function ParentHomeScreen() {
                 <Text style={[containerStyle.sectionLabel, { color: subtextColor }]}>YOUR CHILDREN</Text>
 
                 {/* Student Cards */}
-                <View style={[{maxHeight: '30%'}]}>
+                <View style={[{maxHeight: '30%', marginBottom: 4}]}>
                     <ScrollView contentContainerStyle={{paddingHorizontal: 2}} scrollEnabled={true} showsVerticalScrollIndicator={true} >
                         {userStudents.map((student) => {
                             const attendance = student.attendanceRate != null
@@ -128,67 +128,74 @@ export default function ParentHomeScreen() {
                 {/* Section Label */}
                 <Text style={[containerStyle.sectionLabel, { color: subtextColor }]}>UPDATES</Text>
 
-                {/* Messages Card */}
-                <Card 
-                    header={"Messages"}
-                    preview={latestConversation 
-                        ? `${latestConversation.teacherName}: ${latestConversation.lastMessageText}`
-                        : "No messages yet."
-                    }
-                    onPress={() => router.push("/(parent)/(tabs)/messaging" as Href)}
-                    urgent={latestConversation ? true : false}
-                    pressable={true}
-                    icon={{name: "chatbubble-ellipses", size: 22, color: "#3b82f6", backgroundColor: "#3b82f620"}}
-                    badge={messageCount > 0 
-                        ? {type: 1, content: messageCount.toString(), contentColor: "#fff", backgroundColor: "#3b82f6"}
-                        : undefined
-                    }
-                />
+                
+                <View style={[{maxHeight: '30%'}]}>
+                    <ScrollView contentContainerStyle={{paddingHorizontal: 2}} scrollEnabled={true} showsVerticalScrollIndicator={true} >
+                        {/* Messages Card */}
+                        <Card 
+                            header={"Messages"}
+                            preview={latestConversation 
+                                ? `${latestConversation.teacherName}: ${latestConversation.lastMessageText}`
+                                : "No messages yet."
+                            }
+                            onPress={() => router.push("/(parent)/(tabs)/messaging" as Href)}
+                            urgent={latestConversation ? true : false}
+                            pressable={true}
+                            icon={{name: "chatbubble-ellipses", size: 22, color: "#3b82f6", backgroundColor: "#3b82f620"}}
+                            badge={messageCount > 0 
+                                ? {type: 1, content: messageCount.toString(), contentColor: "#fff", backgroundColor: "#3b82f6"}
+                                : undefined
+                            }
+                        />
 
-                {/* Medical Card */}
-                <Card 
-                    header={"Medical"}
-                    preview={medicalAlert ? `Allergies: ${medicalAlert}` : "All clear!"}
-                    onPress={() => router.push("/(parent)/(tabs)/general-info" as Href)}
-                    urgent={false}
-                    pressable={true}
-                    icon={{name: (medicalAlert ? "warning" : "shield-checkmark"), size: 22, color: (medicalAlert ? "#dc2626" : "#16a34a"), backgroundColor: (medicalAlert ? "#ef444420" : "#22c55e20")}}
-                />
+                        {/* Attendance Card */}
+                        <Card
+                            header={"Attendance"}
+                            preview={recentAbsences > 0
+                                ? `${recentAbsences} ${recentAbsences === 1 ? "absence" : "absences"} this week`
+                                : "No absences this week"
+                            }
+                            onPress={() => router.push("/(parent)/(tabs)/general-info" as Href)}
+                            urgent={recentAbsences > 0}
+                            pressable={true}
+                            badge={{type: 1, content: recentAbsences.toString(), contentColor: "#fff", backgroundColor: urgent}}
+                            icon={{name: (recentAbsences > 0 ? "alert-circle" : "checkmark-circle"), size: 22, color: (recentAbsences > 0 ? "#d97706" : "#16a34a"), backgroundColor: (recentAbsences > 0 ? "#f59e0b20" : "#22c55e20")}}
+                        />
 
-                {/* Attendance Card */}
-                <Card
-                    header={"Attendance"}
-                    preview={recentAbsences > 0
-                        ? `${recentAbsences} ${recentAbsences === 1 ? "absence" : "absences"} this week`
-                        : "No absences this week"
-                    }
-                    onPress={() => router.push("/(parent)/(tabs)/general-info" as Href)}
-                    urgent={recentAbsences > 0}
-                    pressable={true}
-                    icon={{name: (recentAbsences > 0 ? "alert-circle" : "checkmark-circle"), size: 22, color: (recentAbsences > 0 ? "#d97706" : "#16a34a"), backgroundColor: (recentAbsences > 0 ? "#f59e0b20" : "#22c55e20")}}
-                />
+                        {/* Incidents Card */}
+                        {incidentCount > 0 && (
+                            <Card
+                                header={"Incidents"}
+                                preview={`${incidentCount} ${incidentCount === 1 ? "report" : "reports"} on file`}
+                                onPress={() => router.push("/(parent)/(tabs)/general-info" as Href)}
+                                urgent={incidentCount > 0}
+                                pressable={true}
+                                badge={{type: 1, content: incidentCount.toString(), contentColor: "#fff", backgroundColor: urgent}}
+                                icon={{name: "warning", size: 22, color: "#dc2626", backgroundColor: "#ef444420"}}
+                            />
+                        )}
 
-                {/* Incidents Card */}
-                {incidentCount > 0 && (
-                    <Card
-                        header={"Incidents"}
-                        preview={`${incidentCount} ${incidentCount === 1 ? "report" : "reports"} on file`}
-                        onPress={() => router.push("/(parent)/(tabs)/general-info" as Href)}
-                        urgent={true}
-                        pressable={true}
-                        icon={{name: "warning", size: 22, color: "#dc2626", backgroundColor: "#ef444420"}}
-                    />
-                )}
+                        {/* Announcements Card */}
+                        <Card
+                            header={"Announcements"}
+                            preview={"View class announcements"}
+                            onPress={() => router.push("/(parent)/(tabs)/live-updates" as Href)}
+                            urgent={false}
+                            pressable={true}
+                            icon={{name: "megaphone", size: 22, color: "#8b5cf6", backgroundColor: "#8b5cf620"}}
+                        />
 
-                {/* Announcements Card */}
-                <Card
-                    header={"Announcements"}
-                    preview={"View class announcements"}
-                    onPress={() => router.push("/(parent)/(tabs)/live-updates" as Href)}
-                    urgent={false}
-                    pressable={true}
-                    icon={{name: "megaphone", size: 22, color: "#8b5cf6", backgroundColor: "#8b5cf620"}}
-                />
+                        {/* Medical Card */}
+                        <Card 
+                            header={"Medical"}
+                            preview={medicalAlert ? `Allergies: ${medicalAlert}` : "All clear!"}
+                            onPress={() => router.push("/(parent)/(tabs)/general-info" as Href)}
+                            urgent={false}
+                            pressable={true}
+                            icon={{name: (medicalAlert ? "warning" : "shield-checkmark"), size: 22, color: (medicalAlert ? "#dc2626" : "#16a34a"), backgroundColor: (medicalAlert ? "#ef444420" : "#22c55e20")}}
+                        />
+                    </ScrollView>
+                </View>
 
             </ScrollView>
         </View>

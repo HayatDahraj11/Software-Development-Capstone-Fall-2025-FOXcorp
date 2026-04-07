@@ -162,7 +162,7 @@ export default function Card({header, preview, onPress, theme, urgent, pressable
                                     </View>
                                     <View style={styles.cardContent}>
                                         <Text style={[styles.header, {color: textcolor}]}>{header}</Text>
-                                        <Text style={[styles.preview, {color: textcolor}]}>{preview}</Text>
+                                        <Text style={[styles.preview, {color: subtextcolor}]}>{preview}</Text>
                                     </View>
                                     {pressable && (<Ionicons name="chevron-forward" size={18} color={chevroncolor} />)}
                                 </View>
@@ -303,6 +303,7 @@ const styles = StyleSheet.create({
     preview: {
         fontSize: 13,
         marginTop: 2,
+        lineHeight: 18,
     },
     urgentContainer: {
         flexDirection: 'row',

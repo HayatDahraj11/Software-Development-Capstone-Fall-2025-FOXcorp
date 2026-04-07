@@ -1,6 +1,6 @@
 import { Href, useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Platform, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Platform, ScrollView, Text, View } from "react-native";
 
 import { useParentAnnouncements } from "@/src/features/announcements/logic/useParentAnnouncements";
 import { containerStyle, dropdownStyle } from "@/src/features/app-themes/constants/stylesheets";
@@ -248,59 +248,7 @@ export default function ParentLiveUpdatesScreen() {
 
   return (
     <View style={[containerStyle.container, {backgroundColor: bgcolor}]}>
-      <ScrollView contentContainerStyle={containerStyle.scrollContent} showsVerticalScrollIndicator={false}>
-
-        {/* 
-        Announcements Section 
-      {announcements.length > 0 && (
-        <View style={announcementStyles.section}>
-          <Text style={[containerStyle.sectionLabel, { color: subtextColor, paddingHorizontal: 16 }]}>
-            ANNOUNCEMENTS
-          </Text>
-          <ScrollView horizontal={false} style={{ maxHeight: 200, paddingHorizontal: 12 }}>
-            {announcements.slice(0, 5).map((ann) => (
-              <View key={ann.id} style={[announcementStyles.card, { backgroundColor: cardBg }]}>
-                <View style={announcementStyles.cardRow}>
-                  <View style={[announcementStyles.cardIcon, { backgroundColor: "#8b5cf620" }]}>
-                    <Ionicons name="megaphone" size={18} color="#8b5cf6" />
-                  </View>
-                  <View style={announcementStyles.cardContent}>
-                    <Text style={[announcementStyles.cardTitle, { color: textColor }]}>{ann.title}</Text>
-                    <Text style={[announcementStyles.cardMeta, { color: subtextColor }]}>
-                      {getClassName(ann.classId)} {getClassName(ann.classId) ? "· " : ""}{getTimeAgo(ann.createdAt)}
-                    </Text>
-                  </View>
-                </View>
-                <Text style={[announcementStyles.cardBody, { color: subtextColor }]} numberOfLines={2}>
-                  {ann.body}
-                </Text>
-              </View>
-            ))}
-          </ScrollView>
-        </View>
-      )}
-      {announcementsLoading && (
-        <View style={{ paddingVertical: 12, alignItems: "center" }}>
-          <ActivityIndicator size="small" color={tint} />
-        </View>
-      )}
-
-       Student Updates 
-      <View style={styles.flatListContainer}>
-        <FlatList
-            data={filteredList}
-            renderItem={({item}) => (
-                <Card
-                    header={item.header}
-                    preview={item.preview}
-                    onPress={() => RouteCard(item.route)}
-                    urgent={item.urgent}
-                />
-            )}
-        />
-      </View>
-        
-        */}
+      <ScrollView contentContainerStyle={containerStyle.scrollContent} showsVerticalScrollIndicator={false} scrollEnabled={false}>
 
         {/* Select Student Dropdown */}
         <View style={containerStyle.headerContainer}>
@@ -345,10 +293,29 @@ export default function ParentLiveUpdatesScreen() {
         }
 
         {/* Relevant Announcements or Alerts Section */}
-        <View>
-          <Text style={[containerStyle.sectionLabel, {color: subtextcolor}]}>ANNOUNCEMENTS and ALERTS</Text>
-          <Text style={{color: textcolor}}>tbd!</Text>
+        <Text style={[containerStyle.sectionLabel, { color: subtextColor }]}>
+          ANNOUNCEMENTS
+        </Text>
+        {announcements.length > 0 && (
+        <View style={containerStyle.miniScrollContainer}>
+          <ScrollView showsVerticalScrollIndicator={false} horizontal={false} contentContainerStyle={containerStyle.miniScrollContent}>
+            {announcements.slice(0, 5).map((ann) => (
+              <Card 
+                key={ann.id}
+                header={ann.title}
+                preview={`${(getClassName(ann.classId))} ${getClassName(ann.classId) ? "· " : ""}${getTimeAgo(ann.createdAt)}\n${ann.body}`}
+                onPress={() => {/* todo: route to announcement-relevant page */}}
+                icon={{name: "megaphone", size: 18, color: "#8b5cf6", backgroundColor: "#8b5cf620"}}
+              />
+            ))}
+          </ScrollView>
         </View>
+      )}
+      {announcementsLoading && (
+        <View style={{ paddingVertical: 12, alignItems: "center" }}>
+          <ActivityIndicator size="small" color={tint} />
+        </View>
+      )}
 
 
         {/* Relevant Teacher Updates or Notes Section */}
@@ -361,36 +328,3 @@ export default function ParentLiveUpdatesScreen() {
     </View>
   );
 }
-
-const announcementStyles = StyleSheet.create({
-  section: { marginBottom: 8 },
-  card: {
-    borderRadius: 14,
-    padding: 14,
-    marginBottom: 8,
-    marginHorizontal: 4,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  cardRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    marginBottom: 6,
-  },
-  cardIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  cardContent: { flex: 1 },
-  cardTitle: { fontSize: 15, fontWeight: "600" },
-  cardMeta: { fontSize: 12, marginTop: 1 },
-  cardBody: { fontSize: 13, lineHeight: 19, marginLeft: 48 },
-});
-

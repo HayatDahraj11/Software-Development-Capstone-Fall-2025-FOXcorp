@@ -91,7 +91,7 @@ export async function fetchNotesByStudent(
   try {
     const result: any = await getClient().graphql({
       query: teacherNotesByStudentId,
-      variables: { studentId, sortDirection: "DESC" },
+      variables: { studentId },
       authMode: "apiKey",
     });
     const items: TeacherNote[] =

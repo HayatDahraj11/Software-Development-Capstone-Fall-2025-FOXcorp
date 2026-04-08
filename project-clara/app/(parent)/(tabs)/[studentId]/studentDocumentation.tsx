@@ -73,6 +73,15 @@ export default function StudentDocumentationScreen() {
                     icon={{name: "medkit", size: 22, color: "#dc2626", backgroundColor: "#ef444420"}}
                 />
 
+                <Card
+                    header="Class Schedule"
+                    preview="View class times and days"
+                    onPress={() => router.push(`/(parent)/(tabs)/${studentId}/studentSchedule` as Href)}
+                    pressable={true}
+                    urgent={false}
+                    icon={{name: "calendar-outline", size: 22, color: "#0ea5e9", backgroundColor: "#0ea5e920"}}
+                />
+
                 {/* Section: Medical Details — tap to edit */}
                 <View style={{flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 16}}>
                     <Text style={[styles.sectionLabel, {color: subtextColor, marginBottom: 0}]}>DETAILS</Text>

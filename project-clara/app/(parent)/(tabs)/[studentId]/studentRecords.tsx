@@ -45,6 +45,14 @@ export default function StudentRecordsScreen() {
                     icon={{name: "alert-circle", size: 22, color: "#d97706", backgroundColor: "#f59e0b20"}}
                 />
                 <Card
+                    header="Schedule"
+                    preview="View class times and days"
+                    onPress={() => router.push(`/(parent)/(tabs)/${studentId}/studentSchedule` as Href)}
+                    theme="list"
+                    pressable={true}
+                    icon={{name: "calendar-outline", size: 22, color: "#0ea5e9", backgroundColor: "#0ea5e920"}}
+                />
+                <Card
                     header="Documentation"
                     preview={student ? `${student.firstName}'s full documentation` : "View documentation"}
                     onPress={() => router.push(`/(parent)/(tabs)/${studentId}/studentDocumentation` as Href)}

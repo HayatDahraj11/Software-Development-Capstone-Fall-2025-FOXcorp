@@ -1,5 +1,5 @@
 import { Href, useLocalSearchParams, useRouter } from "expo-router";
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
@@ -73,68 +73,82 @@ export default function StudentDocumentationScreen() {
                     icon={{name: "medkit", size: 22, color: "#dc2626", backgroundColor: "#ef444420"}}
                 />
 
-                {/* Section: Emergency & Medical Details */}
-                <Text style={[styles.sectionLabel, {color: subtextColor, marginTop: 16}]}>DETAILS</Text>
+                <Card
+                    header="Class Schedule"
+                    preview="View class times and days"
+                    onPress={() => router.push(`/(parent)/(tabs)/${studentId}/studentSchedule` as Href)}
+                    pressable={true}
+                    urgent={false}
+                    icon={{name: "calendar-outline", size: 22, color: "#0ea5e9", backgroundColor: "#0ea5e920"}}
+                />
 
-                {/* Emergency Notes Card — inline display */}
-                <View style={[styles.detailCard, {backgroundColor: cardBg}]}>
+                {/* Section: Medical Details — tap to edit */}
+                <View style={{flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 16}}>
+                    <Text style={[styles.sectionLabel, {color: subtextColor, marginBottom: 0}]}>DETAILS</Text>
+                    <Pressable onPress={() => router.push(`/(parent)/(tabs)/${studentId}/studentMedical` as Href)}>
+                        <Text style={{fontSize: 12, fontWeight: "600", color: tintColor}}>Edit All</Text>
+                    </Pressable>
+                </View>
+
+                <Pressable style={[styles.detailCard, {backgroundColor: cardBg}]} onPress={() => router.push(`/(parent)/(tabs)/${studentId}/studentMedical` as Href)}>
                     <View style={styles.detailHeader}>
                         <View style={[styles.iconBox, {backgroundColor: "#ef444420"}]}>
                             <Ionicons name="call" size={18} color="#dc2626" />
                         </View>
                         <Text style={[styles.detailTitle, {color: textColor}]}>Emergency Notes</Text>
+                        <Ionicons name="pencil" size={14} color={subtextColor} />
                     </View>
                     {hasEmergencyNotes ? (
                         <Text style={[styles.detailBody, {color: textColor}]}>{record!.emergencyNotes}</Text>
                     ) : (
                         <Text style={[styles.detailBody, {color: subtextColor}]}>No emergency notes on file</Text>
                     )}
-                </View>
+                </Pressable>
 
-                {/* Allergies Card — inline display */}
-                <View style={[styles.detailCard, {backgroundColor: cardBg}]}>
+                <Pressable style={[styles.detailCard, {backgroundColor: cardBg}]} onPress={() => router.push(`/(parent)/(tabs)/${studentId}/studentMedical` as Href)}>
                     <View style={styles.detailHeader}>
                         <View style={[styles.iconBox, {backgroundColor: "#f59e0b20"}]}>
                             <Ionicons name="warning" size={18} color="#d97706" />
                         </View>
                         <Text style={[styles.detailTitle, {color: textColor}]}>Allergies</Text>
+                        <Ionicons name="pencil" size={14} color={subtextColor} />
                     </View>
                     {hasAllergies ? (
                         <Text style={[styles.detailBody, {color: textColor}]}>{record!.allergies}</Text>
                     ) : (
                         <Text style={[styles.detailBody, {color: subtextColor}]}>No known allergies</Text>
                     )}
-                </View>
+                </Pressable>
 
-                {/* Conditions Card — inline display */}
-                <View style={[styles.detailCard, {backgroundColor: cardBg}]}>
+                <Pressable style={[styles.detailCard, {backgroundColor: cardBg}]} onPress={() => router.push(`/(parent)/(tabs)/${studentId}/studentMedical` as Href)}>
                     <View style={styles.detailHeader}>
                         <View style={[styles.iconBox, {backgroundColor: "#3b82f620"}]}>
                             <Ionicons name="fitness" size={18} color="#3b82f6" />
                         </View>
                         <Text style={[styles.detailTitle, {color: textColor}]}>Conditions & Accommodations</Text>
+                        <Ionicons name="pencil" size={14} color={subtextColor} />
                     </View>
                     {hasConditions ? (
                         <Text style={[styles.detailBody, {color: textColor}]}>{record!.conditions}</Text>
                     ) : (
                         <Text style={[styles.detailBody, {color: subtextColor}]}>None on file</Text>
                     )}
-                </View>
+                </Pressable>
 
-                {/* Medications Card — inline display */}
-                <View style={[styles.detailCard, {backgroundColor: cardBg}]}>
+                <Pressable style={[styles.detailCard, {backgroundColor: cardBg}]} onPress={() => router.push(`/(parent)/(tabs)/${studentId}/studentMedical` as Href)}>
                     <View style={styles.detailHeader}>
                         <View style={[styles.iconBox, {backgroundColor: "#8b5cf620"}]}>
                             <Ionicons name="medical" size={18} color="#8b5cf6" />
                         </View>
                         <Text style={[styles.detailTitle, {color: textColor}]}>Medications</Text>
+                        <Ionicons name="pencil" size={14} color={subtextColor} />
                     </View>
                     {hasMedications ? (
                         <Text style={[styles.detailBody, {color: textColor}]}>{record!.medications}</Text>
                     ) : (
                         <Text style={[styles.detailBody, {color: subtextColor}]}>No medications on file</Text>
                     )}
-                </View>
+                </Pressable>
 
                 {/* Teacher Notes — read only for parents */}
                 <Text style={[styles.sectionLabel, {color: subtextColor, marginTop: 16}]}>TEACHER NOTES</Text>

@@ -62,16 +62,66 @@ export default function MedicalRecordView({ studentId }: Props) {
     );
   }
 
+  const editingConfig = editField ? FIELD_CONFIG.find(f => f.key === editField) : null;
+
+  // Edit modal — shared between "no record" and "has record" states
+  const editModal = (
+    <Modal visible={!!editField} transparent animationType="fade" onRequestClose={() => setEditField(null)}>
+      <Pressable style={styles.modalOverlay} onPress={() => setEditField(null)}>
+        <Pressable style={[styles.modalSheet, { backgroundColor: modalBg }]} onPress={(e) => e.stopPropagation()}>
+          <Text style={[styles.modalTitle, { color: textColor }]}>
+            {record ? "Edit" : "Add"} {editingConfig?.title}
+          </Text>
+
+          <TextInput
+            style={[styles.textInput, { color: textColor, borderColor, backgroundColor: cardBg }]}
+            value={editValue}
+            onChangeText={setEditValue}
+            placeholder={`Enter ${editingConfig?.title?.toLowerCase() ?? "value"}...`}
+            placeholderTextColor={subtextColor}
+            multiline
+            autoFocus={Platform.OS !== "web"}
+          />
+
+          <View style={styles.modalButtons}>
+            <Pressable
+              style={[styles.modalBtn, { backgroundColor: subtextColor + "20" }]}
+              onPress={() => setEditField(null)}
+            >
+              <Text style={[styles.modalBtnText, { color: textColor }]}>Cancel</Text>
+            </Pressable>
+            <Pressable
+              style={[styles.modalBtn, { backgroundColor: tintColor, opacity: isSaving ? 0.6 : 1 }]}
+              onPress={handleSave}
+              disabled={isSaving}
+            >
+              <Text style={[styles.modalBtnText, { color: "#fff" }]}>
+                {isSaving ? "Saving..." : "Save"}
+              </Text>
+            </Pressable>
+          </View>
+        </Pressable>
+      </Pressable>
+    </Modal>
+  );
+
   if (!record) {
     return (
       <View style={[styles.center, { backgroundColor: bg }]}>
         <Ionicons name="document-text-outline" size={48} color={subtextColor} />
         <Text style={{ color: subtextColor, fontSize: 16, marginTop: 12 }}>No medical records found</Text>
+        <Text style={{ color: subtextColor, fontSize: 13, marginTop: 4 }}>Tap below to add medical information</Text>
+        <Pressable
+          style={[styles.createBtn, { backgroundColor: tintColor }]}
+          onPress={() => openEdit("allergies")}
+        >
+          <Ionicons name="add" size={18} color="#fff" />
+          <Text style={{ color: "#fff", fontSize: 15, fontWeight: "600", marginLeft: 6 }}>Add Medical Info</Text>
+        </Pressable>
+        {editModal}
       </View>
     );
   }
-
-  const editingConfig = editField ? FIELD_CONFIG.find(f => f.key === editField) : null;
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: bg }} contentContainerStyle={styles.container}>
@@ -99,44 +149,7 @@ export default function MedicalRecordView({ studentId }: Props) {
         );
       })}
 
-      {/* Edit Modal */}
-      <Modal visible={!!editField} transparent animationType="fade" onRequestClose={() => setEditField(null)}>
-        <Pressable style={styles.modalOverlay} onPress={() => setEditField(null)}>
-          <Pressable style={[styles.modalSheet, { backgroundColor: modalBg }]} onPress={(e) => e.stopPropagation()}>
-            <Text style={[styles.modalTitle, { color: textColor }]}>
-              Edit {editingConfig?.title}
-            </Text>
-
-            <TextInput
-              style={[styles.textInput, { color: textColor, borderColor, backgroundColor: cardBg }]}
-              value={editValue}
-              onChangeText={setEditValue}
-              placeholder={`Enter ${editingConfig?.title?.toLowerCase() ?? "value"}...`}
-              placeholderTextColor={subtextColor}
-              multiline
-              autoFocus={Platform.OS !== "web"}
-            />
-
-            <View style={styles.modalButtons}>
-              <Pressable
-                style={[styles.modalBtn, { backgroundColor: subtextColor + "20" }]}
-                onPress={() => setEditField(null)}
-              >
-                <Text style={[styles.modalBtnText, { color: textColor }]}>Cancel</Text>
-              </Pressable>
-              <Pressable
-                style={[styles.modalBtn, { backgroundColor: tintColor, opacity: isSaving ? 0.6 : 1 }]}
-                onPress={handleSave}
-                disabled={isSaving}
-              >
-                <Text style={[styles.modalBtnText, { color: "#fff" }]}>
-                  {isSaving ? "Saving..." : "Save"}
-                </Text>
-              </Pressable>
-            </View>
-          </Pressable>
-        </Pressable>
-      </Modal>
+      {editModal}
     </ScrollView>
   );
 }
@@ -192,4 +205,5 @@ const styles = StyleSheet.create({
   modalButtons: { flexDirection: "row", gap: 12 },
   modalBtn: { flex: 1, paddingVertical: 12, borderRadius: 10, alignItems: "center" },
   modalBtnText: { fontSize: 15, fontWeight: "600" },
+  createBtn: { flexDirection: "row", alignItems: "center", marginTop: 20, paddingHorizontal: 20, paddingVertical: 12, borderRadius: 12 },
 });

@@ -1,8 +1,9 @@
+// teacher schedule management — full CRUD for class time slots
+// uses inline overlay instead of RN Modal to avoid web pointer-event issues
 import { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -15,14 +16,8 @@ import { Ionicons } from "@expo/vector-icons";
 
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import { useTeacherLoginContext } from "@/src/features/context/TeacherLoginContext";
-import { useSchedules } from "@/src/features/schedules/logic/useSchedules";
-import {
-  DayOfWeek,
-  Schedule,
-  createSchedule,
-  updateScheduleEntry,
-  deleteScheduleEntry,
-} from "@/src/features/schedules/api/scheduleRepo";
+import { useTeacherSchedule } from "@/src/features/schedules/logic/useTeacherSchedule";
+import { DayOfWeek, Schedule } from "@/src/features/schedules/api/scheduleRepo";
 
 const DAYS: { key: DayOfWeek; label: string; short: string }[] = [
   { key: "MONDAY", label: "Monday", short: "Mon" },
@@ -34,7 +29,7 @@ const DAYS: { key: DayOfWeek; label: string; short: string }[] = [
   { key: "SUNDAY", label: "Sunday", short: "Sun" },
 ];
 
-const HOURS = Array.from({ length: 14 }, (_, i) => i + 6); // 6 AM - 7 PM
+const HOURS = Array.from({ length: 14 }, (_, i) => i + 6); // 6 AM through 7 PM
 const MINUTES = ["00", "15", "30", "45"];
 
 function formatTime(awsTime: string): string {
@@ -47,6 +42,16 @@ function formatTime(awsTime: string): string {
 
 function toAWSTime(hour: number, minute: string): string {
   return `${String(hour).padStart(2, "0")}:${minute}:00`;
+}
+
+// checks if two time ranges overlap (both in HH:mm:ss format)
+function timesOverlap(
+  startA: string,
+  endA: string,
+  startB: string,
+  endB: string
+): boolean {
+  return startA < endB && startB < endA;
 }
 
 export default function ScheduleManagementScreen() {
@@ -62,19 +67,24 @@ export default function ScheduleManagementScreen() {
   const borderColor = useThemeColor({}, "listBorderTranslucent");
   const modalBg = useThemeColor({}, "modalBackground");
 
-  const { schedules, isLoading, error } = useSchedules([classIdStr]);
-  const [localSchedules, setLocalSchedules] = useState<Schedule[] | null>(null);
-  const displaySchedules = localSchedules ?? schedules;
+  const {
+    schedules,
+    isLoading,
+    error,
+    isSaving,
+    addEntry,
+    editEntry,
+    removeEntry,
+  } = useTeacherSchedule(classIdStr);
 
-  // modal state
-  const [showModal, setShowModal] = useState(false);
+  // form state
+  const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedDay, setSelectedDay] = useState<DayOfWeek>("MONDAY");
   const [startHour, setStartHour] = useState(8);
   const [startMin, setStartMin] = useState("00");
   const [endHour, setEndHour] = useState(9);
   const [endMin, setEndMin] = useState("00");
-  const [isSaving, setIsSaving] = useState(false);
 
   const selectedClass = userClasses.find((c) => c.id === classIdStr);
 
@@ -85,7 +95,7 @@ export default function ScheduleManagementScreen() {
     setStartMin("00");
     setEndHour(9);
     setEndMin("00");
-    setShowModal(true);
+    setShowForm(true);
   };
 
   const openEdit = (sched: Schedule) => {
@@ -97,8 +107,10 @@ export default function ScheduleManagementScreen() {
     setStartMin(sm);
     setEndHour(parseInt(eh, 10));
     setEndMin(em);
-    setShowModal(true);
+    setShowForm(true);
   };
+
+  const closeForm = () => setShowForm(false);
 
   const handleSave = async () => {
     const start = toAWSTime(startHour, startMin);
@@ -109,70 +121,70 @@ export default function ScheduleManagementScreen() {
       return;
     }
 
-    setIsSaving(true);
-
-    if (editingId) {
-      const result = await updateScheduleEntry(editingId, {
-        dayOfWeek: selectedDay,
-        startTime: start,
-        endTime: end,
-      });
-      if (result.data) {
-        setLocalSchedules((prev) =>
-          (prev ?? schedules).map((s) => (s.id === editingId ? result.data! : s))
-        );
-        setShowModal(false);
-      } else {
-        Alert.alert("Error", result.error ?? "Failed to update.");
-      }
-    } else {
-      const result = await createSchedule({
-        classId: classIdStr,
-        dayOfWeek: selectedDay,
-        startTime: start,
-        endTime: end,
-      });
-      if (result.data) {
-        setLocalSchedules((prev) => [...(prev ?? schedules), result.data!]);
-        setShowModal(false);
-      } else {
-        Alert.alert("Error", result.error ?? "Failed to create.");
-      }
+    // check for overlapping slots on the same day
+    const conflicting = schedules.find(
+      (s) =>
+        s.dayOfWeek === selectedDay &&
+        s.id !== editingId &&
+        timesOverlap(start, end, s.startTime, s.endTime)
+    );
+    if (conflicting) {
+      Alert.alert(
+        "Time Conflict",
+        `This overlaps with an existing slot on ${DAYS.find((d) => d.key === selectedDay)?.label}: ${formatTime(conflicting.startTime)} - ${formatTime(conflicting.endTime)}`
+      );
+      return;
     }
-    setIsSaving(false);
+
+    let success: boolean;
+    if (editingId) {
+      success = await editEntry(editingId, {
+        dayOfWeek: selectedDay,
+        startTime: start,
+        endTime: end,
+      });
+    } else {
+      success = await addEntry({
+        dayOfWeek: selectedDay,
+        startTime: start,
+        endTime: end,
+      });
+    }
+
+    if (success) {
+      closeForm();
+    } else {
+      Alert.alert("Error", "Failed to save. Please try again.");
+    }
   };
 
   const handleDelete = (sched: Schedule) => {
+    const dayLabel = DAYS.find((d) => d.key === sched.dayOfWeek)?.label;
     Alert.alert(
-      "Delete Schedule",
-      `Remove ${DAYS.find((d) => d.key === sched.dayOfWeek)?.label} ${formatTime(sched.startTime)} - ${formatTime(sched.endTime)}?`,
+      "Delete Time Slot",
+      `Remove ${dayLabel} ${formatTime(sched.startTime)} - ${formatTime(sched.endTime)}?`,
       [
         { text: "Cancel", style: "cancel" },
         {
           text: "Delete",
           style: "destructive",
           onPress: async () => {
-            const result = await deleteScheduleEntry(sched.id);
-            if (result.data) {
-              setLocalSchedules((prev) =>
-                (prev ?? schedules).filter((s) => s.id !== sched.id)
-              );
-            } else {
-              Alert.alert("Error", "Failed to delete schedule entry.");
-            }
+            const ok = await removeEntry(sched.id);
+            if (!ok) Alert.alert("Error", "Failed to delete. Please try again.");
           },
         },
       ]
     );
   };
 
-  // group by day
+  // group schedules by day, only show days that have entries
   const sortedDays = DAYS.filter((d) =>
-    displaySchedules.some((s) => s.dayOfWeek === d.key)
+    schedules.some((s) => s.dayOfWeek === d.key)
   );
-  const ungroupedDays = DAYS.filter(
-    (d) => !displaySchedules.some((s) => s.dayOfWeek === d.key)
-  );
+
+  // count total slots
+  const slotCount = schedules.length;
+  const dayCount = new Set(schedules.map((s) => s.dayOfWeek)).size;
 
   if (isLoading) {
     return (
@@ -185,152 +197,230 @@ export default function ScheduleManagementScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: bg }}>
       <ScrollView contentContainerStyle={styles.content}>
+        {/* Header */}
         <View style={styles.headerRow}>
-          <View>
+          <View style={{ flex: 1 }}>
             <Text style={[styles.heading, { color: textColor }]}>
               {selectedClass?.name ?? "Class"} Schedule
             </Text>
             <Text style={[styles.subheading, { color: subtextColor }]}>
-              {displaySchedules.length} time {displaySchedules.length === 1 ? "slot" : "slots"}
+              {slotCount === 0
+                ? "No time slots yet"
+                : `${slotCount} ${slotCount === 1 ? "slot" : "slots"} across ${dayCount} ${dayCount === 1 ? "day" : "days"}`}
             </Text>
           </View>
-          <Pressable style={[styles.addBtn, { backgroundColor: tint }]} onPress={openAdd}>
+          <Pressable
+            style={[styles.addBtn, { backgroundColor: tint }]}
+            onPress={openAdd}
+          >
             <Ionicons name="add" size={18} color="#fff" />
             <Text style={styles.addBtnText}>Add</Text>
           </Pressable>
         </View>
 
         {error && (
-          <Text style={{ color: "#dc2626", marginBottom: 12 }}>{error}</Text>
+          <View style={[styles.errorBar, { backgroundColor: "#fef2f2" }]}>
+            <Ionicons name="alert-circle" size={16} color="#dc2626" />
+            <Text style={{ color: "#dc2626", fontSize: 13, flex: 1 }}>{error}</Text>
+          </View>
         )}
 
-        {displaySchedules.length === 0 ? (
+        {/* Empty state */}
+        {slotCount === 0 && (
           <View style={[styles.emptyCard, { backgroundColor: cardBg }]}>
-            <Ionicons name="calendar-outline" size={48} color={subtextColor} />
-            <Text style={[styles.emptyText, { color: subtextColor }]}>
-              No schedule entries yet
+            <View style={[styles.emptyIconCircle, { backgroundColor: tint + "15" }]}>
+              <Ionicons name="calendar-outline" size={40} color={tint} />
+            </View>
+            <Text style={[styles.emptyTitle, { color: textColor }]}>
+              No Schedule Set
             </Text>
             <Text style={[styles.emptyHint, { color: subtextColor }]}>
-              Tap "Add" to set when this class meets
+              Add time slots to define when this class meets.{"\n"}Parents will
+              see these on their schedule screen.
             </Text>
+            <Pressable
+              style={[styles.emptyAddBtn, { backgroundColor: tint }]}
+              onPress={openAdd}
+            >
+              <Ionicons name="add" size={18} color="#fff" />
+              <Text style={{ color: "#fff", fontSize: 15, fontWeight: "600", marginLeft: 6 }}>
+                Add First Time Slot
+              </Text>
+            </Pressable>
           </View>
-        ) : (
-          sortedDays.map((day) => {
-            const daySchedules = displaySchedules
-              .filter((s) => s.dayOfWeek === day.key)
-              .sort((a, b) => a.startTime.localeCompare(b.startTime));
-
-            return (
-              <View key={day.key} style={{ marginBottom: 12 }}>
-                <Text style={[styles.dayLabel, { color: tint }]}>{day.label}</Text>
-                {daySchedules.map((sched) => (
-                  <View key={sched.id} style={[styles.schedCard, { backgroundColor: cardBg }]}>
-                    <View style={[styles.timeIcon, { backgroundColor: tint + "15" }]}>
-                      <Ionicons name="time" size={20} color={tint} />
-                    </View>
-                    <View style={{ flex: 1 }}>
-                      <Text style={[styles.timeText, { color: textColor }]}>
-                        {formatTime(sched.startTime)} - {formatTime(sched.endTime)}
-                      </Text>
-                    </View>
-                    <Pressable onPress={() => openEdit(sched)} hitSlop={8} style={{ marginRight: 12 }}>
-                      <Ionicons name="pencil" size={16} color={subtextColor} />
-                    </Pressable>
-                    <Pressable onPress={() => handleDelete(sched)} hitSlop={8}>
-                      <Ionicons name="trash-outline" size={16} color="#dc2626" />
-                    </Pressable>
-                  </View>
-                ))}
-              </View>
-            );
-          })
         )}
-      </ScrollView>
 
-      {/* Add/Edit Modal */}
-      <Modal visible={showModal} transparent animationType="fade" onRequestClose={() => setShowModal(false)}>
-        <Pressable style={styles.modalOverlay} onPress={() => setShowModal(false)}>
-          <Pressable style={[styles.modalSheet, { backgroundColor: modalBg }]} onPress={(e) => e.stopPropagation()}>
-            <Text style={[styles.modalTitle, { color: textColor }]}>
-              {editingId ? "Edit Time Slot" : "Add Time Slot"}
-            </Text>
+        {/* Schedule entries grouped by day */}
+        {sortedDays.map((day) => {
+          const daySchedules = schedules
+            .filter((s) => s.dayOfWeek === day.key)
+            .sort((a, b) => a.startTime.localeCompare(b.startTime));
 
-            {/* Day picker */}
-            <Text style={[styles.fieldLabel, { color: subtextColor }]}>Day</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.dayPicker}>
-              {DAYS.map((day) => (
+          return (
+            <View key={day.key} style={{ marginBottom: 16 }}>
+              <View style={styles.dayHeader}>
+                <View style={[styles.dayDot, { backgroundColor: tint }]} />
+                <Text style={[styles.dayLabel, { color: tint }]}>
+                  {day.label}
+                </Text>
+                <Text style={[styles.dayCount, { color: subtextColor }]}>
+                  {daySchedules.length} {daySchedules.length === 1 ? "slot" : "slots"}
+                </Text>
+              </View>
+
+              {daySchedules.map((sched) => (
                 <Pressable
-                  key={day.key}
-                  style={[
-                    styles.dayChip,
-                    { borderColor: tint },
-                    selectedDay === day.key && { backgroundColor: tint },
+                  key={sched.id}
+                  style={({ pressed }) => [
+                    styles.schedCard,
+                    { backgroundColor: cardBg, opacity: pressed ? 0.85 : 1 },
                   ]}
-                  onPress={() => setSelectedDay(day.key)}
+                  onPress={() => openEdit(sched)}
                 >
-                  <Text
-                    style={[
-                      styles.dayChipText,
-                      { color: selectedDay === day.key ? "#fff" : tint },
-                    ]}
+                  <View style={[styles.timeIcon, { backgroundColor: tint + "15" }]}>
+                    <Ionicons name="time" size={20} color={tint} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.timeText, { color: textColor }]}>
+                      {formatTime(sched.startTime)} - {formatTime(sched.endTime)}
+                    </Text>
+                    <Text style={{ fontSize: 11, color: subtextColor, marginTop: 2 }}>
+                      Tap to edit
+                    </Text>
+                  </View>
+                  <Pressable
+                    onPress={() => handleDelete(sched)}
+                    hitSlop={10}
+                    style={[styles.deleteBtn, { backgroundColor: "#dc262610" }]}
                   >
-                    {day.short}
-                  </Text>
+                    <Ionicons name="trash-outline" size={16} color="#dc2626" />
+                  </Pressable>
                 </Pressable>
               ))}
-            </ScrollView>
-
-            {/* Start time */}
-            <Text style={[styles.fieldLabel, { color: subtextColor, marginTop: 16 }]}>Start Time</Text>
-            <TimePicker
-              hour={startHour}
-              minute={startMin}
-              onHourChange={setStartHour}
-              onMinuteChange={setStartMin}
-              tint={tint}
-              textColor={textColor}
-              cardBg={cardBg}
-              borderColor={borderColor}
-            />
-
-            {/* End time */}
-            <Text style={[styles.fieldLabel, { color: subtextColor, marginTop: 16 }]}>End Time</Text>
-            <TimePicker
-              hour={endHour}
-              minute={endMin}
-              onHourChange={setEndHour}
-              onMinuteChange={setEndMin}
-              tint={tint}
-              textColor={textColor}
-              cardBg={cardBg}
-              borderColor={borderColor}
-            />
-
-            <View style={[styles.modalButtons, { marginTop: 20 }]}>
-              <Pressable
-                style={[styles.modalBtn, { backgroundColor: subtextColor + "20" }]}
-                onPress={() => setShowModal(false)}
-              >
-                <Text style={[styles.modalBtnText, { color: textColor }]}>Cancel</Text>
-              </Pressable>
-              <Pressable
-                style={[styles.modalBtn, { backgroundColor: tint, opacity: isSaving ? 0.5 : 1 }]}
-                onPress={handleSave}
-                disabled={isSaving}
-              >
-                <Text style={[styles.modalBtnText, { color: "#fff" }]}>
-                  {isSaving ? "Saving..." : "Save"}
-                </Text>
-              </Pressable>
             </View>
+          );
+        })}
+      </ScrollView>
+
+      {/* Inline overlay form — avoids RN Modal web pointer-event bugs */}
+      {showForm && (
+        <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+          <Pressable style={styles.overlay} onPress={closeForm}>
+            <Pressable
+              style={[styles.formSheet, { backgroundColor: modalBg }]}
+              onPress={(e) => e.stopPropagation()}
+            >
+              <View style={styles.formHeader}>
+                <Text style={[styles.formTitle, { color: textColor }]}>
+                  {editingId ? "Edit Time Slot" : "New Time Slot"}
+                </Text>
+                <Pressable onPress={closeForm} hitSlop={10}>
+                  <Ionicons name="close" size={22} color={subtextColor} />
+                </Pressable>
+              </View>
+
+              {/* Day picker */}
+              <Text style={[styles.fieldLabel, { color: subtextColor }]}>DAY</Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={{ marginBottom: 16 }}
+              >
+                {DAYS.map((day) => {
+                  const isSelected = selectedDay === day.key;
+                  return (
+                    <Pressable
+                      key={day.key}
+                      style={[
+                        styles.dayChip,
+                        { borderColor: isSelected ? tint : borderColor },
+                        isSelected && { backgroundColor: tint },
+                      ]}
+                      onPress={() => setSelectedDay(day.key)}
+                    >
+                      <Text
+                        style={[
+                          styles.dayChipText,
+                          { color: isSelected ? "#fff" : textColor },
+                        ]}
+                      >
+                        {day.short}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </ScrollView>
+
+              {/* Start time */}
+              <Text style={[styles.fieldLabel, { color: subtextColor }]}>
+                START TIME
+              </Text>
+              <TimePicker
+                hour={startHour}
+                minute={startMin}
+                onHourChange={setStartHour}
+                onMinuteChange={setStartMin}
+                tint={tint}
+                textColor={textColor}
+                borderColor={borderColor}
+              />
+
+              {/* End time */}
+              <Text style={[styles.fieldLabel, { color: subtextColor, marginTop: 14 }]}>
+                END TIME
+              </Text>
+              <TimePicker
+                hour={endHour}
+                minute={endMin}
+                onHourChange={setEndHour}
+                onMinuteChange={setEndMin}
+                tint={tint}
+                textColor={textColor}
+                borderColor={borderColor}
+              />
+
+              {/* Time preview */}
+              <View style={[styles.previewRow, { backgroundColor: tint + "10", borderColor: tint + "30" }]}>
+                <Ionicons name="time-outline" size={16} color={tint} />
+                <Text style={{ color: tint, fontSize: 14, fontWeight: "600", marginLeft: 8 }}>
+                  {DAYS.find((d) => d.key === selectedDay)?.label},{" "}
+                  {formatTime(toAWSTime(startHour, startMin))} -{" "}
+                  {formatTime(toAWSTime(endHour, endMin))}
+                </Text>
+              </View>
+
+              {/* Buttons */}
+              <View style={styles.formButtons}>
+                <Pressable
+                  style={[styles.formBtn, { backgroundColor: subtextColor + "20" }]}
+                  onPress={closeForm}
+                >
+                  <Text style={[styles.formBtnText, { color: textColor }]}>
+                    Cancel
+                  </Text>
+                </Pressable>
+                <Pressable
+                  style={[
+                    styles.formBtn,
+                    { backgroundColor: tint, opacity: isSaving ? 0.5 : 1 },
+                  ]}
+                  onPress={handleSave}
+                  disabled={isSaving}
+                >
+                  <Text style={[styles.formBtnText, { color: "#fff" }]}>
+                    {isSaving ? "Saving..." : editingId ? "Update" : "Add Slot"}
+                  </Text>
+                </Pressable>
+              </View>
+            </Pressable>
           </Pressable>
-        </Pressable>
-      </Modal>
+        </View>
+      )}
     </View>
   );
 }
 
-// simple hour/minute picker using scrollable chips
+// scrollable hour + minute chip picker
 function TimePicker({
   hour,
   minute,
@@ -338,7 +428,6 @@ function TimePicker({
   onMinuteChange,
   tint,
   textColor,
-  cardBg,
   borderColor,
 }: {
   hour: number;
@@ -347,16 +436,15 @@ function TimePicker({
   onMinuteChange: (m: string) => void;
   tint: string;
   textColor: string;
-  cardBg: string;
   borderColor: string;
 }) {
-  const ampm = hour >= 12 ? "PM" : "AM";
-  const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-
   return (
     <View style={styles.timePickerRow}>
-      {/* Hour */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flex: 1 }}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={{ flex: 1 }}
+      >
         {HOURS.map((h) => {
           const dh = h === 0 ? 12 : h > 12 ? h - 12 : h;
           const ap = h >= 12 ? "PM" : "AM";
@@ -371,7 +459,13 @@ function TimePicker({
               ]}
               onPress={() => onHourChange(h)}
             >
-              <Text style={{ fontSize: 13, fontWeight: "600", color: selected ? "#fff" : textColor }}>
+              <Text
+                style={{
+                  fontSize: 13,
+                  fontWeight: "600",
+                  color: selected ? "#fff" : textColor,
+                }}
+              >
                 {dh} {ap}
               </Text>
             </Pressable>
@@ -379,9 +473,17 @@ function TimePicker({
         })}
       </ScrollView>
 
-      <Text style={{ color: textColor, fontSize: 18, fontWeight: "700", marginHorizontal: 4 }}>:</Text>
+      <Text
+        style={{
+          color: textColor,
+          fontSize: 18,
+          fontWeight: "700",
+          marginHorizontal: 4,
+        }}
+      >
+        :
+      </Text>
 
-      {/* Minute */}
       {MINUTES.map((m) => {
         const selected = m === minute;
         return (
@@ -394,7 +496,13 @@ function TimePicker({
             ]}
             onPress={() => onMinuteChange(m)}
           >
-            <Text style={{ fontSize: 13, fontWeight: "600", color: selected ? "#fff" : textColor }}>
+            <Text
+              style={{
+                fontSize: 13,
+                fontWeight: "600",
+                color: selected ? "#fff" : textColor,
+              }}
+            >
               {m}
             </Text>
           </Pressable>
@@ -407,28 +515,146 @@ function TimePicker({
 const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
   content: { padding: 20, paddingBottom: 40 },
-  headerRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20 },
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
   heading: { fontSize: 22, fontWeight: "700" },
   subheading: { fontSize: 13, marginTop: 2 },
-  addBtn: { flexDirection: "row", alignItems: "center", paddingHorizontal: 14, paddingVertical: 8, borderRadius: 10, gap: 4 },
+  addBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 10,
+    gap: 4,
+  },
   addBtnText: { fontSize: 14, fontWeight: "600", color: "#fff" },
-  emptyCard: { borderRadius: 16, padding: 40, alignItems: "center" },
-  emptyText: { fontSize: 16, fontWeight: "600", marginTop: 12 },
-  emptyHint: { fontSize: 13, marginTop: 4 },
-  dayLabel: { fontSize: 14, fontWeight: "700", letterSpacing: 0.5, marginBottom: 8, marginLeft: 4 },
-  schedCard: { flexDirection: "row", alignItems: "center", borderRadius: 12, padding: 14, marginBottom: 8 },
-  timeIcon: { width: 36, height: 36, borderRadius: 10, alignItems: "center", justifyContent: "center", marginRight: 12 },
+  errorBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    padding: 12,
+    borderRadius: 10,
+    marginBottom: 12,
+  },
+  emptyCard: {
+    borderRadius: 16,
+    padding: 32,
+    alignItems: "center",
+  },
+  emptyIconCircle: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 16,
+  },
+  emptyTitle: { fontSize: 18, fontWeight: "700", marginBottom: 8 },
+  emptyHint: { fontSize: 14, textAlign: "center", lineHeight: 20 },
+  emptyAddBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 12,
+  },
+  dayHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+    marginLeft: 4,
+    gap: 8,
+  },
+  dayDot: { width: 8, height: 8, borderRadius: 4 },
+  dayLabel: { fontSize: 15, fontWeight: "700", letterSpacing: 0.3 },
+  dayCount: { fontSize: 12 },
+  schedCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 8,
+  },
+  timeIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
+  },
   timeText: { fontSize: 15, fontWeight: "600" },
-  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "center", alignItems: "center" },
-  modalSheet: { width: "90%", maxWidth: 420, borderRadius: 16, padding: 24 },
-  modalTitle: { fontSize: 20, fontWeight: "700", marginBottom: 16 },
-  fieldLabel: { fontSize: 12, fontWeight: "700", letterSpacing: 0.5, marginBottom: 8 },
-  dayPicker: { flexDirection: "row" },
-  dayChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8, borderWidth: 1.5, marginRight: 8 },
+  deleteBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  // inline overlay styles (same pattern as teacher notes)
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 100,
+  },
+  formSheet: {
+    width: "90%",
+    maxWidth: 420,
+    borderRadius: 16,
+    padding: 24,
+    maxHeight: "85%",
+  },
+  formHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  formTitle: { fontSize: 20, fontWeight: "700" },
+  fieldLabel: {
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: 1,
+    marginBottom: 8,
+  },
+  dayChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 8,
+    borderWidth: 1.5,
+    marginRight: 8,
+  },
   dayChipText: { fontSize: 13, fontWeight: "600" },
-  timePickerRow: { flexDirection: "row", alignItems: "center" },
-  timeChip: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 8, borderWidth: 1, marginRight: 6 },
-  modalButtons: { flexDirection: "row", gap: 12 },
-  modalBtn: { flex: 1, paddingVertical: 12, borderRadius: 10, alignItems: "center" },
-  modalBtnText: { fontSize: 15, fontWeight: "600" },
+  timePickerRow: { flexDirection: "row", alignItems: "center", marginBottom: 4 },
+  timeChip: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    marginRight: 6,
+  },
+  previewRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    marginTop: 16,
+    marginBottom: 20,
+  },
+  formButtons: { flexDirection: "row", gap: 12 },
+  formBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  formBtnText: { fontSize: 15, fontWeight: "600" },
 });

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { MedicalRecord, fetchMedicalRecord, updateMedicalRecord } from "../api/medicalRecordRepo";
+import { MedicalRecord, fetchMedicalRecord, createMedicalRecord, updateMedicalRecord } from "../api/medicalRecordRepo";
 
 interface UseMedicalRecordReturn {
   record: MedicalRecord | null;
@@ -55,9 +55,17 @@ export function useMedicalRecord(studentId: string): UseMedicalRecordReturn {
     conditions?: string | null;
     emergencyNotes?: string | null;
   }): Promise<boolean> => {
-    if (!record?.id) return false;
     setIsSaving(true);
-    const result = await updateMedicalRecord(record.id, fields);
+
+    let result;
+    if (record?.id) {
+      // update existing record
+      result = await updateMedicalRecord(record.id, fields);
+    } else {
+      // no record exists yet — create one
+      result = await createMedicalRecord(studentId, fields);
+    }
+
     if (!isMounted.current) return false;
     setIsSaving(false);
 
@@ -66,7 +74,7 @@ export function useMedicalRecord(studentId: string): UseMedicalRecordReturn {
       return true;
     }
     return false;
-  }, [record?.id]);
+  }, [record?.id, studentId]);
 
   return { record, isLoading, error, reload: load, saveFields, isSaving };
 }

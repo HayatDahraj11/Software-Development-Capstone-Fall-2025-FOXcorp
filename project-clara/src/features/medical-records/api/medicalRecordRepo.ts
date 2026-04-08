@@ -1,7 +1,20 @@
 import { generateClient } from "aws-amplify/api";
 import { medicalRecordsByStudentId } from "@/src/graphql/queries";
 
-// lean mutation avoids @belongsTo resolver errors on nested student relation
+// lean mutations avoid @belongsTo resolver errors on nested student relation
+const createMedicalRecordLean = /* GraphQL */ `mutation CreateMedicalRecord($input: CreateMedicalRecordInput!) {
+  createMedicalRecord(input: $input) {
+    id
+    studentId
+    allergies
+    medications
+    conditions
+    emergencyNotes
+    createdAt
+    updatedAt
+  }
+}`;
+
 const updateMedicalRecordLean = /* GraphQL */ `mutation UpdateMedicalRecord($input: UpdateMedicalRecordInput!) {
   updateMedicalRecord(input: $input) {
     id
@@ -51,6 +64,34 @@ export async function fetchMedicalRecord(
     return { data: record, error: null };
   } catch (err: any) {
     return { data: null, error: err?.message ?? "Failed to fetch medical record" };
+  }
+}
+
+export async function createMedicalRecord(
+  studentId: string,
+  fields: {
+    allergies?: string | null;
+    medications?: string | null;
+    conditions?: string | null;
+    emergencyNotes?: string | null;
+  }
+): Promise<RepoResult<MedicalRecord>> {
+  try {
+    const result: any = await getClient().graphql({
+      query: createMedicalRecordLean,
+      variables: {
+        input: { studentId, ...fields },
+      },
+      authMode: "apiKey",
+    });
+    return { data: result.data.createMedicalRecord, error: null };
+  } catch (err: any) {
+    if (err?.data?.createMedicalRecord) {
+      return { data: err.data.createMedicalRecord, error: null };
+    }
+    console.error("createMedicalRecord failed:", JSON.stringify(err, null, 2));
+    const msg = err?.errors?.[0]?.message ?? err?.message ?? "Failed to create medical record";
+    return { data: null, error: msg };
   }
 }
 

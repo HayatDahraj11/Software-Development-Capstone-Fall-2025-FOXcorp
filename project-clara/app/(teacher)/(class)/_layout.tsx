@@ -7,14 +7,12 @@ export default function ClassLayout() {
       {/* This includes your tab-based screens */}
       <Stack.Screen name="(tabs)" options={{ headerShown: false,  contentStyle: { backgroundColor: "transparent" },}}  />
 
-      {/* This defines your modal presentation */}
+      {/* Student detail screen — slides up from bottom */}
       <Stack.Screen
         name="modal"
         options={{
-          presentation: "transparentModal",
           headerShown: false,
-          animation: "fade",
-          gestureEnabled: false,
+          animation: "slide_from_bottom",
         }}
       />
     </Stack>

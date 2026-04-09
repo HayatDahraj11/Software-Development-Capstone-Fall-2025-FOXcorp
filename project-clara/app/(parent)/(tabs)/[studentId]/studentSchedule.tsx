@@ -2,8 +2,9 @@
 // pulls class info from context (already loaded on login) and fetches
 // the actual schedule times from the Schedule table in dynamodb
 // if a class has no schedule entries it just shows the card without times
+import { useState } from "react";
 import { useLocalSearchParams } from "expo-router";
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
@@ -63,7 +64,14 @@ export default function StudentScheduleScreen() {
   const classIds = getClassesMappedByStudent(studentId);
 
   // fetch schedules for all the student's classes
-  const { schedules, isLoading: schedulesLoading } = useSchedules(classIds);
+  const { schedules, isLoading: schedulesLoading, reload } = useSchedules(classIds);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await reload();
+    setRefreshing(false);
+  };
 
   // build class info rows
   const classRows = classIds
@@ -85,7 +93,12 @@ export default function StudentScheduleScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: bg }]}>
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={tint} />
+        }
+      >
         <Text style={[styles.sectionLabel, { color: subtextColor }]}>
           {student ? `${student.firstName}'s CLASSES` : "CLASS SCHEDULE"}
         </Text>

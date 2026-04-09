@@ -17,14 +17,15 @@ export type DataCard = {
 let NEXT_CARD_ID: number = 0
 
 // creating data for a card which displays information about a student's current location
-export function createStudentClassUpdateCard(stu: Student, cla: Class, enr: Enrollment, teach: Teacher_parentSide, route?: string): DataCard {
+export function createStudentClassUpdateCard(stu: Student, cla: Class, enr: Enrollment, teach: Teacher_parentSide, endTime?: string, route?: string): DataCard {
     const router: string = route ? route : " ";
+    const timeLabel = endTime ? `until ${endTime}` : "";
 
     // creating the data which will be put into a card
     const card: DataCard = {
         id: NEXT_CARD_ID,
-        header: `${stu.firstName} is in ${cla.name} with ${teach.name} until [classEndTime]`,
-        preview: `They have a ${enr.currentGrade} in the class.`,
+        header: `${stu.firstName} is in ${cla.name} with ${teach.name} ${timeLabel}`.trim(),
+        preview: enr.currentGrade != null ? `They have a ${enr.currentGrade} in the class.` : "",
         route: router,
         urgent: true,
         itemId: stu.id,
@@ -37,7 +38,10 @@ export function createStudentClassUpdateCard(stu: Student, cla: Class, enr: Enro
 
 // creating data for a card which displays information about a student's current attendance
 export function createStudentAttendanceCard(stu: Student, route?: string): DataCard {
-    const attendanceMessage: string = stu.attendanceRate === 100 ? `${stu.firstName} has had a perfect attendance today!` : `${stu.firstName} has missed classes today!`
+    const rate = stu.attendanceRate ?? 0;
+    const attendanceMessage: string = rate === 100
+        ? `${stu.firstName} has perfect attendance!`
+        : `${stu.firstName} has a ${rate}% attendance rate`;
     const router: string = route ? route : " ";
 
     const card: DataCard = {

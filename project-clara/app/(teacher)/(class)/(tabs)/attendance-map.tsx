@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { useGlobalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { generateClient } from "aws-amplify/api";
 import { PieChart } from "react-native-chart-kit";
@@ -9,11 +9,15 @@ import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import { useTeacherLoginContext } from "@/src/features/context/TeacherLoginContext";
 import { attendancesByClassId } from "@/src/graphql/queries";
 
-const client = generateClient();
+let _client: any = null;
+function getClient() {
+    if (!_client) _client = generateClient();
+    return _client;
+}
 const screenWidth = Dimensions.get("window").width;
 
 export default function AttendanceSummaryScreen() {
-  const { classId } = useLocalSearchParams();
+  const { classId } = useGlobalSearchParams();
   const { userClasses } = useTeacherLoginContext();
 
   const bg = useThemeColor({}, "background");
@@ -44,9 +48,10 @@ export default function AttendanceSummaryScreen() {
     setIsLoading(true);
     try {
       const today = new Date().toISOString().split("T")[0];
-      const result: any = await client.graphql({
+      const result: any = await getClient().graphql({
         query: attendancesByClassId,
         variables: { classId: classIdString },
+        authMode: "apiKey",
       });
       const items = result?.data?.attendancesByClassId?.items ?? [];
       if (!isMounted.current) return;

@@ -4,7 +4,7 @@ import { useRouter } from "expo-router";
 import { Pressable, StyleSheet, View, ScrollView } from "react-native";
 import { Href } from "expo-router";
 import { useTeacherLoginContext } from "@/src/features/context/TeacherLoginContext";
-import { useLocalSearchParams } from "expo-router";
+import { useGlobalSearchParams } from "expo-router";
 import { usePushNotifications } from "@/src/features/notifications/logic/usePushNotifications";
 import { Text } from '@/src/rnreusables/ui/text';
 import {
@@ -30,6 +30,7 @@ const GRID_ITEMS: {
   { label: "Grades", icon: "ribbon", route: "/grades" },
   { label: "Take Attendance", icon: "checkbox", route: "/take-attendance" },
   { label: "Incidents", icon: "warning", route: "/incidents" },
+  { label: "Schedule", icon: "calendar", route: "/schedule" },
 ];
 
 // Dropdown for switching classes
@@ -75,7 +76,7 @@ function ClassDropdown({ selectedClassId }: { selectedClassId?: string }) {
 
 export default function ClassHome() {
   const router = useRouter();
-  const { classId } = useLocalSearchParams();
+  const { classId } = useGlobalSearchParams();
 
   const { userTeacher, userClasses } = useTeacherLoginContext();
 

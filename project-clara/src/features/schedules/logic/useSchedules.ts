@@ -7,6 +7,7 @@ interface UseSchedulesReturn {
   schedules: Schedule[];
   isLoading: boolean;
   error: string | null;
+  reload: () => Promise<void>;
 }
 
 export function useSchedules(classIds: string[]): UseSchedulesReturn {
@@ -53,5 +54,5 @@ export function useSchedules(classIds: string[]): UseSchedulesReturn {
     loadSchedules();
   }, [loadSchedules]);
 
-  return { schedules, isLoading, error };
+  return { schedules, isLoading, error, reload: loadSchedules };
 }

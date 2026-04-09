@@ -17,7 +17,7 @@ export default function ParentHomeScreen() {
     const { userParent, userStudents, setChosenStudentId } = useParentLoginContext();
     const { expoPushToken } = usePushNotifications(userParent.userId, "PARENT");
     const router = useRouter();
-    const { latestConversation, messageCount, medicalAlert } =
+    const { latestConversation, messageCount, medicalAlert, recentAbsences, incidentCount } =
         useDashboardData(userParent.userId, userStudents);
 
     const today = new Date().toLocaleDateString("en-US", {
@@ -155,13 +155,38 @@ export default function ParentHomeScreen() {
                     icon={{name: (medicalAlert ? "warning" : "shield-checkmark"), size: 22, color: (medicalAlert ? "#dc2626" : "#16a34a"), backgroundColor: (medicalAlert ? "#ef444420" : "#22c55e20")}}
                 />
 
+                {/* Attendance Card */}
+                <Card
+                    header={"Attendance"}
+                    preview={recentAbsences > 0
+                        ? `${recentAbsences} ${recentAbsences === 1 ? "absence" : "absences"} this week`
+                        : "No absences this week"
+                    }
+                    onPress={() => router.push("/(parent)/(tabs)/general-info" as Href)}
+                    urgent={recentAbsences > 0}
+                    pressable={true}
+                    icon={{name: (recentAbsences > 0 ? "alert-circle" : "checkmark-circle"), size: 22, color: (recentAbsences > 0 ? "#d97706" : "#16a34a"), backgroundColor: (recentAbsences > 0 ? "#f59e0b20" : "#22c55e20")}}
+                />
+
+                {/* Incidents Card */}
+                {incidentCount > 0 && (
+                    <Card
+                        header={"Incidents"}
+                        preview={`${incidentCount} ${incidentCount === 1 ? "report" : "reports"} on file`}
+                        onPress={() => router.push("/(parent)/(tabs)/general-info" as Href)}
+                        urgent={true}
+                        pressable={true}
+                        icon={{name: "warning", size: 22, color: "#dc2626", backgroundColor: "#ef444420"}}
+                    />
+                )}
+
                 {/* Announcements Card */}
-                <Card 
+                <Card
                     header={"Announcements"}
-                    preview={"Coming soon!"}
-                    onPress={() => {}}
+                    preview={"View class announcements"}
+                    onPress={() => router.push("/(parent)/(tabs)/live-updates" as Href)}
                     urgent={false}
-                    pressable={false}
+                    pressable={true}
                     icon={{name: "megaphone", size: 22, color: "#8b5cf6", backgroundColor: "#8b5cf620"}}
                 />
 

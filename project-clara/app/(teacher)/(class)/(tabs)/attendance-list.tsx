@@ -3,7 +3,7 @@ import { FlatList, Pressable, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
-import { useLocalSearchParams } from "expo-router";
+import { useGlobalSearchParams } from "expo-router";
 import { useTeacherLoginContext } from "@/src/features/context/TeacherLoginContext";
 
 // pull out the initials from a first and last name
@@ -27,7 +27,7 @@ function pickAvatarColor(name: string) {
 
 export default function AttendanceList() {
   const router = useRouter();
-  const { classId } = useLocalSearchParams();
+  const { classId } = useGlobalSearchParams();
   const { userClasses } = useTeacherLoginContext();
 
   const bg = useThemeColor({}, "background");

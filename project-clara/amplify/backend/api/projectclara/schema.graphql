@@ -43,6 +43,7 @@ type Student @model @auth(rules: [
   attendances: [Attendance] @hasMany(indexName: "byStudent", fields: ["id"])
   incidents: [Incident] @hasMany(indexName: "byStudent", fields: ["id"])
   medicalRecord: MedicalRecord @hasOne
+  teacherNotes: [TeacherNote] @hasMany(indexName: "byStudent", fields: ["id"])
 }
 
 type Teacher @model @auth(rules: [{ allow: public }]) {
@@ -53,6 +54,7 @@ type Teacher @model @auth(rules: [{ allow: public }]) {
   school: School @belongsTo(fields: ["schoolId"])
   classes: [Class] @hasMany(indexName: "byTeacher", fields: ["id"])
   incidents: [Incident] @hasMany(indexName: "byTeacher", fields: ["id"])
+  teacherNotes: [TeacherNote] @hasMany(indexName: "byTeacher", fields: ["id"])
 }
 
 type Class @model @auth(rules: [{ allow: public }]) {
@@ -66,6 +68,7 @@ type Class @model @auth(rules: [{ allow: public }]) {
   attendances: [Attendance] @hasMany(indexName: "byClass", fields: ["id"])
   incidents: [Incident] @hasMany(indexName: "byClass", fields: ["id"])
   schedules: [Schedule] @hasMany(indexName: "byClass", fields: ["id"])
+  teacherNotes: [TeacherNote] @hasMany(indexName: "byClass", fields: ["id"])
 }
 # Separate Schedule model
 enum DayOfWeek { MONDAY TUESDAY WEDNESDAY THURSDAY FRIDAY SATURDAY SUNDAY }
@@ -136,6 +139,21 @@ type MedicalRecord @model @auth(rules: [{ allow: public }]) {
   emergencyNotes: String
 
   student: Student @belongsTo(fields: ["studentId"])
+}
+
+type TeacherNote @model @auth(rules: [{ allow: public }]) {
+  id: ID!
+  teacherId: ID! @index(name: "byTeacher")
+  studentId: ID! @index(name: "byStudent")
+  classId: ID @index(name: "byClass")
+  title: String
+  body: String!
+  category: String
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+  teacher: Teacher @belongsTo(fields: ["teacherId"])
+  student: Student @belongsTo(fields: ["studentId"])
+  class: Class @belongsTo(fields: ["classId"])
 }
 
 type Incident @model @auth(rules: [{ allow: public }]) {

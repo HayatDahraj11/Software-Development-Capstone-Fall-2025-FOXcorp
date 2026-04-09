@@ -26,6 +26,8 @@ export default function ParentGenInfoStudentIDLayout() {
             <Tabs.Screen name="studentRecords" options={{title: "Student Records", href: null}}/>
             <Tabs.Screen name="studentSchedule" options={{title: "Student Schedule", href: null}}/>
             <Tabs.Screen name="studentMedical" options={{title: "Medical Records", href: null}}/>
+            <Tabs.Screen name="studentAttendance" options={{title: "Attendance", href: null}}/>
+            <Tabs.Screen name="studentIncidents" options={{title: "Incidents", href: null}}/>
         </Tabs>
     )
 }

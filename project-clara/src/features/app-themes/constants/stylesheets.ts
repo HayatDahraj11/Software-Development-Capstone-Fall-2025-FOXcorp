@@ -26,9 +26,14 @@ export const containerStyle = StyleSheet.create({
         maxHeight: "30%",
         marginBottom: 4,
     },
-    miniScrollContent: {
-        paddingHorizontal: 2,
-        paddingRight: 14,
+    animatedScrollContent: {
+        paddingHorizontal: 2, 
+        paddingRight: 10, 
+        overflow: 'hidden'
+    },
+    scrollBar: {
+        width: 6,
+        borderRadius: 4,
     },
     // label for section titles within a screen
     sectionLabel: { 

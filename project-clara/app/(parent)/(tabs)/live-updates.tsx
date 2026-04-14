@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from '@/src/rnreusables/ui/select';
 import type { TriggerRef } from '@rn-primitives/select';
+import Animated, { Extrapolation, interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 
@@ -153,8 +154,6 @@ export default function ParentLiveUpdatesScreen() {
         else { }
   };
 
-
-
   // stuff for select button
   const ref = useRef<TriggerRef>(null);
   const insets = useSafeAreaInsets();
@@ -167,6 +166,34 @@ export default function ParentLiveUpdatesScreen() {
   function onTouchStart() {
     ref.current?.open();
   }
+
+  // vars for announcements scrollbar
+  const scrollY = useSharedValue(0);
+  const [scrollHeight, setScrollHeight] = useState<number>(0);
+  const [scrollContentHeight, setScrollContentHeight] = useState<number>(0);
+  const indicatorHeight: number = (() => {
+      if(scrollContentHeight === 0) return 0;
+      const ratio = scrollHeight / scrollContentHeight;
+      return Math.max(scrollHeight * ratio, 20);
+  })();
+  const scrollHandler = useAnimatedScrollHandler((event) => {
+      scrollY.value = event.contentOffset.y;
+  });
+  const animatedStyle = useAnimatedStyle(() => {
+      const maxScroll = scrollContentHeight - scrollHeight;
+      const maxTravel = scrollHeight - indicatorHeight;
+
+      const translateY = interpolate(
+          scrollY.value,
+          [0, maxScroll],
+          [0, maxTravel],
+          Extrapolation.CLAMP
+      );
+      return {
+          height: indicatorHeight,
+          transform: [{translateY}],
+      };
+  });
 
   // grabbing child selected data aswell as their classes
   const onChildSelected = useCallback((id: string) => {
@@ -280,7 +307,21 @@ export default function ParentLiveUpdatesScreen() {
         </Text>
         {(childAnnouncements !== undefined && childAnnouncements.length > 0) ? (
         <View style={containerStyle.miniScrollContainer}>
-          <ScrollView showsVerticalScrollIndicator={false} horizontal={false} contentContainerStyle={containerStyle.miniScrollContent}>
+          <Animated.ScrollView 
+            contentContainerStyle={containerStyle.animatedScrollContent} 
+            scrollEnabled={true} 
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            onScroll={scrollHandler}
+            scrollEventThrottle={16}
+            onLayout={(event) => {
+                const {height} = event.nativeEvent.layout;
+                setScrollHeight(height);
+            }}
+            onContentSizeChange={(width, height) => {
+                setScrollContentHeight(height);
+            }}
+          >
             {childAnnouncements.slice(0, 5).map((ann) => (
               <Card 
                 key={ann.id}
@@ -290,7 +331,8 @@ export default function ParentLiveUpdatesScreen() {
                 icon={{name: "megaphone", size: 18, color: "#8b5cf6", backgroundColor: "#8b5cf620"}}
               />
             ))}
-          </ScrollView>
+          </Animated.ScrollView>
+          <Animated.View style={[containerStyle.scrollBar, animatedStyle, {backgroundColor: subtextColor}]}/>
         </View>
       ) : (
         <View style={containerStyle.miniScrollContainer}>

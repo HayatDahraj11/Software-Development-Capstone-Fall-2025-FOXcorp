@@ -1,7 +1,7 @@
 import { usePushNotifications } from "@/src/features/notifications/logic/usePushNotifications";
 import { Ionicons } from "@expo/vector-icons";
 import { Href, useRouter } from "expo-router";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { Pressable, ScrollView, Text, useWindowDimensions, View } from "react-native";
 
 import {
     containerStyle,
@@ -12,8 +12,11 @@ import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import Card from "@/src/features/cards/ui/Card";
 import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
 import { useDashboardData } from "@/src/features/dashboard/logic/useDashboardData";
+import { useState } from "react";
+import Animated, { Extrapolation, interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 
 export default function ParentHomeScreen() {
+    const { width, height } = useWindowDimensions();
     const { userParent, userStudents, setChosenStudentId } = useParentLoginContext();
     const { expoPushToken } = usePushNotifications(userParent.userId, "PARENT");
     const router = useRouter();
@@ -32,6 +35,62 @@ export default function ParentHomeScreen() {
     const subtextColor = useThemeColor({}, "placeholderText");
     const tint = useThemeColor({}, "tint");
     const urgent = useThemeColor({}, "urgent");
+
+    // chilren scroll bar vars
+    const scrollY = useSharedValue(0);
+    const [scrollHeight, setScrollHeight] = useState<number>(0);
+    const [scrollContentHeight, setScrollContentHeight] = useState<number>(0);
+    const indicatorHeight: number = (() => {
+        if(scrollContentHeight === 0) return 0;
+        const ratio = scrollHeight / scrollContentHeight;
+        return Math.max(scrollHeight * ratio, 20);
+    })();
+    const scrollHandler = useAnimatedScrollHandler((event) => {
+        scrollY.value = event.contentOffset.y;
+    });
+    const animatedStyle = useAnimatedStyle(() => {
+        const maxScroll = scrollContentHeight - scrollHeight;
+        const maxTravel = scrollHeight - indicatorHeight;
+
+        const translateY = interpolate(
+            scrollY.value,
+            [0, maxScroll],
+            [0, maxTravel],
+            Extrapolation.CLAMP
+        );
+        return {
+            height: indicatorHeight,
+            transform: [{translateY}],
+        };
+    });
+
+    // updates scroll bar vars
+    const updatesScrollY = useSharedValue(0);
+    const [updatesScrollHeight, setUpdatesScrollHeight] = useState<number>(0);
+    const [updatesScrollContentHeight, setUpdatesScrollContentHeight] = useState<number>(0);
+    const updatesIndicatorHeight: number = (() => {
+        if(updatesScrollContentHeight === 0) return 0;
+        const ratio = updatesScrollHeight / updatesScrollContentHeight;
+        return Math.max(updatesScrollHeight * ratio, 20);
+    })();
+    const updatesScrollHandler = useAnimatedScrollHandler((event) => {
+        updatesScrollY.value = event.contentOffset.y;
+    });
+    const updatesAnimatedStyle = useAnimatedStyle(() => {
+        const maxScroll = updatesScrollContentHeight - updatesScrollHeight;
+        const maxTravel = updatesScrollHeight - updatesIndicatorHeight;
+
+        const translateY = interpolate(
+            updatesScrollY.value,
+            [0, maxScroll],
+            [0, maxTravel],
+            Extrapolation.CLAMP
+        );
+        return {
+            height: updatesIndicatorHeight,
+            transform: [{translateY}],
+        };
+    });
 
     return (
         <View style={[containerStyle.container, { backgroundColor: bg }]}>
@@ -86,8 +145,23 @@ export default function ParentHomeScreen() {
                 <Text style={[containerStyle.sectionLabel, { color: subtextColor }]}>YOUR CHILDREN</Text>
 
                 {/* Student Cards */}
-                <View style={[{maxHeight: '30%', marginBottom: 4}]}>
-                    <ScrollView contentContainerStyle={{paddingHorizontal: 2}} scrollEnabled={true} showsVerticalScrollIndicator={true} >
+                <View style={[containerStyle.miniScrollContainer]}
+                >
+                    <Animated.ScrollView 
+                        contentContainerStyle={containerStyle.animatedScrollContent} 
+                        scrollEnabled={true} 
+                        showsVerticalScrollIndicator={false}
+                        showsHorizontalScrollIndicator={false}
+                        onScroll={scrollHandler}
+                        scrollEventThrottle={16}
+                        onLayout={(event) => {
+                            const {height} = event.nativeEvent.layout;
+                            setScrollHeight(height);
+                        }}
+                        onContentSizeChange={(width, height) => {
+                            setScrollContentHeight(height);
+                        }}
+                    >
                         {userStudents.map((student) => {
                             const attendance = student.attendanceRate != null
                             ? Math.round(student.attendanceRate)
@@ -121,7 +195,8 @@ export default function ParentHomeScreen() {
                                 />
                             );
                         })}
-                    </ScrollView>
+                    </Animated.ScrollView>
+                    <Animated.View style={[containerStyle.scrollBar, animatedStyle, {backgroundColor: subtextColor}]}/>
                 </View>
                 
 
@@ -129,8 +204,22 @@ export default function ParentHomeScreen() {
                 <Text style={[containerStyle.sectionLabel, { color: subtextColor }]}>UPDATES</Text>
 
                 
-                <View style={[{maxHeight: '30%'}]}>
-                    <ScrollView contentContainerStyle={{paddingHorizontal: 2}} scrollEnabled={true} showsVerticalScrollIndicator={true} >
+                <View style={[containerStyle.miniScrollContainer]}>
+                    <Animated.ScrollView 
+                        contentContainerStyle={containerStyle.animatedScrollContent} 
+                        scrollEnabled={true} 
+                        showsVerticalScrollIndicator={false}
+                        showsHorizontalScrollIndicator={false}
+                        onScroll={updatesScrollHandler}
+                        scrollEventThrottle={16}
+                        onLayout={(event) => {
+                            const {height} = event.nativeEvent.layout;
+                            setUpdatesScrollHeight(height);
+                        }}
+                        onContentSizeChange={(width, height) => {
+                            setUpdatesScrollContentHeight(height);
+                        }}
+                    >
                         {/* Messages Card */}
                         <Card 
                             header={"Messages"}
@@ -194,7 +283,8 @@ export default function ParentHomeScreen() {
                             pressable={true}
                             icon={{name: (medicalAlert ? "warning" : "shield-checkmark"), size: 22, color: (medicalAlert ? "#dc2626" : "#16a34a"), backgroundColor: (medicalAlert ? "#ef444420" : "#22c55e20")}}
                         />
-                    </ScrollView>
+                    </Animated.ScrollView>
+                    <Animated.View style={[containerStyle.scrollBar, updatesAnimatedStyle, {backgroundColor: subtextColor}]}/>
                 </View>
 
             </ScrollView>

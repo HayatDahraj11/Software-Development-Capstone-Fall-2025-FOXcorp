@@ -1,7 +1,7 @@
 /**
  * test-local.js
  *
- * Quick smoke test for the Clara Lambda,invokes the handler in-process
+ * Quick smoke test for the Clara Lambda, invokes the handler in-process
  * with a fake parent/conversation id and prints the result. Useful for
  * verifying OpenAI + AppSync credentials before you point the mobile
  * app at the real endpoint.

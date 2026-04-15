@@ -15,7 +15,7 @@
  *
  * The mobile app can point at http://<your-laptop-ip>:3000/clara instead
  * of the deployed API Gateway URL while you iterate. Once it all works,
- * run `amplify push` and switch the URL,the handler code does not
+ * run `amplify push` and switch the URL, the handler code does not
  * change.
  */
 

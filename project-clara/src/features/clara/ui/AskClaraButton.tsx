@@ -1,8 +1,8 @@
 /**
- * AskClaraButton,the primary entry point to Clara from the home screen.
+ * AskClaraButton, the primary entry point to Clara from the home screen.
  *
  * Visually distinctive (purple accent, sparkle icon) so parents see it
- * as something new and special,not just another chat thread.
+ * as something new and special, not just another chat thread.
  *
  * Styled without an external gradient dependency so the capstone build
  * stays lean; the solid purple + subtle background tint still reads
@@ -39,7 +39,7 @@ export default function AskClaraButton({ compact = false }: Props) {
   const textColor = useThemeColor({}, "text");
   const subtextColor = useThemeColor({}, "placeholderText");
 
-  // Clara's signature colour,purple,intentionally fixed across themes so
+  // Clara's signature colour, purple, intentionally fixed across themes so
   // the feature is recognizable.
   const CLARA_PURPLE = "#8b5cf6";
   const CLARA_PURPLE_TINT = "#8b5cf620";
@@ -96,7 +96,7 @@ export default function AskClaraButton({ compact = false }: Props) {
         <Text style={[styles.subtitle, { color: subtextColor }]}>
           {error
             ? error
-            : "Your school assistant,ask about attendance, notes, grades, or a weekly update."}
+            : "Your school assistant, ask about attendance, notes, grades, or a weekly update."}
         </Text>
       </View>
 

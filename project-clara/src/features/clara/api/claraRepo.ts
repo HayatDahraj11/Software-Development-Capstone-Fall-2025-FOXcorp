@@ -1,5 +1,5 @@
 /**
- * claraRepo.ts,app-side repository for the Clara AI assistant.
+ * claraRepo.ts, app-side repository for the Clara AI assistant.
  *
  * Responsibilities:
  *   1. Tell apart "normal" conversations from Clara conversations by

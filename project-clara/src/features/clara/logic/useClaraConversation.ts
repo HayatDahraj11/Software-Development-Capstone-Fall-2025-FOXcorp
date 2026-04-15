@@ -1,5 +1,5 @@
 /**
- * useClaraConversation,ensures the parent has a Clara conversation,
+ * useClaraConversation, ensures the parent has a Clara conversation,
  * creating one lazily on first access.
  *
  * Usage:

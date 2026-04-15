@@ -382,7 +382,7 @@ async function execute_summarize_week(args, context) {
   const guard = assertStudentBelongsToParent(args.studentId, context);
   if (guard) return guard;
 
-  // Run the three sub-fetches in parallel,significantly faster than
+  // Run the three sub-fetches in parallel, significantly faster than
   // three sequential tool round-trips to OpenAI.
   const [attendance, notes, incidents] = await Promise.all([
     execute_get_student_attendance({ studentId: args.studentId, daysBack: 7 }, context),

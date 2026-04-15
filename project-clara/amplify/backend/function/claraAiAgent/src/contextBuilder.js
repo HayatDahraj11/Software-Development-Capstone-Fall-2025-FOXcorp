@@ -8,7 +8,7 @@
  *   1. Injected into the system prompt so Clara knows who she's talking
  *      to and which students are in scope.
  *
- *   2. Used as an authorization allow-list inside every tool,tools
+ *   2. Used as an authorization allow-list inside every tool, tools
  *      refuse to return data for a student not in the context.
  *
  * Building this once up front is cheaper than having the model call a

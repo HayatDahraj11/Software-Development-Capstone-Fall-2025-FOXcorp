@@ -17,7 +17,7 @@
  * Why this shape:
  *   - Storing Clara's reply as a normal Message means the existing
  *     messaging UI, subscriptions, and read-state logic all "just work".
- *     Clara is not a special surface,she's a participant.
+ *     Clara is not a special surface, she's a participant.
  *   - Short-term memory is bounded to MAX_HISTORY to keep token cost
  *     predictable. Long conversations naturally summarize themselves
  *     as old turns fall out of the window.
@@ -115,7 +115,7 @@ function historyToOpenAI(messages) {
 /**
  * Write Clara's reply back into the conversation so the app sees it
  * via the normal messaging flow (live subscriptions already handle
- * rendering,no special UI needed).
+ * rendering, no special UI needed).
  */
 async function postClaraReply({ conversationId, body }) {
   const now = new Date().toISOString();
@@ -174,7 +174,7 @@ async function handleParentMessage({ conversationId, parentId, userMessage }) {
   // 3. Assemble the message list for OpenAI.
   //    The latest parent message is already in `history` (it was written
   //    by the client before this Lambda fired), so we do NOT append it a
-  //    second time,that would duplicate it in the prompt.
+  //    second time, that would duplicate it in the prompt.
   const messages = [
     { role: "system", content: buildSystemPrompt(context) },
     ...historyToOpenAI(history),

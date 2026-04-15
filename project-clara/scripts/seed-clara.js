@@ -9,7 +9,7 @@
  * Why a Teacher record?
  *   Conversation.teacherId is ID!, not null. Using an existing sender
  *   type (TEACHER) means the messaging UI and subscriptions don't need
- *   special cases,Clara's reply shows up in the thread the same way
+ *   special cases, Clara's reply shows up in the thread the same way
  *   a human teacher's would.
  *
  * Usage:

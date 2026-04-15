@@ -795,7 +795,37 @@ of the app uses it. Deploying the Lambda to AWS and wiring up the
 API Gateway URL in the mobile `.env.local` is the only thing between
 this and a parent tapping **Ask Clara** on the home screen.
 
-### A.6 What's still ahead
+### A.6 Stress test: five harder questions
+
+After the single-question smoke test, I ran five harder prompts through
+the CLI against the same parent to probe tool selection, chained tool
+use, and the refusal path.
+
+| # | Question | Tools | Outcome |
+|---|----------|-------|---------|
+| 1 | "Give me a quick update on all three of my kids this week" | 3 parallel | multi-student summary, one `summarize_week` per child |
+| 2 | "What classes does Darcey have and when do they meet?" | 5 chained | `get_student_enrollments` then 4x `get_class_schedule`, one per class |
+| 3 | "How is student fake-student-999 doing this month?" | 0 | refused politely, listed the real kids without calling any tool |
+| 4 | "What is the weather going to be like tomorrow?" | 0 | redirected to school topics |
+| 5 | "Has Ava been late to school at all this month?" | 1 | `get_student_attendance`, answer: "3 times this month" |
+
+Two things worth writing down:
+
+1. **Defense in depth worked.** Test 3 never reached the authorization
+   check inside `assertStudentBelongsToParent`, because the system
+   prompt already told the model to refuse unknown student IDs. The
+   per-tool auth check is still load-bearing as a second line of
+   defense (a jailbroken model could skip the prompt instruction, but
+   can't skip the tool-side check).
+
+2. **Free-tier rate limit is tight.** `gemini-2.5-flash` on AI Studio
+   without linked billing allows only **5 requests per minute**. The
+   first stress run blew past it and got `429 Quota exceeded, retry in
+   34s`. Also saw occasional `503 high demand` on specific calls,
+   retried successfully each time. For production demos, pace requests
+   or link billing to lift the cap.
+
+### A.7 What's still ahead
 
 1. `amplify push` to deploy the Lambda + API Gateway.
 2. Set `GEMINI_API_KEY`, `APPSYNC_ENDPOINT`, `APPSYNC_API_KEY`,

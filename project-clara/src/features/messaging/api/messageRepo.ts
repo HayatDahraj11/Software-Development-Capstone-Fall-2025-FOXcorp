@@ -23,6 +23,10 @@ import {
 import { onCreateMessage } from "@/src/graphql/subscriptions";
 
 import { sendPushToUser } from "@/src/features/notifications/api/sendPushToUser";
+import {
+  CLARA_BOT_ID,
+  triggerClaraReply,
+} from "@/src/features/clara/api/claraRepo";
 
 // ── Types ───────────────────────────────────────────────────────────
 
@@ -279,11 +283,11 @@ export async function sendMessage(params: {
         console.warn("conversation preview update failed:", err)
       );
 
-    // send a push notification to the other person so they know they got a message
-    // this is fire-and-forget so if it fails the message still goes through fine
+    // side-effects after send: push notifications + Clara trigger.
+    // fire-and-forget: if either fails the message still goes through fine.
     (async () => {
       try {
-        console.log("push notification: looking up conversation", params.conversationId);
+        console.log("post-send side effects: looking up conversation", params.conversationId);
         // we need the conversation details to figure out who to notify
         const convoResult: any = await client.graphql({
           query: getConversation,
@@ -291,10 +295,31 @@ export async function sendMessage(params: {
         });
         const convo = convoResult.data?.getConversation;
         if (!convo) {
-          console.log("push notification: conversation not found, skipping");
+          console.log("post-send side effects: conversation not found, skipping");
           return;
         }
 
+        // Clara trigger.
+        // If this is a parent's message in a Clara conversation, kick
+        // off the Lambda to generate Clara's reply. Clara's answer
+        // will arrive via the onCreateMessage subscription like any
+        // other message, so no special UI wiring is needed.
+        const isClaraThread = convo.teacherId === CLARA_BOT_ID;
+        if (isClaraThread && params.senderType === "PARENT") {
+          console.log("post-send: triggering Clara reply");
+          triggerClaraReply({
+            conversationId: params.conversationId,
+            parentId: params.senderId,
+            userMessage: params.body,
+          }).catch((err) =>
+            console.warn("Clara trigger failed (non-fatal):", err)
+          );
+          // Clara threads don't get a push-notification round-trip
+          // back to the sender, so we're done here.
+          return;
+        }
+
+        // Push notification for normal human-to-human threads.
         // if a parent sent it, notify the teacher and vice versa
         const recipientId =
           params.senderType === "PARENT" ? convo.teacherId : convo.parentId;
@@ -328,8 +353,8 @@ export async function sendMessage(params: {
           },
         });
       } catch (err) {
-        // dont let a push failure break the message send
-        console.warn("push notification after send failed:", err);
+        // dont let a post-send failure break the message send
+        console.warn("post-send side effects failed:", err);
       }
     })();
 

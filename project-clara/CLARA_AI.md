@@ -825,25 +825,99 @@ Two things worth writing down:
    retried successfully each time. For production demos, pace requests
    or link billing to lift the cap.
 
-### A.7 What's still ahead
+### A.7 Deployment, the not-quite-amplify-push path
 
-1. `amplify push` to deploy the Lambda + API Gateway.
-2. Set `GEMINI_API_KEY`, `APPSYNC_ENDPOINT`, `APPSYNC_API_KEY`,
-   `GEMINI_MODEL` as Lambda environment variables (do not commit
-   these; the Lambda `.gitignore` excludes `.env`).
-3. Copy the deployed API Gateway invoke URL into the mobile app's
-   `.env.local` as `EXPO_PUBLIC_CLARA_ENDPOINT`.
-4. Rebuild the mobile app, tap **Ask Clara**, test end-to-end.
+Deployed 2026-04-15. Planned to do a clean `amplify push` but ran
+`amplify status` first and noticed something missing:
 
-The file list in §8 already points at `llmClient.js` instead of
-`openaiClient.js`. Everything else in the original notes still
-applies: same tool-use loop, same authorization model, same
-short-term memory window, same 29-second Lambda ceiling, same
-fire-and-forget-is-a-bug warning in §M4.
+```
+Category  Resource name          Operation
+Api       projectclara           No Change
+Auth      projectclara0170b5bc   No Change
+```
+
+No `Function` row. The `claraAiAgent` folder existed under
+`amplify/backend/function/` but it only contained a `src/`
+directory, no CloudFormation wrapper, no `parameters.json`, no
+`-cloudformation-template.json`. The function had been scaffolded
+manually during development and was never registered with the
+Amplify CLI via `amplify add function`. Running `amplify push`
+at that point would have deployed *nothing new*.
+
+Two paths from there:
+
+1. **Register it with Amplify** via `amplify add function`, which
+   is interactive (prompts for runtime, handler, env vars), then
+   copy source over and push. Cleanest long-term but a 10-minute
+   guided session.
+2. **Skip Amplify, deploy directly** with AWS CLI. Faster, but
+   Amplify's CloudFormation stack no longer owns the Lambda.
+
+I went with option 2 for the capstone demo. Concretely:
+
+1. `npm install --omit=dev` inside the function's `src/` to pull
+   just `@google/generative-ai`.
+2. `zip -r claraAiAgent.zip .` (excluding `.env`, `local-server.js`,
+   `test-local.js`).
+3. `aws iam create-role` for `clara-lambda-role` + attach
+   `AWSLambdaBasicExecutionRole`.
+4. `aws lambda create-function --runtime nodejs20.x --timeout 30
+   --memory-size 512` with all five env vars inline.
+5. `aws apigatewayv2 create-api --protocol-type HTTP` with CORS
+   open for POST/OPTIONS.
+6. `create-integration` (AWS_PROXY, v2.0 payload) + `create-route`
+   for `POST /clara` + `create-stage $default --auto-deploy`.
+7. `aws lambda add-permission` so API Gateway can invoke.
+
+Final state:
+
+| Resource | Value |
+| --- | --- |
+| Lambda function | `claraAiAgent` (us-east-1, Node 20, 512 MB, 30s timeout) |
+| IAM role | `clara-lambda-role` |
+| API Gateway | HTTP API `d4in1icwsa`, route `POST /clara` |
+| Public endpoint | `https://d4in1icwsa.execute-api.us-east-1.amazonaws.com/clara` |
+| AWS account | `730335471611` |
+
+One real gotcha surfaced during the smoke test: the AppSync API
+key that `amplify status` prints **isn't necessarily the current
+valid one**. The dev stack rotates API keys every 7 days and keeps
+a few around with different expiry dates. The key shown by
+`amplify status` had silently expired three days earlier.
+`aws appsync list-api-keys --api-id <id>` shows all of them with
+Unix `expires` timestamps; grab the one with the furthest-future
+expiry. Lesson: in dev, always verify the key expiry before
+debugging 401s anywhere else.
+
+First live call from the deployed endpoint, with a nonsense
+parentId, returned `{"ok":false,"error":"Parent not found:
+smoke-test"}`, which meant the Lambda, AppSync auth, and tool-use
+loop were all working end-to-end; it just correctly refused to
+invent a parent record. Real parent ids return full replies.
+
+**Known limitation of option 2**: the deployed Lambda is not
+tracked by Amplify's CloudFormation stack. `amplify push` won't
+touch it; `amplify env remove dev` won't delete it. To redeploy
+code, rebuild the zip and run `aws lambda update-function-code
+--function-name claraAiAgent --zip-file fileb://claraAiAgent.zip`.
+Environment changes go through `aws lambda
+update-function-configuration`. A future refactor should migrate
+this into the Amplify stack proper so the team's CI/CD catches it.
+
+### A.8 What's still ahead
+
+1. Team enablement: `CLARA_QUICKSTART.md` (gitignored, not in
+   this repo) contains the teammate onboarding guide, deployed
+   endpoint, local-dev `.env` values, and troubleshooting tips.
+2. Migrate the function into Amplify's CloudFormation stack so
+   the deploy is reproducible from `amplify push`.
+3. Add CloudWatch Logs alerting (5xx rate, Gemini 429/503 counts)
+   once the feature has real traffic.
+4. Consider linking billing on the Gemini project to lift the
+   5 RPM free-tier cap before a live demo.
 
 ---
 
-*Added 2026-04-14, during the smoke-test session. The provider
-swap took longer to document than to actually do. The
-provider-agnostic contract in `llmClient.js` kept the code change
-genuinely small.*
+*Added 2026-04-14, expanded 2026-04-15. The provider swap took
+longer to document than to actually do. The deploy took longer
+to document than the provider swap.*

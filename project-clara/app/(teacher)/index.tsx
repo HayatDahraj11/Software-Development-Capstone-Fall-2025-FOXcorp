@@ -1,6 +1,7 @@
+import { Progress } from "@/src/rnreusables/ui/progress";
 import { Href, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, View } from "react-native";
 
 import { containerStyle } from "@/src/features/app-themes/constants/stylesheets";
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
@@ -13,6 +14,7 @@ export default function Index() {
     const router = useRouter();
     const [isAllDone, setIsAllDone] = useState(false);
     const [isContextDone, setIsContextDone] = useState(false);
+    const [progress, setProgress] = useState<number>(0);
 
     const bgcolor = useThemeColor({}, "background")
     const tint = useThemeColor({}, "tint");
@@ -27,7 +29,9 @@ export default function Index() {
 
     useEffect(() => {
         const startup = async () => {
-            await onSignIn();
+            setProgress(10)
+            await onSignIn();   
+            setProgress(50);
             setIsContextDone(true);
         };
         startup();
@@ -35,6 +39,7 @@ export default function Index() {
 
     const finalize = useCallback(() => {
         if (!isContextLoading && isContextDone) {
+            setProgress(90);
             console.log(`Teacher onSignIn() done:
                 debug?: ${isDebug}
                 userId: ${userTeacher.userId}
@@ -59,7 +64,11 @@ export default function Index() {
 });
 
     if (!isAllDone) {
-        return <Text style={{ color: "white" }}>Loading teacher data...</Text>;
+        return (
+            <View style={{justifyContent: "center", alignContent: "center", flex: 1}}>
+                <Progress value={progress} className="w-3/4 md:w-[60%]" style={{marginHorizontal: 22}}/>
+            </View>
+        )
     }
 
     // list used for making cards with the flat view. this will be done dynamically later

@@ -35,6 +35,8 @@ SESSION_NOTES_MARCH.md
 # local env files
 .env*.local
 
+CLARA_QUICKSTART.md
+
 # typescript
 *.tsbuildinfo
 

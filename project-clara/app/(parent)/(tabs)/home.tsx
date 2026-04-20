@@ -126,13 +126,7 @@ export default function ParentHomeScreen() {
                         <Ionicons name="chatbubbles" size={22} color={tint} />
                         <Text style={[quickActionStyle.quickActionLabel, { color: textColor }]}>Messages</Text>
                     </Pressable>
-                    <Pressable
-                        style={[quickActionStyle.quickActionBtn, { backgroundColor: cardBg }]}
-                        onPress={() => router.push("/(parent)/(tabs)/general-info" as Href)}
-                    >
-                        <Ionicons name="people" size={22} color={tint} />
-                        <Text style={[quickActionStyle.quickActionLabel, { color: textColor }]}>Students</Text>
-                    </Pressable>
+                    <AskClaraButton quickaction={true}/>
                     <Pressable
                         style={[quickActionStyle.quickActionBtn, { backgroundColor: cardBg }]}
                         onPress={() => router.push("/(parent)/(tabs)/live-updates" as Href)}
@@ -201,15 +195,9 @@ export default function ParentHomeScreen() {
                 </View>
                 
 
-                {/* Clara AI entry point, prominent above Updates so parents
-                    discover it immediately on first launch */}
-                <Text style={[containerStyle.sectionLabel, { color: subtextColor }]}>ASSISTANT</Text>
-                <AskClaraButton />
-
                 {/* Section Label */}
                 <Text style={[containerStyle.sectionLabel, { color: subtextColor }]}>UPDATES</Text>
 
-                
                 <View style={[containerStyle.miniScrollContainer]}>
                     <Animated.ScrollView 
                         contentContainerStyle={containerStyle.animatedScrollContent} 

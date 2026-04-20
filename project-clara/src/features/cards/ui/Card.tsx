@@ -43,18 +43,51 @@ export default function Card({header, preview, onPress, theme, urgent, pressable
                 <Pressable onPress={onPress}>
                     {preview !== "" ? (
                         urgent ? (
-                            <Text style={[styles.listText, { color: listtextcolor }]}>
-                                <Text style={[styles.listText, { color: listtextcolor }]}>{header}{'\n'}</Text>
-                                <Text style={[styles.listPreviewUrgentText, { color: urgentcolor }]}>{preview}</Text>
-                            </Text>
+                            icon ? (
+                                <View style={styles.cardRow}>
+                                    <View style={[styles.listIcon]}>
+                                        <Ionicons name={icon.name} size={icon.size} color={icon.color} />
+                                    </View>
+                                    <Text style={[styles.listText, { color: listtextcolor }]}>
+                                        <Text style={[styles.listText, { color: listtextcolor }]}>{header}{"\n"}</Text>
+                                        <Text style={[styles.listPreviewTest, { color: listtextcolor }]}>{preview}</Text>
+                                    </Text>
+                                </View>
+                            ) : (
+                                <Text style={[styles.listText, { color: listtextcolor }]}>
+                                    <Text style={[styles.listText, { color: listtextcolor }]}>{header}{'\n'}</Text>
+                                    <Text style={[styles.listPreviewUrgentText, { color: urgentcolor }]}>{preview}</Text>
+                                </Text>
+                            )
                         ) : (
-                            <Text style={[styles.listText, { color: listtextcolor }]}>
-                                <Text style={[styles.listText, { color: listtextcolor }]}>{header}{"\n"}</Text>
-                                <Text style={[styles.listPreviewTest, { color: listtextcolor }]}>{preview}</Text>
-                            </Text>
+                            icon ? (
+                                <View style={styles.cardRow}>
+                                    <View style={[styles.listIcon]}>
+                                        <Ionicons name={icon.name} size={icon.size} color={icon.color} back />
+                                    </View>
+                                    <Text style={[styles.listText, { color: listtextcolor }]}>
+                                        <Text style={[styles.listText, { color: listtextcolor }]}>{header}{"\n"}</Text>
+                                        <Text style={[styles.listPreviewTest, { color: listtextcolor }]}>{preview}</Text>
+                                    </Text>
+                                </View>
+                            ) : (
+                                <Text style={[styles.listText, { color: listtextcolor }]}>
+                                    <Text style={[styles.listText, { color: listtextcolor }]}>{header}{"\n"}</Text>
+                                    <Text style={[styles.listPreviewTest, { color: listtextcolor }]}>{preview}</Text>
+                                </Text>
+                            )
                         )
                     ) : (
-                        <Text style={[styles.listText, {color: listtextcolor}]}>{header}</Text>
+                        icon ? (
+                            <View style={styles.cardRow}>
+                                <View style={[styles.listIcon]}>
+                                    <Ionicons name={icon.name} size={icon.size} color={icon.color} />
+                                </View>
+                                <Text style={[styles.listText, { color: listtextcolor }]}>{header}</Text>
+                            </View>
+                        ) : (
+                            <Text style={[styles.listText, {color: listtextcolor}]}>{header}</Text>
+                        )
                     )}
                 </Pressable>
             </View>
@@ -352,5 +385,12 @@ const styles = StyleSheet.create({
         fontWeight: "normal",
         padding: 3,
         textAlign: 'left',
-    }
+    },
+    listIcon: {
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
 })

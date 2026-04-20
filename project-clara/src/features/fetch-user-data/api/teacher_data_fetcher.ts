@@ -3,7 +3,8 @@
 // this assumes you are past the login screen!
 // this accounts for debug accounts
 import { generateClient } from 'aws-amplify/api';
-import { listTeachers } from '@/src/graphql/queries';
+import { getCurrentUser } from 'aws-amplify/auth';
+import { teachersByCognitoUserId } from '@/src/graphql/queries';
 
 const client = generateClient();
 
@@ -81,9 +82,16 @@ const listClassesWithEnrollments = /* GraphQL */ `
 // on success, also returns Teacher object and array of Student objects
 export async function fetchTeacherWithClass(): Promise<BackendQueryResult> {
     try {
-        // get the teacher's information
-        const result = await client.graphql({query: listTeachers});
-        const teachers = result.data.listTeachers.items;
+        // get the logged-in Cognito user, then look up their teacher record
+        const { userId: cognitoId } = await getCurrentUser();
+        const result = await client.graphql({
+            query: teachersByCognitoUserId,
+            variables: { cognitoUserId: cognitoId }
+        });
+        const teachers = result.data.teachersByCognitoUserId.items;
+        if (teachers.length === 0) {
+            return { success: false, message: "No teacher record found for this account." };
+        }
         const teacher = teachers[0];
         const teacherId = teacher.id;
 

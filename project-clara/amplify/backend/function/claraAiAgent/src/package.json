@@ -1,0 +1,18 @@
+{
+  "name": "claraAiAgent",
+  "version": "1.0.0",
+  "description": "Clara AI Agent, Gemini-powered tool-using chatbot for Project Clara",
+  "main": "index.js",
+  "scripts": {
+    "start": "node -r dotenv/config local-server.js",
+    "test": "node -r dotenv/config test-local.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0"
+  },
+  "devDependencies": {
+    "dotenv": "^16.4.7"
+  },
+  "author": "Project Clara Team",
+  "license": "UNLICENSED"
+}

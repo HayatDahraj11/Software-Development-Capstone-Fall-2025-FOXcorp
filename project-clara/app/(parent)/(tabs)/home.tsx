@@ -10,6 +10,7 @@ import {
 } from "@/src/features/app-themes/constants/stylesheets";
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import Card from "@/src/features/cards/ui/Card";
+import AskClaraButton from "@/src/features/clara/ui/AskClaraButton";
 import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
 import { useDashboardData } from "@/src/features/dashboard/logic/useDashboardData";
 import { useState } from "react";
@@ -199,6 +200,11 @@ export default function ParentHomeScreen() {
                     <Animated.View style={[containerStyle.scrollBar, animatedStyle, {backgroundColor: subtextColor}]}/>
                 </View>
                 
+
+                {/* Clara AI entry point, prominent above Updates so parents
+                    discover it immediately on first launch */}
+                <Text style={[containerStyle.sectionLabel, { color: subtextColor }]}>ASSISTANT</Text>
+                <AskClaraButton />
 
                 {/* Section Label */}
                 <Text style={[containerStyle.sectionLabel, { color: subtextColor }]}>UPDATES</Text>

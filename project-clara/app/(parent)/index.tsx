@@ -55,7 +55,7 @@ export default function Index() {
 
     if(!isAllDone) {
         return (
-            <View style={{justifyContent: "center", alignContent: "center", flex: 1}}>
+            <View style={{justifyContent: "center", alignContent: "center", alignItems: "center", flex: 1}}>
                 <Progress value={progress} className="w-3/4 md:w-[60%]" style={{marginHorizontal: 22}}/>
             </View>
         )

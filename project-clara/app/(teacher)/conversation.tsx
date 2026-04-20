@@ -4,10 +4,11 @@
  */
 
 import { useLocalSearchParams } from "expo-router";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   StyleSheet,
@@ -45,6 +46,23 @@ export default function TeacherConversationScreen() {
       }, 100);
     }
   }, [messages.length]);
+
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState<boolean>(false);
+  useEffect(() => {
+    const keyboardUpListener = Keyboard.addListener('keyboardDidShow', handleKeyboardShow);
+    const keyboardDownListener = Keyboard.addListener('keyboardDidHide', handleKeyboardHide);
+
+    return () => {
+      keyboardUpListener.remove();
+      keyboardDownListener.remove();
+    }
+  })
+  const handleKeyboardShow = () => {
+    setIsKeyboardVisible(true);
+  };
+  const handleKeyboardHide = () => {
+    setIsKeyboardVisible(false);
+  };
 
   const bgColor = useThemeColor({}, "background");
   const tintColor = useThemeColor({}, "tint");
@@ -88,7 +106,7 @@ export default function TeacherConversationScreen() {
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 60}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 90 : (isKeyboardVisible ? 120 : 0)}
       >
       <FlatList
         ref={flatListRef}

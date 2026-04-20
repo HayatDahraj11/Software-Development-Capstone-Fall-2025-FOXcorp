@@ -51,7 +51,7 @@ export default function MessageInput({
       alignItems: "flex-end",
       paddingHorizontal: 10,
       paddingTop: 8,
-      paddingBottom: Platform.OS === "ios" ? 28 : 10,
+      paddingBottom: Platform.OS === "ios" ? 28 : 28,
       backgroundColor: bgColor,
       borderTopWidth: 1,
       borderTopColor: borderColor,

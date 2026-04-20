@@ -23,8 +23,9 @@ export const containerStyle = StyleSheet.create({
     },
     miniScrollContainer: {
         flexDirection: "row",
+        minHeight: "10%",
         maxHeight: "30%",
-        marginBottom: 4,
+        marginBottom: 8,
     },
     animatedScrollContent: {
         paddingHorizontal: 2, 

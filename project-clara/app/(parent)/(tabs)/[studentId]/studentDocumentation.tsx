@@ -1,12 +1,12 @@
 import { Href, useLocalSearchParams, useRouter } from "expo-router";
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
-import { Ionicons } from "@expo/vector-icons";
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
+import Card from "@/src/features/cards/ui/Card";
 import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
 import { useMedicalRecord } from "@/src/features/medical-records/logic/useMedicalRecord";
 import { useTeacherNotes } from "@/src/features/teacher-notes/logic/useTeacherNotes";
-import Card from "@/src/features/cards/ui/Card";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function StudentDocumentationScreen() {
     const { userStudents } = useParentLoginContext();
@@ -70,6 +70,7 @@ export default function StudentDocumentationScreen() {
                     onPress={() => router.push(`/(parent)/(tabs)/${studentId}/studentMedical` as Href)}
                     pressable={true}
                     urgent={hasAllergies}
+                    badge={{type: 0, content: "!", contentColor: "#fff", backgroundColor: urgentColor}}
                     icon={{name: "medkit", size: 22, color: "#dc2626", backgroundColor: "#ef444420"}}
                 />
 

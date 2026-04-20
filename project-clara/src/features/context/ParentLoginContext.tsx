@@ -24,6 +24,7 @@ export interface ParentContextType {
     getChosenStudentIndex: () => number; 
     getAnnouncementIndexesbyStudentId: (studentId: string, announcements: Announcement[]) => number[];
     getStudentIndexesWithAnnouncements: (announcements: Announcement[]) => number[];
+    getClassName: (classid: string) => string;
 }
 
 // parent-wide login context
@@ -324,6 +325,11 @@ export const ParentLoginProvider = ({children}: {children: ReactNode}) => {
         return indexes;
     }
 
+    // returns class name from id
+    const getClassName = (classid: string): string => {
+        return userClasses.find((c) => c.id === classid)?.name ?? "";
+    }
+
     const userData = {
         isContextLoading,
         isDebug,
@@ -342,6 +348,7 @@ export const ParentLoginProvider = ({children}: {children: ReactNode}) => {
         getChosenStudentIndex,
         getAnnouncementIndexesbyStudentId,
         getStudentIndexesWithAnnouncements,
+        getClassName
     }
 
     return (

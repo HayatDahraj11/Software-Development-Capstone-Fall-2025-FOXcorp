@@ -9,7 +9,9 @@ import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import Card from "@/src/features/cards/ui/Card";
 import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
 import { Student, Teacher_parentSide } from "@/src/features/fetch-user-data/api/parent_data_fetcher";
+import { fetchIncidentsByStudent, Incident } from "@/src/features/incidents/api/incidentRepo";
 import { DayOfWeek, fetchSchedulesByClass } from "@/src/features/schedules/api/scheduleRepo";
+import { TeacherNote } from "@/src/features/teacher-notes/api/teacherNoteRepo";
 import {
   Option,
   Select,
@@ -23,6 +25,7 @@ import {
 import type { TriggerRef } from '@rn-primitives/select';
 import Animated, { Extrapolation, interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SEVERITY_CONFIG } from "./[studentId]/studentIncidents";
 
 
 export default function ParentLiveUpdatesScreen() {
@@ -40,6 +43,7 @@ export default function ParentLiveUpdatesScreen() {
       getChosenStudentIndex,
       getAnnouncementIndexesbyStudentId,
       getStudentIndexesWithAnnouncements,
+      getClassName,
   } = useParentLoginContext();
 
   
@@ -63,6 +67,10 @@ export default function ParentLiveUpdatesScreen() {
   const { announcements, isLoading: announcementsLoading } = useParentAnnouncements(classIds);
   const [childAnnouncements, setChildAnnouncements] = useState<Announcement[] | undefined>();
   const [childrenIndexesWithAnnouncements, setChildrenIndexesWithAnnouncements] = useState<number[]>([]);
+  // holds incidents related to the child
+  const [childIncidents, setChildIncidents] = useState<Incident[] | undefined>(undefined);
+  // holds teacher notes related to the child
+  const [childTeacherNotes, setChildTeacherNotes] = useState<TeacherNote[] | undefined>();
 
   const tint = useThemeColor({}, "tint");
   const cardBg = useThemeColor({}, "cardBackground");
@@ -85,13 +93,6 @@ export default function ParentLiveUpdatesScreen() {
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
-  // find the class name for an announcement
-  const getClassName = (classId?: string | null): string => {
-    if (!classId) return "";
-    const cls = userClasses.find((c) => c.id === classId);
-    return cls?.name ?? "";
-  };
-
   // converts 24hr time from aws (like "14:30:00") to readable format (like "2:30 PM")
   const formatTime = (awsTime: string): string => {
     const [h, m] = awsTime.split(":");
@@ -99,6 +100,15 @@ export default function ParentLiveUpdatesScreen() {
     const ampm = hour >= 12 ? "PM" : "AM";
     const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
     return `${displayHour}:${m} ${ampm}`;
+  };
+
+  const formatDate = (dateStr: string): string => {
+    const date = new Date(dateStr + "T00:00:00");
+    return date.toLocaleDateString("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+    });
   };
 
   // get current day of week in the format AWS uses
@@ -195,8 +205,36 @@ export default function ParentLiveUpdatesScreen() {
       };
   });
 
+  // vars for incidents scrollbar
+  const incidentsScrollY = useSharedValue(0);
+    const [incidentsScrollHeight, setincidentsScrollHeight] = useState<number>(0);
+    const [incidentsScrollContentHeight, setincidentsScrollContentHeight] = useState<number>(0);
+    const incidentsIndicatorHeight: number = (() => {
+        if(incidentsScrollContentHeight === 0) return 0;
+        const ratio = incidentsScrollHeight / incidentsScrollContentHeight;
+        return Math.max(incidentsScrollHeight * ratio, 20);
+    })();
+    const incidentsScrollHandler = useAnimatedScrollHandler((event) => {
+        incidentsScrollY.value = event.contentOffset.y;
+    });
+    const incidentsAnimatedStyle = useAnimatedStyle(() => {
+        const maxScroll = incidentsScrollContentHeight - incidentsScrollHeight;
+        const maxTravel = incidentsScrollHeight - incidentsIndicatorHeight;
+
+        const translateY = interpolate(
+            incidentsScrollY.value,
+            [0, maxScroll],
+            [0, maxTravel],
+            Extrapolation.CLAMP
+        );
+        return {
+            height: incidentsIndicatorHeight,
+            transform: [{translateY}],
+        };
+    });
+
   // grabbing child selected data aswell as their classes
-  const onChildSelected = useCallback((id: string) => {
+  const onChildSelected = useCallback(async (id: string) => {
     let foundKid = userStudents.find(item => item.id === id);
     if(foundKid) {
       foundKid = {
@@ -214,6 +252,7 @@ export default function ParentLiveUpdatesScreen() {
       console.log(announcementIndexes)
 
       const relevantAnnouncements: Announcement[] = announcementIndexes.map(i => announcements[i]);
+      const relevantIncidents = await fetchIncidentsByStudent(id);
 
       const scheduleRows = classIds
           .map((classId) => {
@@ -227,6 +266,7 @@ export default function ParentLiveUpdatesScreen() {
     
       setChildAnnouncements(relevantAnnouncements);
       setChildClasses(scheduleRows);
+      setChildIncidents(relevantIncidents.data ?? []);
       const grade = scheduleRows[0].grade;
       setGradeDisplay(grade);
       
@@ -326,31 +366,66 @@ export default function ParentLiveUpdatesScreen() {
               <Card 
                 key={ann.id}
                 header={ann.title}
-                preview={`${(getClassName(ann.classId))} ${getClassName(ann.classId) ? "· " : ""}${getTimeAgo(ann.createdAt)}\n${ann.body}`}
+                preview={`${ann.classId && (getClassName(ann.classId))} ${ann.classId && getClassName(ann.classId) ? "· " : ""}${getTimeAgo(ann.createdAt)}\n${ann.body}`}
                 onPress={() => {/* todo: route to announcement-relevant page */}}
                 icon={{name: "megaphone", size: 18, color: "#8b5cf6", backgroundColor: "#8b5cf620"}}
               />
             ))}
           </Animated.ScrollView>
-          <Animated.View style={[containerStyle.scrollBar, animatedStyle, {backgroundColor: subtextColor}]}/>
+          {(childAnnouncements.length > 2) && 
+          <Animated.View style={[containerStyle.scrollBar, animatedStyle, {backgroundColor: subtextColor}]}/>}
         </View>
-      ) : (
+      ) : ( !announcementsLoading ?
         <View style={containerStyle.miniScrollContainer}>
           <Text style={[containerStyle.sectionLabel, {color: textColor}]}>{childSelected.firstName} has no announcements!</Text>
-        </View>
-      )}
-      {announcementsLoading && (
+        </View> 
+        :
         <View style={{ paddingVertical: 12, alignItems: "center" }}>
           <ActivityIndicator size="small" color={tint} />
         </View>
       )}
 
 
-        {/* Relevant Teacher Updates or Notes Section */}
-        <View>
-          <Text style={[containerStyle.sectionLabel, {color: subtextcolor}]}>TEACHER NOTES</Text>
-          <Text style={{color: textcolor}}>tbd!</Text>
+        {/* Incidents and Notes */}
+        <Text style={[containerStyle.sectionLabel, {color: subtextcolor}]}>INCIDENTS</Text>
+        {(childIncidents !== undefined && childIncidents.length > 0) ? (
+          <View style={containerStyle.miniScrollContainer}>
+            <Animated.ScrollView
+              contentContainerStyle={containerStyle.animatedScrollContent} 
+              scrollEnabled={true} 
+              showsVerticalScrollIndicator={false}
+              showsHorizontalScrollIndicator={false}
+              onScroll={incidentsScrollHandler}
+              scrollEventThrottle={16}
+              onLayout={(event) => {
+                  const {height} = event.nativeEvent.layout;
+                  setincidentsScrollHeight(height);
+              }}
+              onContentSizeChange={(width, height) => {
+                  setincidentsScrollContentHeight(height);
+              }}
+            >
+              {childIncidents.slice(0, 5).map((inc) => (
+                <Card 
+                  key={inc.id}
+                  header={`${formatDate(inc.date)} · ${inc.classId && getClassName(inc.classId)}`}
+                  preview={inc.description}
+                  onPress={() => {}}
+                  urgent={true}
+                  pressable={false}
+                  icon={{name: (SEVERITY_CONFIG[inc.severity].icon as any), color: (SEVERITY_CONFIG[inc.severity].color), backgroundColor: (SEVERITY_CONFIG[inc.severity].bg), size: 20}}
+                  badge={{type: 0, content: inc.severity, contentColor: SEVERITY_CONFIG[inc.severity].color, backgroundColor: SEVERITY_CONFIG[inc.severity].bg}}
+                />
+              ))}
+            </Animated.ScrollView>
+            {(childIncidents.length > 2) && 
+            <Animated.View style={[containerStyle.scrollBar, incidentsAnimatedStyle, {backgroundColor: subtextColor}]}/>}
         </View>
+        ) : (
+          <View style={containerStyle.empty}>
+            <Text style={[containerStyle.sectionLabel, {color: textColor}]}>{childSelected.firstName} has no incidents or notes!</Text>
+          </View> 
+        )}
 
       </ScrollView>
     </View>

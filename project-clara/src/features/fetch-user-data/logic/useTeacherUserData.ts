@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { fetchTeacherWithClass, Teacher, Class } from "../api/teacher_data_fetcher";
+import { Class, fetchTeacherWithClass, Teacher } from "../api/teacher_data_fetcher";
 
 
 interface UseTeacherUserDataReturn {
@@ -24,8 +24,8 @@ export function useTeacherUserData(): UseTeacherUserDataReturn {
             if(!data.success) {
                 throw new Error(data.message);
             } else if(data.teacher && data.classes) {
-                console.log(data.teacher.name);
-                console.log(data.classes[0].name);
+                //console.log(data.teacher.name);
+                //console.log(data.classes[0].name);
                 setTeacher(data.teacher);
                 setClasses(data.classes);
                 console.log("Teacher and class data grabbed and saved successfully!");

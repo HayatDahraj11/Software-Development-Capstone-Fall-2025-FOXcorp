@@ -1,15 +1,31 @@
-import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from "react-native";
 
+import { containerStyle } from "@/src/features/app-themes/constants/stylesheets";
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import Card from "@/src/features/cards/ui/Card";
 import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
+import { Button } from "@/src/rnreusables/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from '@/src/rnreusables/ui/dialog';
+import { useState } from "react";
 
 
 
 export default function ParentHamburgerScreen() {
   const router = useRouter();
+
+  const bgcolor = useThemeColor({}, "background");
+  const defaulticoncolor = useThemeColor({}, "tabIconDefault");
+  const urgentcolor = useThemeColor({}, "urgent");
+  const modalbgcolor = useThemeColor({}, "modalBackground");
+  const textcolor = useThemeColor({}, "text");
+  const fullbrightcolor = useThemeColor({}, "fullBright");
+  const tintColor = useThemeColor({}, "tint");
     
   const {
     isContextLoading,
@@ -21,6 +37,18 @@ export default function ParentHamburgerScreen() {
 
     if(!isContextLoading) { router.replace('/login/school-selection') }
   }
+
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  // stuff for confirming whether user wants to log out
+  const [logoutLoading, setLogoutLoading] = useState<boolean>(false);
+  const logoutSelected = (selectedOption: boolean) => {
+    if(selectedOption) {
+      setLogoutLoading(true);
+      logoutHandler();
+    } else {
+      setIsDialogOpen(false);
+    }
+  };
 
   const RouteCard = (route: string): void => {
       // if card has a route, use it. if not, ignore it
@@ -36,81 +64,105 @@ export default function ParentHamburgerScreen() {
         router.push({ 
           pathname: '/(parent)/(tabs)/(hamburger)/settings',
         });
-      } else if(route === "logout") {
-        console.log("Logout pushed, but no function to handle yet! Oops!")
-      }
-      else { }
+      } 
+      else { console.warn("parent hamburger screen: Tried to route to invalid route.") }
   };
 
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      flexDirection: 'column',
-      backgroundColor: useThemeColor({},"background"),
-    },
-    cardContainer: {
-      marginLeft: 12,
-      marginRight: 12,
-      flexDirection: 'row',
-      justifyContent: 'flex-start',
-      alignItems: 'center',
-    },
-    card: {
-      flex: 1
-    },
-    cardIconContainer: {
-      flex: 1/14,
-    },
-  });
-
   return (
-    <View style={styles.container}>
-      <ScrollView>
-        <View style={styles.cardContainer}>
-          <MaterialIcons style={styles.cardIconContainer} name="settings" size={24} color={useThemeColor({},"tabIconDefault")}/>
-          <View style={styles.card}>
-            <Card
-              header="Settings"
-              preview=""
-              onPress={() => RouteCard("settings")}
-              theme="list"
-              />
-          </View>
-        </View>
-        <View style={styles.cardContainer}>
-          <MaterialIcons style={styles.cardIconContainer} name="manage-accounts" size={24} color={useThemeColor({},"tabIconDefault")}/>
-          <View style={styles.card}>
-            <Card
-            header="Account"
-            preview=""
-            onPress={() => RouteCard("account_settings")}
-            theme="list"
-            />
-          </View>
-        </View>
-        <View style={styles.cardContainer}>
-          <MaterialIcons style={styles.cardIconContainer} name="notifications" size={24} color={useThemeColor({},"tabIconDefault")}/>
-          <View style={styles.card}>
-            <Card
-              header="Notifications"
-              preview=""
-              onPress={() => RouteCard("notification_settings")}
-              theme="list"
-              />
-          </View>
-        </View>
-        <View style={styles.cardContainer}>
-          <MaterialIcons style={styles.cardIconContainer} name="logout" size={24} color={useThemeColor({},"urgent")}/>
-          <View style={styles.card}>
-            <Card
-              header="Logout"
-              preview=""
-              onPress={() => logoutHandler()}
-              theme="list"
-              />
-          </View>
-        </View>
+    <View style={[containerStyle.container, {backgroundColor: bgcolor}]}>
+      <ScrollView contentContainerStyle={containerStyle.scrollContent} showsVerticalScrollIndicator={false} scrollEnabled={false}>
+        <Card
+          header="Settings"
+          preview=""
+          onPress={() => RouteCard("settings")}
+          theme="list"
+          icon={{name: "settings", size: 24, color: defaulticoncolor, backgroundColor: "#fff"}}
+          />
+        <Card
+          header="Account"
+          preview=""
+          onPress={() => RouteCard("account_settings")}
+          theme="list"
+          icon={{name: "person-circle-outline", size: 24, color: defaulticoncolor, backgroundColor: "#fff"}}
+          />
+        <Card
+          header="Notifications"
+          preview=""
+          onPress={() => RouteCard("notification_settings")}
+          theme="list"
+          icon={{name: "notifications", size: 24, color: defaulticoncolor, backgroundColor: "#fff"}}
+          />
+        <Card
+          header="Logout"
+          preview=""
+          onPress={() => {setIsDialogOpen(true)}}
+          theme="list"
+          icon={{name: "log-in-outline", size: 24, color: urgentcolor, backgroundColor: "#fff"}}
+          />
+          <Dialog
+            open={isDialogOpen}
+            onOpenChange={() => {
+              if(isDialogOpen) {
+                setIsDialogOpen(false);
+              } else {setIsDialogOpen(true);}
+            }}
+          >
+            <DialogContent
+              style={[styles.dialogueContainer, {backgroundColor: modalbgcolor}]}
+            >
+            {!logoutLoading ? (
+              <View>
+                <DialogHeader>
+                  <DialogTitle style={{color: textcolor}}>Log Out</DialogTitle>
+                </DialogHeader>
+                <Text style={[{color: textcolor, fontSize: 20, fontWeight: 400}]}>Are you sure you want to logout?</Text>
+                <View style={{justifyContent: "space-evenly", alignItems: "center", flexDirection: "row"}}>
+                  <Button variant={"default"} style={[styles.pressable, {backgroundColor: tintColor}, {shadowColor: tintColor}]} onPress={() => logoutSelected(false)}>
+                    <Text style={[styles.pressableLabel, {color: fullbrightcolor}]}>Cancel</Text>
+                  </Button>
+                  <Button variant={"destructive"} style={[styles.pressable, {backgroundColor: urgentcolor}, {shadowColor: urgentcolor}]} onPress={() => logoutSelected(true)}>
+                    <Text style={[styles.pressableLabel, {color: fullbrightcolor}]}>Log Out</Text>
+                  </Button>
+                </View>
+              </View>
+            ) : (
+              <View>
+                <DialogHeader>
+                  <DialogTitle style={{color: textcolor}}>Logging Out...</DialogTitle>
+                </DialogHeader>
+                <View style={{ paddingVertical: 12, alignItems: "center" }}>
+                  <ActivityIndicator size="large" color={tintColor} />
+                </View>
+              </View>
+            )}
+            </DialogContent>
+          </Dialog>
       </ScrollView>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+    pressable: {
+        flexDirection: 'row',
+        width: '40%',
+        height: 56,
+        marginTop: 24,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 12,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 5,
+    },
+    pressableLabel: {
+        fontSize: 18,
+        fontWeight: '600',
+    },
+    dialogueContainer: {
+        minHeight: '10%',
+        minWidth: '80%',
+        width: '80%',
+    },
+})

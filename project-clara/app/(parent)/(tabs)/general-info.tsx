@@ -155,6 +155,8 @@ export default function ParentGeneralInfoScreen() {
   return (
     <View style={[containerStyle.container, {backgroundColor: bgcolor}]}>
       <ScrollView contentContainerStyle={containerStyle.scrollContent} showsVerticalScrollIndicator={false}>
+        
+        {/* Select Student Dropdown */}
         <View style={containerStyle.headerContainer}>
           <Select value={childIdSelected} style={[dropdownStyle.dropdownContainer]} onValueChange={setChildIdSelected}>
             <SelectTrigger ref={ref} style={[dropdownStyle.dropdownButton, {backgroundColor: cardbgcolor}]} onTouchStart={Platform.select({web: onTouchStart})}>
@@ -172,7 +174,10 @@ export default function ParentGeneralInfoScreen() {
             </SelectContent>
           </Select>
         </View>
+
         <View>
+
+          {/* Student Class List */}
           <View>
             <Text style={[containerStyle.sectionLabel, {color: subtextcolor}]}>
               {childSelected ? `${childSelected.firstName}'s CLASSES` : "CLASS SCHEDULE"}
@@ -204,11 +209,16 @@ export default function ParentGeneralInfoScreen() {
               })
             )}
           </View>
+
+          {/* Quick Action Buttons */}
           <View>
             <Text style={[containerStyle.sectionLabel, {color: subtextcolor}]}>
               {childSelected ? `${childSelected.firstName}'s RECORDS` : "STUDENT RECORDS"}              
             </Text>
+
             <View style={quickActionStyle.quickActionsContainer}>
+              
+             {/* Student Records Button */}
               <Pressable
                 style={[quickActionStyle.quickActionBtn, {backgroundColor: cardbgcolor}]}
                 onPress={() => RouteCard("studentRecords")}
@@ -217,6 +227,8 @@ export default function ParentGeneralInfoScreen() {
                 <Text style={[quickActionStyle.quickActionLabel, {color: textcolor}]}>Class Records</Text>
                 <Text style={[quickActionStyle.quickActionSublabel, {color: subtextcolor}]}>Grades, Attendance, etc.</Text>
               </Pressable>
+
+              {/* Student Documentation Button */}
               <Pressable
                 style={[quickActionStyle.quickActionBtn, {backgroundColor: cardbgcolor}]}
                 onPress={() => RouteCard("studentDocumentation")}
@@ -227,6 +239,7 @@ export default function ParentGeneralInfoScreen() {
               </Pressable>
             </View>
 
+            {/* Class Dialog Popup Logic */}
             <Dialog 
                   open={isDialogOpen}
                   onOpenChange={() => {

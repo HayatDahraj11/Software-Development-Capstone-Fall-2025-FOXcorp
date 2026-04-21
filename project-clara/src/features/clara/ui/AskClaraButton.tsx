@@ -20,13 +20,15 @@ import {
 
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
+import { quickActionStyle } from "../../app-themes/constants/stylesheets";
 import { useClaraConversation } from "../logic/useClaraConversation";
 
 interface Props {
   compact?: boolean;
+  quickaction?: boolean;
 }
 
-export default function AskClaraButton({ compact = false }: Props) {
+export default function AskClaraButton({ compact = false, quickaction = false }: Props) {
   const { userParent } = useParentLoginContext();
   const parentName = `${userParent.firstName} ${userParent.lastName}`;
 
@@ -62,6 +64,35 @@ export default function AskClaraButton({ compact = false }: Props) {
         <Text style={[styles.compactLabel, { color: textColor }]}>
           Ask Clara
         </Text>
+      </Pressable>
+    );
+  }
+
+  if (quickaction) {
+    return (
+      <Pressable
+        onPress={openClara}
+        disabled={isOpening}
+        style={[
+          quickActionStyle.quickActionBtn,
+          { backgroundColor: cardBg, borderColor: CLARA_PURPLE_TINT },
+        ]}
+      >
+        {isOpening ? (
+          <ActivityIndicator color={CLARA_PURPLE} />
+        ) : (
+          <Ionicons name="sparkles" size={22} color={CLARA_PURPLE} />
+        )}
+        <Text style={[quickActionStyle.quickActionLabel, { color: textColor }]}>
+          Ask Clara
+        </Text>
+        <View
+            style={[styles.aiBadge, { backgroundColor: CLARA_PURPLE_TINT }]}
+          >
+            <Text style={[styles.aiBadgeText, { color: CLARA_PURPLE }]}>
+              AI
+            </Text>
+          </View>
       </Pressable>
     );
   }

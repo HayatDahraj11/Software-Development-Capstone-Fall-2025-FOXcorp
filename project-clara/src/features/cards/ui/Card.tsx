@@ -43,18 +43,51 @@ export default function Card({header, preview, onPress, theme, urgent, pressable
                 <Pressable onPress={onPress}>
                     {preview !== "" ? (
                         urgent ? (
-                            <Text style={[styles.listText, { color: listtextcolor }]}>
-                                <Text style={[styles.listText, { color: listtextcolor }]}>{header}{'\n'}</Text>
-                                <Text style={[styles.listPreviewUrgentText, { color: urgentcolor }]}>{preview}</Text>
-                            </Text>
+                            icon ? (
+                                <View style={styles.cardRow}>
+                                    <View style={[styles.listIcon]}>
+                                        <Ionicons name={icon.name} size={icon.size} color={icon.color} />
+                                    </View>
+                                    <Text style={[styles.listText, { color: listtextcolor }]}>
+                                        <Text style={[styles.listText, { color: listtextcolor }]}>{header}{"\n"}</Text>
+                                        <Text style={[styles.listPreviewTest, { color: listtextcolor }]}>{preview}</Text>
+                                    </Text>
+                                </View>
+                            ) : (
+                                <Text style={[styles.listText, { color: listtextcolor }]}>
+                                    <Text style={[styles.listText, { color: listtextcolor }]}>{header}{'\n'}</Text>
+                                    <Text style={[styles.listPreviewUrgentText, { color: urgentcolor }]}>{preview}</Text>
+                                </Text>
+                            )
                         ) : (
-                            <Text style={[styles.listText, { color: listtextcolor }]}>
-                                <Text style={[styles.listText, { color: listtextcolor }]}>{header}{"\n"}</Text>
-                                <Text style={[styles.listPreviewTest, { color: listtextcolor }]}>{preview}</Text>
-                            </Text>
+                            icon ? (
+                                <View style={styles.cardRow}>
+                                    <View style={[styles.listIcon]}>
+                                        <Ionicons name={icon.name} size={icon.size} color={icon.color} back />
+                                    </View>
+                                    <Text style={[styles.listText, { color: listtextcolor }]}>
+                                        <Text style={[styles.listText, { color: listtextcolor }]}>{header}{"\n"}</Text>
+                                        <Text style={[styles.listPreviewTest, { color: listtextcolor }]}>{preview}</Text>
+                                    </Text>
+                                </View>
+                            ) : (
+                                <Text style={[styles.listText, { color: listtextcolor }]}>
+                                    <Text style={[styles.listText, { color: listtextcolor }]}>{header}{"\n"}</Text>
+                                    <Text style={[styles.listPreviewTest, { color: listtextcolor }]}>{preview}</Text>
+                                </Text>
+                            )
                         )
                     ) : (
-                        <Text style={[styles.listText, {color: listtextcolor}]}>{header}</Text>
+                        icon ? (
+                            <View style={styles.cardRow}>
+                                <View style={[styles.listIcon]}>
+                                    <Ionicons name={icon.name} size={icon.size} color={icon.color} />
+                                </View>
+                                <Text style={[styles.listText, { color: listtextcolor }]}>{header}</Text>
+                            </View>
+                        ) : (
+                            <Text style={[styles.listText, {color: listtextcolor}]}>{header}</Text>
+                        )
                     )}
                 </Pressable>
             </View>
@@ -162,7 +195,7 @@ export default function Card({header, preview, onPress, theme, urgent, pressable
                                     </View>
                                     <View style={styles.cardContent}>
                                         <Text style={[styles.header, {color: textcolor}]}>{header}</Text>
-                                        <Text style={[styles.preview, {color: textcolor}]}>{preview}</Text>
+                                        <Text style={[styles.preview, {color: subtextcolor}]}>{preview}</Text>
                                     </View>
                                     {pressable && (<Ionicons name="chevron-forward" size={18} color={chevroncolor} />)}
                                 </View>
@@ -303,6 +336,7 @@ const styles = StyleSheet.create({
     preview: {
         fontSize: 13,
         marginTop: 2,
+        lineHeight: 18,
     },
     urgentContainer: {
         flexDirection: 'row',
@@ -351,5 +385,12 @@ const styles = StyleSheet.create({
         fontWeight: "normal",
         padding: 3,
         textAlign: 'left',
-    }
+    },
+    listIcon: {
+        width: 24,
+        height: 24,
+        borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
 })

@@ -1,6 +1,7 @@
 import { getCurrentUser, signOut } from "aws-amplify/auth";
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
 import { Class, Enrollment, Parent, Student, Teacher_parentSide } from "src/features/fetch-user-data/api/parent_data_fetcher";
+import { Announcement } from "../announcements/api/announcementRepo";
 import { debug_classes, debug_enrollments, debug_kids, debug_parent, debug_teachers } from "../auth/logic/debug_parent_data";
 import { useParentUserData } from "../fetch-user-data/logic/useParentUserData";
 import { unregisterPushTokens } from "../notifications/api/pushTokenRepo";
@@ -21,6 +22,9 @@ export interface ParentContextType {
     setChosenStudentId: (id: string) => void;
     getChosenStudentId: () => string;
     getChosenStudentIndex: () => number; 
+    getAnnouncementIndexesbyStudentId: (studentId: string, announcements: Announcement[]) => number[];
+    getStudentIndexesWithAnnouncements: (announcements: Announcement[]) => number[];
+    getClassName: (classid: string) => string;
 }
 
 // parent-wide login context
@@ -273,6 +277,58 @@ export const ParentLoginProvider = ({children}: {children: ReactNode}) => {
         return studentChosenIndex;
     }
 
+    // announcement generating functions will pull all announcements
+    // this will pull the indexes of announcements within the announcement array that are relevant to a student
+    const getAnnouncementIndexesbyStudentId = (studentId: string, announcements: Announcement[]): number[] => {
+        let indexes: number[] = []
+        let count: number = 0
+        const studentclasses = getClassesMappedByStudent(studentId);
+        // find all indexes of announcements[] that have a relevant announcement to the student
+        for(const i of announcements) {
+            if(i.classId) {
+                if(studentclasses.includes(i.classId)) {
+                    indexes.push(count)
+                }
+            } else { // if there is no class id, assume this is a sort of universal announcement
+                indexes.push(count)
+            }
+            count += 1
+        }
+
+        return indexes;
+    }
+
+    // checks the announcements array with the userStudents array
+    // returns indexes in userStudents that have an announcement
+    // used for highlighting student names in a dropdown that have an announcement
+    const getStudentIndexesWithAnnouncements = (announcements: Announcement[]): number[] => {
+        let indexes: number[] = []
+        const relevantClassIds = announcements.map(anoun => anoun.classId); // grabs classes with announcements
+
+        for(const i of relevantClassIds) {
+            // grabs studentIds with matching classId
+            const studentIds = userEnrollments.reduce((acc: string[], element) => {
+                if(element.classId === i) acc.push(element.studentId);
+                return acc;
+            }, []);
+
+            // only care about unique student ids
+            const uniqueIds = [...new Set(studentIds)];
+            
+            // grabs indexes in userStudents of students that have announcements
+            for(const j of uniqueIds) {
+                const index = userStudents.findIndex(stu => stu.id === j);
+                if(index && !(indexes.includes(index))) {indexes.push(index)}
+            }
+        }
+
+        return indexes;
+    }
+
+    // returns class name from id
+    const getClassName = (classid: string): string => {
+        return userClasses.find((c) => c.id === classid)?.name ?? "";
+    }
 
     const userData = {
         isContextLoading,
@@ -290,6 +346,9 @@ export const ParentLoginProvider = ({children}: {children: ReactNode}) => {
         setChosenStudentId,
         getChosenStudentId,
         getChosenStudentIndex,
+        getAnnouncementIndexesbyStudentId,
+        getStudentIndexesWithAnnouncements,
+        getClassName
     }
 
     return (

@@ -1,18 +1,32 @@
-import { Href, useRouter } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, FlatList, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Href, useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ActivityIndicator, Platform, ScrollView, Text, View } from "react-native";
 
-import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
-import { DataCard, createStudentAttendanceCard, createStudentClassUpdateCard } from "@/src/features/cards/logic/cardDataCreator";
-import Card from "@/src/features/cards/ui/Card";
-import Parent_ChildPicker from "@/src/features/child-selection/ui/Parent_ChildPicker";
-import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
-import { Teacher_parentSide } from "@/src/features/fetch-user-data/api/parent_data_fetcher";
+import { Announcement } from "@/src/features/announcements/api/announcementRepo";
 import { useParentAnnouncements } from "@/src/features/announcements/logic/useParentAnnouncements";
-import { fetchSchedulesByClass, DayOfWeek } from "@/src/features/schedules/api/scheduleRepo";
-import { containerStyle } from "@/src/features/app-themes/constants/stylesheets";
-import { MaterialIcons } from "@expo/vector-icons";
+import { containerStyle, dropdownStyle } from "@/src/features/app-themes/constants/stylesheets";
+import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
+import Card from "@/src/features/cards/ui/Card";
+import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
+import { Student, Teacher_parentSide } from "@/src/features/fetch-user-data/api/parent_data_fetcher";
+import { fetchIncidentsByStudent, Incident } from "@/src/features/incidents/api/incidentRepo";
+import { DayOfWeek, fetchSchedulesByClass } from "@/src/features/schedules/api/scheduleRepo";
+import { TeacherNote } from "@/src/features/teacher-notes/api/teacherNoteRepo";
+import {
+  Option,
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/src/rnreusables/ui/select';
+import type { TriggerRef } from '@rn-primitives/select';
+import Animated, { Extrapolation, interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SEVERITY_CONFIG } from "./[studentId]/studentIncidents";
+
 
 export default function ParentLiveUpdatesScreen() {
   // context givent parent and student data
@@ -22,11 +36,41 @@ export default function ParentLiveUpdatesScreen() {
       userClasses,
       userEnrollments,
       userTeachers,
+      getClassesMappedByStudent,
+      getTeacherNamebyId,
+      getStudentGradeInClass,
+      getChosenStudentId,
+      getChosenStudentIndex,
+      getAnnouncementIndexesbyStudentId,
+      getStudentIndexesWithAnnouncements,
+      getClassName,
   } = useParentLoginContext();
 
+  
+  // colors grabbed by app theme
+  const bgcolor = useThemeColor({}, "background");
+  const cardbgcolor = useThemeColor({}, "cardBackground");
+  const tabiconcolor = useThemeColor({}, "tabIconDefault");
+  const textcolor = useThemeColor({}, "text");
+  const tintcolor = useThemeColor({}, 'tint');
+  const listtextcolor = useThemeColor({}, "listText");
+  const subtextcolor = useThemeColor({}, "placeholderText");
+  const modalbgcolor = useThemeColor({}, "modalBackground");
+
+    // this holds which child of the parent's is currently being displayed
+  const [childSelected, setChildSelected] = useState<Student>(userStudents[getChosenStudentIndex()]);
+  const [childIdSelected, setChildIdSelected] = useState<Option>({value: userStudents[getChosenStudentIndex()].id, label: userStudents[getChosenStudentIndex()].firstName})
+  const [childClasses, setChildClasses] = useState<{classId: string; className: string; teacherId: string; teacherName: string; grade: number}[]>()
+  const [gradeDisplay, setGradeDisplay] = useState<number | undefined>();
   // get unique class ids from enrollments for fetching announcements
   const classIds = [...new Set(userEnrollments.map((e) => e.classId))];
   const { announcements, isLoading: announcementsLoading } = useParentAnnouncements(classIds);
+  const [childAnnouncements, setChildAnnouncements] = useState<Announcement[] | undefined>();
+  const [childrenIndexesWithAnnouncements, setChildrenIndexesWithAnnouncements] = useState<number[]>([]);
+  // holds incidents related to the child
+  const [childIncidents, setChildIncidents] = useState<Incident[] | undefined>(undefined);
+  // holds teacher notes related to the child
+  const [childTeacherNotes, setChildTeacherNotes] = useState<TeacherNote[] | undefined>();
 
   const tint = useThemeColor({}, "tint");
   const cardBg = useThemeColor({}, "cardBackground");
@@ -49,15 +93,6 @@ export default function ParentLiveUpdatesScreen() {
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   };
 
-  // find the class name for an announcement
-  const getClassName = (classId?: string | null): string => {
-    if (!classId) return "";
-    const cls = userClasses.find((c) => c.id === classId);
-    return cls?.name ?? "";
-  };
-
-  const [screenCards, setScreenCards] = useState<DataCard[]>([]);
-
   // converts 24hr time from aws (like "14:30:00") to readable format (like "2:30 PM")
   const formatTime = (awsTime: string): string => {
     const [h, m] = awsTime.split(":");
@@ -67,6 +102,15 @@ export default function ParentLiveUpdatesScreen() {
     return `${displayHour}:${m} ${ampm}`;
   };
 
+  const formatDate = (dateStr: string): string => {
+    const date = new Date(dateStr + "T00:00:00");
+    return date.toLocaleDateString("en-US", {
+        weekday: "short",
+        month: "short",
+        day: "numeric",
+    });
+  };
+
   // get current day of week in the format AWS uses
   const getTodayDayOfWeek = (): DayOfWeek => {
     const days: DayOfWeek[] = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
@@ -74,7 +118,6 @@ export default function ParentLiveUpdatesScreen() {
   };
 
   const firstLoad = useCallback(async () => {
-    let cardset: DataCard[] = []
 
     // go through each student and generate relevant cards for them
     for(const stu of userStudents) {
@@ -101,18 +144,10 @@ export default function ParentLiveUpdatesScreen() {
           }
         } catch { /* schedule fetch is best-effort */ }
       }
-
-      if(firstEnrollment && firstClass) {
-        const classCard = createStudentClassUpdateCard(stu, firstClass, firstEnrollment, tempTeach, endTime)
-        cardset.push(classCard);
-      }
-
-      const attendanceCard = createStudentAttendanceCard(stu);
-      cardset.push(attendanceCard);
     }
 
-    setScreenCards(cardset);
-  }, [userClasses, userEnrollments, userStudents, userTeachers])
+    setChildrenIndexesWithAnnouncements(getStudentIndexesWithAnnouncements(announcements));
+  }, [announcements, getStudentIndexesWithAnnouncements, userClasses, userEnrollments, userStudents, userTeachers])
 
   useEffect(() => {
     firstLoad();
@@ -129,12 +164,77 @@ export default function ParentLiveUpdatesScreen() {
         else { }
   };
 
-  // this holds which child of the parent's is currently being displayed
-  const [childSelected, setChildSelected] = useState(userStudents[0]);
+  // stuff for select button
+  const ref = useRef<TriggerRef>(null);
+  const insets = useSafeAreaInsets();
+  const contentInsets = {
+    top: insets.top,
+    bottom: Platform.select({ios: insets.bottom, android: insets.bottom + 24}),
+    left: 12,
+    right: 12,
+  };
+  function onTouchStart() {
+    ref.current?.open();
+  }
 
-  // modal controller states
-  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-  const onChildSelected = (id: string) => {
+  // vars for announcements scrollbar
+  const scrollY = useSharedValue(0);
+  const [scrollHeight, setScrollHeight] = useState<number>(0);
+  const [scrollContentHeight, setScrollContentHeight] = useState<number>(0);
+  const indicatorHeight: number = (() => {
+      if(scrollContentHeight === 0) return 0;
+      const ratio = scrollHeight / scrollContentHeight;
+      return Math.max(scrollHeight * ratio, 20);
+  })();
+  const scrollHandler = useAnimatedScrollHandler((event) => {
+      scrollY.value = event.contentOffset.y;
+  });
+  const animatedStyle = useAnimatedStyle(() => {
+      const maxScroll = scrollContentHeight - scrollHeight;
+      const maxTravel = scrollHeight - indicatorHeight;
+
+      const translateY = interpolate(
+          scrollY.value,
+          [0, maxScroll],
+          [0, maxTravel],
+          Extrapolation.CLAMP
+      );
+      return {
+          height: indicatorHeight,
+          transform: [{translateY}],
+      };
+  });
+
+  // vars for incidents scrollbar
+  const incidentsScrollY = useSharedValue(0);
+    const [incidentsScrollHeight, setincidentsScrollHeight] = useState<number>(0);
+    const [incidentsScrollContentHeight, setincidentsScrollContentHeight] = useState<number>(0);
+    const incidentsIndicatorHeight: number = (() => {
+        if(incidentsScrollContentHeight === 0) return 0;
+        const ratio = incidentsScrollHeight / incidentsScrollContentHeight;
+        return Math.max(incidentsScrollHeight * ratio, 20);
+    })();
+    const incidentsScrollHandler = useAnimatedScrollHandler((event) => {
+        incidentsScrollY.value = event.contentOffset.y;
+    });
+    const incidentsAnimatedStyle = useAnimatedStyle(() => {
+        const maxScroll = incidentsScrollContentHeight - incidentsScrollHeight;
+        const maxTravel = incidentsScrollHeight - incidentsIndicatorHeight;
+
+        const translateY = interpolate(
+            incidentsScrollY.value,
+            [0, maxScroll],
+            [0, maxTravel],
+            Extrapolation.CLAMP
+        );
+        return {
+            height: incidentsIndicatorHeight,
+            transform: [{translateY}],
+        };
+    });
+
+  // grabbing child selected data aswell as their classes
+  const onChildSelected = useCallback(async (id: string) => {
     let foundKid = userStudents.find(item => item.id === id);
     if(foundKid) {
       foundKid = {
@@ -146,175 +246,188 @@ export default function ParentLiveUpdatesScreen() {
         attendanceRate: foundKid.attendanceRate
       }
       setChildSelected(foundKid);
-    } else {
-      if(id === "0") {
-        const lilbro = {
-          id: "0",
-          firstName: "Everyone",
-          lastName: "displayall",
-          gradeLevel: 0,
-          currentStatus: "displayall",
-          attendanceRate: -1
-        }
-        setChildSelected(lilbro)
-      }
-      else {
-        console.log("Somehow, a kid was selected that didn't exist. onChildSelected()")
-      }
-    }
-  };
 
-  // states for filtering the flatlist by kid
-  // made with help from gemini
-  const [filteredList, setFilteredList] = useState(screenCards);
-  const [fullList, setFullList] = useState(screenCards)
+      const classIds = getClassesMappedByStudent(id);
+      const announcementIndexes: number[] = getAnnouncementIndexesbyStudentId(id, announcements);
+      console.log(announcementIndexes)
 
-  useEffect(() => {
-    // if "Display All" is selected
-    if(childSelected.id === '0') {
-      setFilteredList(screenCards); // then display all the cards available
-    }
-    else {
-      // when childSelected is changed, this will parse through the card list and select ones with matching studentIds
-      for(let i = 0; i<screenCards.length; i++) {
-        const newFilteredData = screenCards.filter(item => 
-          item.itemId.match(childSelected.id)
-        );
-        setFilteredList(newFilteredData);
-      }
-    }
+      const relevantAnnouncements: Announcement[] = announcementIndexes.map(i => announcements[i]);
+      const relevantIncidents = await fetchIncidentsByStudent(id);
+
+      const scheduleRows = classIds
+          .map((classId) => {
+              const cls = userClasses.find((c) => c.id === classId);
+              if (!cls) return null;
+              const teacherName = getTeacherNamebyId(cls.teacherId);
+              const grade = getStudentGradeInClass(id, classId);
+              return { classId, className: cls.name, teacherName, grade };
+          })
+          .filter(Boolean) as { classId: string; className: string; teacherId: string; teacherName: string; grade: number }[];
     
-  }, [childSelected, fullList, screenCards])
-
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: useThemeColor({}, "background"),
-    },
-    headerContainer: {
-      flex: 1/10,
-      alignContent: 'flex-start',
-      justifyContent: 'center',
-      flexDirection: 'column',
-    },
-    dropdownContainer: {
-        flexDirection: 'row',
-        width: '20%',
-        height: '80%',
-        backgroundColor: useThemeColor({}, "cardBackground"),
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderRadius: 10,
-        marginHorizontal: 20,
-        shadowColor: useThemeColor({}, "tabIconDefault"),
-    },
-    dropdownLabel: {
-        color: useThemeColor({}, "text"),
-        fontSize: 14,
-        fontWeight: '600',
-    },
-    flatListContainer: {
+      setChildAnnouncements(relevantAnnouncements);
+      setChildClasses(scheduleRows);
+      setChildIncidents(relevantIncidents.data ?? []);
+      const grade = scheduleRows[0].grade;
+      setGradeDisplay(grade);
+      
+    } else {
+      console.warn("Somehow, a kid was selected that didn't exist. onChildSelected()")
     }
-  });
+
+  }, [announcements, getAnnouncementIndexesbyStudentId, getClassesMappedByStudent, getStudentGradeInClass, getTeacherNamebyId, userClasses, userStudents]);
+  useEffect(() => { // this will update child selected when a new child is selected...
+    if(childIdSelected) {
+      onChildSelected(childIdSelected?.value);
+    }
+  }, [childIdSelected, onChildSelected])
+
+  // updates the student selected on screen focus
+  useFocusEffect(
+    useCallback(() => {
+      setChildSelected(userStudents[getChosenStudentIndex()]);
+      setChildIdSelected({value: userStudents[getChosenStudentIndex()].id, label: userStudents[getChosenStudentIndex()].firstName})
+    }, [getChosenStudentIndex, userStudents])
+  )
 
   return (
-    <View style={styles.container}>
-      <View style={styles.headerContainer}>
-        <Pressable style={styles.dropdownContainer} onPress={() => setIsModalVisible(true)}>
-          <MaterialIcons name={"keyboard-arrow-down"} size={22} color={useThemeColor({}, "icon")}/>
-          <Text style={styles.dropdownLabel}>{childSelected.firstName}</Text>
-        </Pressable>
-      </View>
-      {/* Announcements Section */}
-      {announcements.length > 0 && (
-        <View style={announcementStyles.section}>
-          <Text style={[containerStyle.sectionLabel, { color: subtextColor, paddingHorizontal: 16 }]}>
-            ANNOUNCEMENTS
-          </Text>
-          <ScrollView horizontal={false} style={{ maxHeight: 200, paddingHorizontal: 12 }}>
-            {announcements.slice(0, 5).map((ann) => (
-              <View key={ann.id} style={[announcementStyles.card, { backgroundColor: cardBg }]}>
-                <View style={announcementStyles.cardRow}>
-                  <View style={[announcementStyles.cardIcon, { backgroundColor: "#8b5cf620" }]}>
-                    <Ionicons name="megaphone" size={18} color="#8b5cf6" />
-                  </View>
-                  <View style={announcementStyles.cardContent}>
-                    <Text style={[announcementStyles.cardTitle, { color: textColor }]}>{ann.title}</Text>
-                    <Text style={[announcementStyles.cardMeta, { color: subtextColor }]}>
-                      {getClassName(ann.classId)} {getClassName(ann.classId) ? "· " : ""}{getTimeAgo(ann.createdAt)}
-                    </Text>
-                  </View>
-                </View>
-                <Text style={[announcementStyles.cardBody, { color: subtextColor }]} numberOfLines={2}>
-                  {ann.body}
-                </Text>
-              </View>
-            ))}
-          </ScrollView>
+    <View style={[containerStyle.container, {backgroundColor: bgcolor}]}>
+      <ScrollView contentContainerStyle={containerStyle.scrollContent} showsVerticalScrollIndicator={false} scrollEnabled={false}>
+
+        {/* Select Student Dropdown */}
+        <View style={containerStyle.headerContainer}>
+          <Select value={childIdSelected} style={[dropdownStyle.dropdownContainer]} onValueChange={setChildIdSelected}>
+            <SelectTrigger ref={ref} style={[dropdownStyle.dropdownButton, {backgroundColor: cardbgcolor}]} onTouchStart={Platform.select({web: onTouchStart})}>
+              <SelectValue style={[dropdownStyle.dropdownLabel, {color: textcolor}]} placeholder={childSelected.firstName} />
+            </SelectTrigger>
+            <SelectContent insets={contentInsets} style={{backgroundColor: cardbgcolor}} >
+              <SelectGroup>
+                <SelectLabel style={{color: tintcolor}}>Select a Student</SelectLabel>
+                {userStudents.map((stu, index) => (
+                  childrenIndexesWithAnnouncements.includes(index) ? ( // if the student has an announcement, highlight them
+                    <SelectItem key={stu.id} label={stu.firstName} value={stu.id}>
+                      {`${stu.firstName} ★`}
+                    </SelectItem>
+                  ) : (
+                    <SelectItem key={stu.id} label={stu.firstName} value={stu.id}>
+                      {stu.firstName}
+                    </SelectItem>
+                  )
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </View>
-      )}
-      {announcementsLoading && (
+
+        {/* Current Class Card */}
+        <Text style={[containerStyle.sectionLabel, {color: subtextcolor}]}>CURRENT CLASS</Text>
+        {(childClasses !== undefined && childClasses[0] !== null) ? (  // For now, it will default render the first class of the student. When we have class times setup, it will display the correct class that aligns with the current time
+          <Card 
+            header={childClasses[0].className}
+            preview={childClasses[0].teacherName}
+            onPress={() => {/* todo class popup */}}
+            urgent={true}
+            pressable={true}
+            icon={{name: "book", size: 22, color: tintcolor, backgroundColor: (tintcolor+20)}}
+            badge={
+              (gradeDisplay !== null && gradeDisplay !== undefined) ? (
+                {type: 0, content: `${gradeDisplay}%`, contentColor: gradeDisplay >= 90 ? "#16a34a" : gradeDisplay >= 70 ? "#d97706" : "#dc2626", backgroundColor: gradeDisplay >= 90 ? "#22c55e20" : gradeDisplay >= 70 ? "#f59e0b20" : "#ef444420"}
+              ) : (undefined)
+            }
+          />
+        ) : (
+          <View style={containerStyle.empty}>
+            <Text style={{color: subtextcolor, fontSize: 16}}>Student is Not In Class</Text>
+          </View>
+        )
+        }
+
+        {/* Relevant Announcements or Alerts Section */}
+        <Text style={[containerStyle.sectionLabel, { color: subtextColor }]}>
+          ANNOUNCEMENTS
+        </Text>
+        {(childAnnouncements !== undefined && childAnnouncements.length > 0) ? (
+        <View style={containerStyle.miniScrollContainer}>
+          <Animated.ScrollView 
+            contentContainerStyle={containerStyle.animatedScrollContent} 
+            scrollEnabled={true} 
+            showsVerticalScrollIndicator={false}
+            showsHorizontalScrollIndicator={false}
+            onScroll={scrollHandler}
+            scrollEventThrottle={16}
+            onLayout={(event) => {
+                const {height} = event.nativeEvent.layout;
+                setScrollHeight(height);
+            }}
+            onContentSizeChange={(width, height) => {
+                setScrollContentHeight(height);
+            }}
+          >
+            {childAnnouncements.slice(0, 5).map((ann) => (
+              <Card 
+                key={ann.id}
+                header={ann.title}
+                preview={`${ann.classId && (getClassName(ann.classId))} ${ann.classId && getClassName(ann.classId) ? "· " : ""}${getTimeAgo(ann.createdAt)}\n${ann.body}`}
+                onPress={() => {/* todo: route to announcement-relevant page */}}
+                icon={{name: "megaphone", size: 18, color: "#8b5cf6", backgroundColor: "#8b5cf620"}}
+              />
+            ))}
+          </Animated.ScrollView>
+          {(childAnnouncements.length > 2) && 
+          <Animated.View style={[containerStyle.scrollBar, animatedStyle, {backgroundColor: subtextColor}]}/>}
+        </View>
+      ) : ( !announcementsLoading ?
+        <View style={containerStyle.miniScrollContainer}>
+          <Text style={[containerStyle.sectionLabel, {color: textColor}]}>{childSelected.firstName} has no announcements!</Text>
+        </View> 
+        :
         <View style={{ paddingVertical: 12, alignItems: "center" }}>
           <ActivityIndicator size="small" color={tint} />
         </View>
       )}
 
-      {/* Student Updates */}
-      <View style={styles.flatListContainer}>
-        <FlatList
-            data={filteredList}
-            renderItem={({item}) => (
-                <Card
-                    header={item.header}
-                    preview={item.preview}
-                    onPress={() => RouteCard(item.route)}
-                    urgent={item.urgent}
-                />
-            )}
-        />
-      </View>
 
-      <Parent_ChildPicker 
-        isVisible={isModalVisible}
-        onCloseModal={() => setIsModalVisible(false)}
-        studentNames={userStudents.map((item) => item.firstName)}
-        studentIds={userStudents.map((item) => item.id)}
-        onSelect={onChildSelected}
-        allowAll={true}
-      />
+        {/* Incidents and Notes */}
+        <Text style={[containerStyle.sectionLabel, {color: subtextcolor}]}>INCIDENTS</Text>
+        {(childIncidents !== undefined && childIncidents.length > 0) ? (
+          <View style={containerStyle.miniScrollContainer}>
+            <Animated.ScrollView
+              contentContainerStyle={containerStyle.animatedScrollContent} 
+              scrollEnabled={true} 
+              showsVerticalScrollIndicator={false}
+              showsHorizontalScrollIndicator={false}
+              onScroll={incidentsScrollHandler}
+              scrollEventThrottle={16}
+              onLayout={(event) => {
+                  const {height} = event.nativeEvent.layout;
+                  setincidentsScrollHeight(height);
+              }}
+              onContentSizeChange={(width, height) => {
+                  setincidentsScrollContentHeight(height);
+              }}
+            >
+              {childIncidents.slice(0, 5).map((inc) => (
+                <Card 
+                  key={inc.id}
+                  header={`${formatDate(inc.date)} · ${inc.classId && getClassName(inc.classId)}`}
+                  preview={inc.description}
+                  onPress={() => {}}
+                  urgent={true}
+                  pressable={false}
+                  icon={{name: (SEVERITY_CONFIG[inc.severity].icon as any), color: (SEVERITY_CONFIG[inc.severity].color), backgroundColor: (SEVERITY_CONFIG[inc.severity].bg), size: 20}}
+                  badge={{type: 0, content: inc.severity, contentColor: SEVERITY_CONFIG[inc.severity].color, backgroundColor: SEVERITY_CONFIG[inc.severity].bg}}
+                />
+              ))}
+            </Animated.ScrollView>
+            {(childIncidents.length > 2) && 
+            <Animated.View style={[containerStyle.scrollBar, incidentsAnimatedStyle, {backgroundColor: subtextColor}]}/>}
+        </View>
+        ) : (
+          <View style={containerStyle.empty}>
+            <Text style={[containerStyle.sectionLabel, {color: textColor}]}>{childSelected.firstName} has no incidents or notes!</Text>
+          </View> 
+        )}
+
+      </ScrollView>
     </View>
   );
 }
-
-const announcementStyles = StyleSheet.create({
-  section: { marginBottom: 8 },
-  card: {
-    borderRadius: 14,
-    padding: 14,
-    marginBottom: 8,
-    marginHorizontal: 4,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  cardRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    marginBottom: 6,
-  },
-  cardIcon: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  cardContent: { flex: 1 },
-  cardTitle: { fontSize: 15, fontWeight: "600" },
-  cardMeta: { fontSize: 12, marginTop: 1 },
-  cardBody: { fontSize: 13, lineHeight: 19, marginLeft: 48 },
-});
-

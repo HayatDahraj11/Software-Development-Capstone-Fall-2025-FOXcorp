@@ -6,88 +6,90 @@ import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 export default function ParentTabLayout() {
 
     return (
-        <Tabs
-            backBehavior="fullHistory"
-            screenOptions={{
-                tabBarActiveTintColor: useThemeColor({},"tabIconSelected"),
-                headerStyle: {
-                    backgroundColor: useThemeColor({},"headerBackground"),
-                    borderBottomColor: useThemeColor({},'listBorderTranslucent'),
-                    borderBottomWidth: 1
-                },
-                headerShadowVisible: false,
-                headerTintColor: useThemeColor({},"text"),
-                tabBarStyle: {
-                    backgroundColor: useThemeColor({},"background"),
-                },
-            }}
-        >
-            <Tabs.Screen 
-                name="index"
-                options={{
-                    headerShown: false,
-                    href: null, // hiding tab from tab bar
+        <>
+            <Tabs
+                backBehavior="fullHistory"
+                screenOptions={{
+                    tabBarActiveTintColor: useThemeColor({},"tabIconSelected"),
+                    headerStyle: {
+                        backgroundColor: useThemeColor({},"headerBackground"),
+                        borderBottomColor: useThemeColor({},'listBorderTranslucent'),
+                        borderBottomWidth: 1
+                    },
+                    headerShadowVisible: false,
+                    headerTintColor: useThemeColor({},"text"),
+                    tabBarStyle: {
+                        backgroundColor: useThemeColor({},"background"),
+                    },
                 }}
-            />
-            <Tabs.Screen
-                name="messaging"
-                options={{
-                    title: "Messages",
-                    tabBarLabel: "Messages",
-                    tabBarIcon: ({color, focused}) => (
-                        <Ionicons name = {focused ? 'chatbubble-ellipses' : 'chatbubble-ellipses-outline'} color = {color} size={24} />
-                    ),
-            }} />
-            <Tabs.Screen
-                name="live-updates"
-                options={{
-                    title: "Live Updates",
-                    tabBarLabel: "Live Updates",
-                    tabBarIcon: ({color, focused}) => (
-                        <Ionicons name = {focused ? 'map' : 'map-outline'} color={color} size={24} />
-                    )
-            }} />
-            <Tabs.Screen
-                name="home"
-                options={{
-                    title: "Home",
-                    tabBarLabel: "Home",
-                    tabBarIcon: ({color, focused}) => (
-                        <Ionicons name = {focused ? 'home' : 'home-outline'} color = {color} size={24} />
-                    ),
-            }} />
-            <Tabs.Screen
-                name="general-info"
-                options={{
-                    title: "General Student Info",
-                    tabBarLabel: "Student Info",
-                    tabBarIcon: ({color, focused}) => (
-                        <Ionicons name = {focused ? 'bag-handle' : 'bag-handle-outline'} color = {color} size={24} />
-                    ),
-            }} />
-            <Tabs.Screen
-                name="hamburger"
-                options={{
-                    title: "And More...",
-                    tabBarLabel: "More",
-                    tabBarIcon: ({color, focused}) => (
-                        <Ionicons name = {focused ? 'ellipsis-horizontal-sharp' : 'ellipsis-horizontal-outline'} color = {color} size={24} />
-                    ),
-            }} />
-            <Tabs.Screen 
-                name="[studentId]"
-                options={{
-                    headerShown: false,
-                    href: null, // hiding tab from tab bar
-                }}
-            />
-            <Tabs.Screen 
-                name="(hamburger)"
-                options={{
-                    headerShown: false,
-                    href: null, // hiding tab from tab bar
-                }}
-            />
-        </Tabs>
+            >
+                <Tabs.Screen 
+                    name="index"
+                    options={{
+                        headerShown: false,
+                        href: null, // hiding tab from tab bar
+                    }}
+                />
+                <Tabs.Screen
+                    name="messaging"
+                    options={{
+                        title: "Messages",
+                        tabBarLabel: "Messages",
+                        tabBarIcon: ({color, focused}) => (
+                            <Ionicons name = {focused ? 'chatbubble-ellipses' : 'chatbubble-ellipses-outline'} color = {color} size={24} />
+                        ),
+                }} />
+                <Tabs.Screen
+                    name="live-updates"
+                    options={{
+                        title: "Live Updates",
+                        tabBarLabel: "Live Updates",
+                        tabBarIcon: ({color, focused}) => (
+                            <Ionicons name = {focused ? 'map' : 'map-outline'} color={color} size={24} />
+                        )
+                }} />
+                <Tabs.Screen
+                    name="home"
+                    options={{
+                        title: "Home",
+                        tabBarLabel: "Home",
+                        tabBarIcon: ({color, focused}) => (
+                            <Ionicons name = {focused ? 'home' : 'home-outline'} color = {color} size={24} />
+                        ),
+                }} />
+                <Tabs.Screen
+                    name="general-info"
+                    options={{
+                        title: "General Student Info",
+                        tabBarLabel: "Student Info",
+                        tabBarIcon: ({color, focused}) => (
+                            <Ionicons name = {focused ? 'bag-handle' : 'bag-handle-outline'} color = {color} size={24} />
+                        ),
+                }} />
+                <Tabs.Screen
+                    name="hamburger"
+                    options={{
+                        title: "And More...",
+                        tabBarLabel: "More",
+                        tabBarIcon: ({color, focused}) => (
+                            <Ionicons name = {focused ? 'ellipsis-horizontal-sharp' : 'ellipsis-horizontal-outline'} color = {color} size={24} />
+                        ),
+                }} />
+                <Tabs.Screen 
+                    name="[studentId]"
+                    options={{
+                        headerShown: false,
+                        href: null, // hiding tab from tab bar
+                    }}
+                />
+                <Tabs.Screen 
+                    name="(hamburger)"
+                    options={{
+                        headerShown: false,
+                        href: null, // hiding tab from tab bar
+                    }}
+                />
+            </Tabs>
+        </>
     )
 }

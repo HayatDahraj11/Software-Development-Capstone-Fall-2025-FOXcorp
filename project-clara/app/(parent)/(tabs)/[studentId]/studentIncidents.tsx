@@ -1,14 +1,14 @@
 // parent view of their child's incident reports
 // shows each incident with severity color coding and description
+import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
 import { useParentIncidents } from "@/src/features/incidents/logic/useParentIncidents";
 
-const SEVERITY_CONFIG: Record<string, { color: string; bg: string; icon: string }> = {
+export const SEVERITY_CONFIG: Record<string, { color: string; bg: string; icon: string }> = {
     Low: { color: "#16a34a", bg: "#22c55e20", icon: "information-circle" },
     Medium: { color: "#d97706", bg: "#f59e0b20", icon: "alert-circle" },
     High: { color: "#dc2626", bg: "#ef444420", icon: "warning" },
@@ -54,7 +54,7 @@ export default function StudentIncidentsScreen() {
         <View style={[styles.container, { backgroundColor: bg }]}>
             <View style={styles.header}>
                 <Text style={[styles.title, { color: textColor }]}>
-                    {student?.firstName}'s Incidents
+                    {student?.firstName}&apos;s Incidents
                 </Text>
                 <Text style={[styles.subtitle, { color: subtextColor }]}>
                     {incidents.length} {incidents.length === 1 ? "report" : "reports"}

@@ -104,6 +104,11 @@ export default function StudentIncidentsScreen() {
                                             {item.severity}
                                         </Text>
                                     </View>
+                                    <Text style={{ fontSize: 11, color: subtextColor, marginTop: 4 }}>
+                                        {item.severity === "High" || item.severity === "Critical"
+                                            ? "Requires attention"
+                                            : "Informational"}
+                                    </Text>
                                 </View>
                                 <Text style={[styles.description, { color: subtextColor }]}>
                                     {item.description}

@@ -72,7 +72,7 @@ export default function StudentIncidentsScreen() {
                         No incidents reported
                     </Text>
                     <Text style={[styles.emptySubtext, { color: subtextColor }]}>
-                        All clear for {student?.firstName}
+                        No behavioral or disciplinary reports recorded for {student?.firstName}
                     </Text>
                 </View>
             ) : (
@@ -104,9 +104,17 @@ export default function StudentIncidentsScreen() {
                                             {item.severity}
                                         </Text>
                                     </View>
+                                    <Text style={{ fontSize: 11, color: subtextColor, marginTop: 4 }}>
+                                        {item.severity === "High" || item.severity === "Critical"
+                                            ? "Requires attention"
+                                            : "Informational"}
+                                    </Text>
                                 </View>
                                 <Text style={[styles.description, { color: subtextColor }]}>
                                     {item.description}
+                                </Text>
+                                <Text style={{ fontSize: 11, color: subtextColor, marginLeft: 52, marginTop: 4 }}>
+                                     Reported by school staff
                                 </Text>
                             </View>
                         );

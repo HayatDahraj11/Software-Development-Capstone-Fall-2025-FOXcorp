@@ -17,7 +17,9 @@ import {
   fetchMessages,
   sendMessage as repoSendMessage,
   ON_CREATE_MESSAGE,
+  ON_UPDATE_CONVERSATION,
 } from "../api/messageRepo";
+import { getConversation } from "@/src/graphql/queries";
 
 interface UseMessagesParams {
   conversationId: string;
@@ -32,6 +34,7 @@ interface UseMessagesReturn {
   isSending: boolean;
   error: string | null;
   sendMessage: (body: string) => Promise<void>;
+  otherLastReadAt: string | null;
 }
 
 export function useMessages({
@@ -44,9 +47,11 @@ export function useMessages({
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [otherLastReadAt, setOtherLastReadAt] = useState<string | null>(null);
 
   const isMounted = useRef(true);
   const subscriptionRef = useRef<any>(null);
+  const convoSubRef = useRef<any>(null);
 
   useEffect(() => {
     return () => {
@@ -112,6 +117,58 @@ export function useMessages({
     };
   }, [conversationId]);
 
+  // seed + live-update otherLastReadAt for the Seen tick
+  useEffect(() => {
+    if (!conversationId) return;
+
+    (async () => {
+      try {
+        const r: any = await client.graphql({
+          query: getConversation,
+          variables: { id: conversationId },
+        });
+        const c = r.data?.getConversation;
+        if (!c || !isMounted.current) return;
+        setOtherLastReadAt(
+          senderType === "PARENT"
+            ? c.teacherLastReadAt ?? null
+            : c.parentLastReadAt ?? null
+        );
+      } catch (err) {
+        console.warn("seed otherLastReadAt failed:", err);
+      }
+    })();
+
+    try {
+      const sub = (client.graphql({
+        query: ON_UPDATE_CONVERSATION,
+        variables: { filter: { id: { eq: conversationId } } },
+      }) as any).subscribe({
+        next: ({ data }: any) => {
+          const c = data?.onUpdateConversation;
+          if (!c || !isMounted.current) return;
+          setOtherLastReadAt(
+            senderType === "PARENT"
+              ? c.teacherLastReadAt ?? null
+              : c.parentLastReadAt ?? null
+          );
+        },
+        error: (err: any) =>
+          console.warn("otherLastReadAt sub error:", err),
+      });
+      convoSubRef.current = sub;
+    } catch (err) {
+      console.warn("otherLastReadAt sub setup failed:", err);
+    }
+
+    return () => {
+      if (convoSubRef.current) {
+        convoSubRef.current.unsubscribe();
+        convoSubRef.current = null;
+      }
+    };
+  }, [conversationId, senderType]);
+
   // optimistic send — append immediately, confirm or roll back
   const sendMessage = useCallback(
     async (body: string) => {
@@ -158,5 +215,5 @@ export function useMessages({
     [conversationId, senderId, senderType, senderName, isSending]
   );
 
-  return { messages, isLoading, isSending, error, sendMessage };
+  return { messages, isLoading, isSending, error, sendMessage, otherLastReadAt };
 }

@@ -23,6 +23,8 @@ interface Props {
   error: string | null;
   onSelectConversation: (conversation: Conversation) => void;
   onRefresh: () => void;
+  // optional, defaults to "no rows are unread"
+  getHasUnread?: (c: Conversation) => boolean;
 }
 
 export default function ConversationList({
@@ -32,6 +34,7 @@ export default function ConversationList({
   error,
   onSelectConversation,
   onRefresh,
+  getHasUnread,
 }: Props) {
   const bgColor = useThemeColor({}, "background");
   const textColor = useThemeColor({}, "text");
@@ -87,6 +90,7 @@ export default function ConversationList({
             conversation={item}
             viewerRole={viewerRole}
             onPress={() => onSelectConversation(item)}
+            hasUnread={getHasUnread ? getHasUnread(item) : false}
           />
         )}
         refreshing={isLoading}

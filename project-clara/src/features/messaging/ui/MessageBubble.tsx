@@ -10,10 +10,14 @@ import { StyleSheet, Text, View } from "react-native";
 
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import { Message } from "../api/messageRepo";
+import { computeSeen } from "../logic/readReceipts";
 
 interface Props {
   message: Message;
   currentUserId: string;
+  // optional with safe defaults so old callers still compile + render the same
+  isLastOwnMessage?: boolean;
+  otherLastReadAt?: string | null;
 }
 
 /** Short time label, e.g. "3:04 PM" */
@@ -22,8 +26,19 @@ function formatTime(iso: string): string {
   return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
 }
 
-export default function MessageBubble({ message, currentUserId }: Props) {
+export default function MessageBubble({
+  message,
+  currentUserId,
+  isLastOwnMessage = false,
+  otherLastReadAt = null,
+}: Props) {
   const isOwn = message.senderId === currentUserId;
+  const seen = computeSeen({
+    message,
+    currentUserId,
+    isLastOwnMessage,
+    otherLastReadAt,
+  });
 
   const cardBg = useThemeColor({}, "cardBackground");
   const textColor = useThemeColor({}, "text");
@@ -66,18 +81,28 @@ export default function MessageBubble({ message, currentUserId }: Props) {
       marginTop: 4,
       alignSelf: "flex-end",
     },
+    seenLabel: {
+      fontSize: 11,
+      color: subtextColor,
+      marginTop: 2,
+      marginRight: 14,
+      alignSelf: "flex-end",
+    },
   });
 
   return (
-    <View style={styles.wrapper}>
-      <View style={styles.bubble}>
-        {/* show sender name on other people's messages (group chats) */}
-        {!isOwn && (
-          <Text style={styles.senderName}>{message.senderName}</Text>
-        )}
-        <Text style={styles.body}>{message.body}</Text>
-        <Text style={styles.time}>{formatTime(message.createdAt)}</Text>
+    <View style={{ paddingHorizontal: 12, marginVertical: 4 }}>
+      <View style={[styles.wrapper, { paddingHorizontal: 0, marginVertical: 0 }]}>
+        <View style={styles.bubble}>
+          {/* show sender name on other people's messages (group chats) */}
+          {!isOwn && (
+            <Text style={styles.senderName}>{message.senderName}</Text>
+          )}
+          <Text style={styles.body}>{message.body}</Text>
+          <Text style={styles.time}>{formatTime(message.createdAt)}</Text>
+        </View>
       </View>
+      {seen && <Text style={styles.seenLabel}>Seen</Text>}
     </View>
   );
 }

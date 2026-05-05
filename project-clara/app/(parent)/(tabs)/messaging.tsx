@@ -11,6 +11,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
 import { Conversation, getOrCreateDirectConversation } from "@/src/features/messaging/api/messageRepo";
+import { computeUnread } from "@/src/features/messaging/logic/readReceipts";
 import { useConversations } from "@/src/features/messaging/logic/useConversations";
 import { useTeacherList, TeacherOption } from "@/src/features/messaging/logic/useTeacherList";
 import ConversationList from "@/src/features/messaging/ui/ConversationList";
@@ -66,6 +67,7 @@ export default function ParentMessagingScreen() {
         error={error}
         onSelectConversation={openConversation}
         onRefresh={loadConversations}
+        getHasUnread={(c) => computeUnread(c, "parent")}
       />
 
       <Pressable style={styles.fab} onPress={() => setShowNewConvo(true)}>

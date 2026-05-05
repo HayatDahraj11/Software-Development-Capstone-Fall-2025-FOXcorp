@@ -14,6 +14,8 @@ interface Props {
   conversation: Conversation;
   viewerRole: "parent" | "teacher";
   onPress: () => void;
+  // optional, default false. when true: bold title + dot next to time
+  hasUnread?: boolean;
 }
 
 /** Turn an ISO date string into a short relative label */
@@ -34,11 +36,13 @@ export default function ConversationItem({
   conversation,
   viewerRole,
   onPress,
+  hasUnread = false,
 }: Props) {
   const textColor = useThemeColor({}, "text");
   const subtextColor = useThemeColor({}, "placeholderText");
   const bgColor = useThemeColor({}, "cardBackground");
   const borderColor = useThemeColor({}, "listBorderTranslucent");
+  const tintColor = useThemeColor({}, "tint");
 
   const isGroup = conversation.type === "GROUP";
 
@@ -85,14 +89,25 @@ export default function ConversationItem({
     },
     title: {
       fontSize: 16,
-      fontWeight: "600",
+      fontWeight: hasUnread ? "700" : "600",
       color: textColor,
       flexShrink: 1,
     },
     time: {
       fontSize: 13,
-      color: subtextColor,
+      color: hasUnread ? tintColor : subtextColor,
       marginLeft: 8,
+    },
+    timeRow: {
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    unreadDot: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: tintColor,
+      marginLeft: 6,
     },
     subtitle: {
       fontSize: 13,
@@ -122,9 +137,12 @@ export default function ConversationItem({
           <Text style={styles.title} numberOfLines={1}>
             {title}
           </Text>
-          <Text style={styles.time}>
-            {relativeTime(conversation.lastMessageAt)}
-          </Text>
+          <View style={styles.timeRow}>
+            <Text style={styles.time}>
+              {relativeTime(conversation.lastMessageAt)}
+            </Text>
+            {hasUnread && <View style={styles.unreadDot} />}
+          </View>
         </View>
 
         {subtitle && (

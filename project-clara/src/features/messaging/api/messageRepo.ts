@@ -20,7 +20,7 @@ import {
   updateConversation,
 } from "@/src/graphql/mutations";
 
-import { onCreateMessage } from "@/src/graphql/subscriptions";
+import { onCreateMessage, onUpdateConversation } from "@/src/graphql/subscriptions";
 
 import { sendPushToUser } from "@/src/features/notifications/api/sendPushToUser";
 import {
@@ -46,6 +46,8 @@ export interface Conversation {
   className?: string | null;
   lastMessageText?: string | null;
   lastMessageAt?: string | null;
+  parentLastReadAt?: string | null;
+  teacherLastReadAt?: string | null;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -69,8 +71,9 @@ export interface RepoResult<T> {
 
 export const client = generateClient();
 
-// Re-export subscription for use in useMessages hook
+// Re-export subscriptions for use in hooks
 export const ON_CREATE_MESSAGE = onCreateMessage;
+export const ON_UPDATE_CONVERSATION = onUpdateConversation;
 
 // ── Query helpers ───────────────────────────────────────────────────
 
@@ -364,3 +367,7 @@ export async function sendMessage(params: {
     return { data: null, error: "Failed to send message." };
   }
 }
+
+// markConversationRead lives in its own file for unit-testability.
+// Re-exported here so screens can keep importing from messageRepo.
+export { markConversationRead } from "./markConversationRead";

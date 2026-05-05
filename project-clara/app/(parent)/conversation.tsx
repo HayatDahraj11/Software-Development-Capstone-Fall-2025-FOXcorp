@@ -19,6 +19,7 @@ import {
 import { useThemeColor } from "@/src/features/app-themes/logic/use-theme-color";
 import { useParentLoginContext } from "@/src/features/context/ParentLoginContext";
 import { useMessages } from "@/src/features/messaging/logic/useMessages";
+import { markConversationRead } from "@/src/features/messaging/api/messageRepo";
 import MessageBubble from "@/src/features/messaging/ui/MessageBubble";
 import MessageInput from "@/src/features/messaging/ui/MessageInput";
 
@@ -30,14 +31,30 @@ export default function ParentConversationScreen() {
 
   const { userParent } = useParentLoginContext();
 
-  const { messages, isLoading, isSending, error, sendMessage } = useMessages({
-    conversationId: conversationId ?? "",
-    senderId: userParent.userId,
-    senderType: "PARENT",
-    senderName: `${userParent.firstName} ${userParent.lastName}`,
-  });
+  const { messages, isLoading, isSending, error, sendMessage, otherLastReadAt } =
+    useMessages({
+      conversationId: conversationId ?? "",
+      senderId: userParent.userId,
+      senderType: "PARENT",
+      senderName: `${userParent.firstName} ${userParent.lastName}`,
+    });
 
   const flatListRef = useRef<FlatList>(null);
+
+  // mark this thread read on open and whenever a new message lands
+  // while we're still on the screen
+  useEffect(() => {
+    if (!conversationId) return;
+    markConversationRead({ conversationId, viewerRole: "parent" });
+  }, [conversationId, messages.length]);
+
+  // index of the latest own message (for the Seen tick)
+  const lastOwnIdx = (() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      if (messages[i].senderId === userParent.userId) return i;
+    }
+    return -1;
+  })();
 
   // auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -113,8 +130,13 @@ export default function ParentConversationScreen() {
         ref={flatListRef}
         data={messages}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <MessageBubble message={item} currentUserId={userParent.userId} />
+        renderItem={({ item, index }) => (
+          <MessageBubble
+            message={item}
+            currentUserId={userParent.userId}
+            isLastOwnMessage={index === lastOwnIdx}
+            otherLastReadAt={otherLastReadAt}
+          />
         )}
         contentContainerStyle={{ paddingVertical: 12 }}
         onContentSizeChange={() =>

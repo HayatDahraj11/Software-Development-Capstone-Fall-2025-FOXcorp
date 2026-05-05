@@ -6,6 +6,7 @@ import { RelativePathString, useRouter } from "expo-router";
 
 import { useTeacherLoginContext } from "@/src/features/context/TeacherLoginContext";
 import { Conversation } from "@/src/features/messaging/api/messageRepo";
+import { computeUnread } from "@/src/features/messaging/logic/readReceipts";
 import { useConversations } from "@/src/features/messaging/logic/useConversations";
 import ConversationList from "@/src/features/messaging/ui/ConversationList";
 
@@ -36,6 +37,7 @@ export default function TeacherMessagingScreen() {
       error={error}
       onSelectConversation={openConversation}
       onRefresh={loadConversations}
+      getHasUnread={(c) => computeUnread(c, "teacher")}
     />
   );
 }

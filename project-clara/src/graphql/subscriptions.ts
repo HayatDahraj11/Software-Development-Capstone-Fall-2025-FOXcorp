@@ -1155,6 +1155,8 @@ export const onCreateConversation = /* GraphQL */ `subscription OnCreateConversa
     className
     lastMessageText
     lastMessageAt
+    parentLastReadAt
+    teacherLastReadAt
     messages {
       nextToken
       __typename
@@ -1184,6 +1186,8 @@ export const onUpdateConversation = /* GraphQL */ `subscription OnUpdateConversa
     className
     lastMessageText
     lastMessageAt
+    parentLastReadAt
+    teacherLastReadAt
     messages {
       nextToken
       __typename
@@ -1213,6 +1217,8 @@ export const onDeleteConversation = /* GraphQL */ `subscription OnDeleteConversa
     className
     lastMessageText
     lastMessageAt
+    parentLastReadAt
+    teacherLastReadAt
     messages {
       nextToken
       __typename
@@ -1248,6 +1254,8 @@ export const onCreateMessage = /* GraphQL */ `subscription OnCreateMessage($filt
       className
       lastMessageText
       lastMessageAt
+      parentLastReadAt
+      teacherLastReadAt
       createdAt
       updatedAt
       __typename
@@ -1282,6 +1290,8 @@ export const onUpdateMessage = /* GraphQL */ `subscription OnUpdateMessage($filt
       className
       lastMessageText
       lastMessageAt
+      parentLastReadAt
+      teacherLastReadAt
       createdAt
       updatedAt
       __typename
@@ -1316,6 +1326,8 @@ export const onDeleteMessage = /* GraphQL */ `subscription OnDeleteMessage($filt
       className
       lastMessageText
       lastMessageAt
+      parentLastReadAt
+      teacherLastReadAt
       createdAt
       updatedAt
       __typename

@@ -635,6 +635,8 @@ export const getConversation = /* GraphQL */ `query GetConversation($id: ID!) {
     className
     lastMessageText
     lastMessageAt
+    parentLastReadAt
+    teacherLastReadAt
     messages {
       nextToken
       __typename
@@ -667,6 +669,8 @@ export const listConversations = /* GraphQL */ `query ListConversations(
       className
       lastMessageText
       lastMessageAt
+      parentLastReadAt
+      teacherLastReadAt
       createdAt
       updatedAt
       __typename
@@ -701,6 +705,8 @@ export const getMessage = /* GraphQL */ `query GetMessage($id: ID!) {
       className
       lastMessageText
       lastMessageAt
+      parentLastReadAt
+      teacherLastReadAt
       createdAt
       updatedAt
       __typename
@@ -1498,6 +1504,8 @@ export const conversationsByParentId = /* GraphQL */ `query ConversationsByParen
       className
       lastMessageText
       lastMessageAt
+      parentLastReadAt
+      teacherLastReadAt
       createdAt
       updatedAt
       __typename
@@ -1537,6 +1545,8 @@ export const conversationsByTeacherId = /* GraphQL */ `query ConversationsByTeac
       className
       lastMessageText
       lastMessageAt
+      parentLastReadAt
+      teacherLastReadAt
       createdAt
       updatedAt
       __typename
@@ -1576,6 +1586,8 @@ export const conversationsByStudentId = /* GraphQL */ `query ConversationsByStud
       className
       lastMessageText
       lastMessageAt
+      parentLastReadAt
+      teacherLastReadAt
       createdAt
       updatedAt
       __typename
@@ -1615,6 +1627,8 @@ export const conversationsByClassId = /* GraphQL */ `query ConversationsByClassI
       className
       lastMessageText
       lastMessageAt
+      parentLastReadAt
+      teacherLastReadAt
       createdAt
       updatedAt
       __typename

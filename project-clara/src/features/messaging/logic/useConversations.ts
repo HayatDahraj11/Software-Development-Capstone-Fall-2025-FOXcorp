@@ -9,8 +9,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Conversation,
+  client,
   fetchConversationsByParent,
   fetchConversationsByTeacher,
+  ON_UPDATE_CONVERSATION,
 } from "../api/messageRepo";
 
 interface UseConversationsReturn {
@@ -60,6 +62,38 @@ export function useConversations(
   useEffect(() => {
     loadConversations();
   }, [loadConversations]);
+
+  // live updates so unread dots clear without a manual refresh
+  useEffect(() => {
+    if (!userId) return;
+    let sub: any;
+    try {
+      sub = (client.graphql({
+        query: ON_UPDATE_CONVERSATION,
+        variables: {
+          filter:
+            role === "parent"
+              ? { parentId: { eq: userId } }
+              : { teacherId: { eq: userId } },
+        },
+      }) as any).subscribe({
+        next: ({ data }: any) => {
+          const updated: Conversation | undefined = data?.onUpdateConversation;
+          if (!updated || !isMounted.current) return;
+          setConversations((prev) =>
+            prev.map((c) => (c.id === updated.id ? { ...c, ...updated } : c))
+          );
+        },
+        error: (err: any) =>
+          console.warn("conversation update sub error:", err),
+      });
+    } catch (err) {
+      console.warn("failed to set up conversation sub:", err);
+    }
+    return () => {
+      sub?.unsubscribe?.();
+    };
+  }, [role, userId]);
 
   return { conversations, isLoading, error, loadConversations };
 }

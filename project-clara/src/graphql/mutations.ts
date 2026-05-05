@@ -1334,6 +1334,8 @@ export const createConversation = /* GraphQL */ `mutation CreateConversation(
     className
     lastMessageText
     lastMessageAt
+    parentLastReadAt
+    teacherLastReadAt
     messages {
       nextToken
       __typename
@@ -1364,6 +1366,8 @@ export const updateConversation = /* GraphQL */ `mutation UpdateConversation(
     className
     lastMessageText
     lastMessageAt
+    parentLastReadAt
+    teacherLastReadAt
     messages {
       nextToken
       __typename
@@ -1394,6 +1398,8 @@ export const deleteConversation = /* GraphQL */ `mutation DeleteConversation(
     className
     lastMessageText
     lastMessageAt
+    parentLastReadAt
+    teacherLastReadAt
     messages {
       nextToken
       __typename
@@ -1432,6 +1438,8 @@ export const createMessage = /* GraphQL */ `mutation CreateMessage(
       className
       lastMessageText
       lastMessageAt
+      parentLastReadAt
+      teacherLastReadAt
       createdAt
       updatedAt
       __typename
@@ -1469,6 +1477,8 @@ export const updateMessage = /* GraphQL */ `mutation UpdateMessage(
       className
       lastMessageText
       lastMessageAt
+      parentLastReadAt
+      teacherLastReadAt
       createdAt
       updatedAt
       __typename
@@ -1506,6 +1516,8 @@ export const deleteMessage = /* GraphQL */ `mutation DeleteMessage(
       className
       lastMessageText
       lastMessageAt
+      parentLastReadAt
+      teacherLastReadAt
       createdAt
       updatedAt
       __typename
